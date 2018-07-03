@@ -1,0 +1,242 @@
+import org.gradle.internal.os.OperatingSystem;
+import org.apache.tools.ant.filters.ReplaceTokens
+
+buildscript {      // Configuration for building
+
+  	repositories {
+    	mavenCentral()
+  	}
+
+}
+
+repositories {   // repositories for JARs you access in your code
+  	maven {
+    	url 'https://maven-central.storage.googleapis.com'             // Google's mirror of Maven Central
+  	}
+
+  	//jcenter()
+  	mavenCentral()
+}
+
+apply plugin: 'java'
+apply plugin: 'war'
+targetCompatibility = "1.8"
+sourceCompatibility = "1.8"
+group = 'com.producersmarket.blog'
+
+List compileList =  [
+
+      "org.apache.logging.log4j:log4j-core:2.8.2"
+    , "javax.servlet:javax.servlet-api:4.0.0"
+    , "commons-lang:commons-lang:2.6"
+    , "commons-net:commons-net:3.5"
+    , "org.json:json:20140107"
+    , "com.sun.mail:mailapi:1.5.6"
+    , "com.sun.mail:smtp:1.5.6"
+    , "mysql:mysql-connector-java:8.0.11"
+    , "org.eclipse.jetty:jetty-annotations:9.4.7.v20170914"
+    , "org.eclipse.jetty:jetty-server:9.4.7.v20170914"
+    , "org.eclipse.jetty:jetty-continuation:9.4.7.v20170914"
+    , "org.eclipse.jetty:jetty-http:9.4.7.v20170914"
+    , "org.eclipse.jetty:jetty-server:9.4.7.v20170914"
+    , "org.eclipse.jetty:jetty-servlets:9.4.7.v20170914"
+    , "org.eclipse.jetty:jetty-servlet:9.4.7.v20170914"
+    , "org.eclipse.jetty:jetty-webapp:9.4.7.v20170914"
+    , "org.eclipse.jetty:jetty-util:9.4.7.v20170914"
+    , "com.atlassian.commonmark:commonmark:0.10.0"
+    , "org.eclipse.jetty:apache-jsp:9.4.7.v20170914"
+    , "org.mortbay.jasper:apache-el:8.5.23"
+    , fileTree(dir: 'src/main/webapp/WEB-INF/lib', include: '*.jar')
+]
+
+dependencies {
+  compile compileList
+}
+
+task deleteProperties(type: Delete) {
+    println 'Executing '+project.name+'.deleteProperties(type: Delete)'
+
+    delete 'src/main/webapp/WEB-INF/init.properties'
+    followSymlinks = true
+}
+
+task copyView(type: Copy) {
+    println 'Executing copyView'
+
+    from('src/main/webapp/view') {
+        include '**'
+        exclude 'js/fontawesome/5.0.9/fontawesome-all.js'
+        exclude 'svg/*'
+        exclude '**/*.bak'
+    } 
+    into 'build/exploded/view'
+}
+
+task copyImages(type: Copy) {
+    println 'Executing copyImages'
+
+    from('src/main/webapp/images') {
+        include '**'
+        exclude '**/*.bak'
+    } 
+    into 'build/exploded/images'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+task copyJavascript(type: Copy) {
+    println 'Executing copyJavascript'
+
+    from('src/main/js') {
+        include '**/*.*'
+        exclude '**/*.bak'
+    }
+    into '../ispaces-javascript-server/src/main/webapp/view/js/classes'
+}
+
+task deployJavascript(type: Copy) {
+    println 'Executing copyJavascript'
+
+    from('src/main/js') {
+        include '**/*.*'
+        exclude '**/*.bak'
+    }
+    into '../ispaces-javascript-server/build/exploded-app/view/js/classes'
+}
+
+task dev(dependsOn: [deleteProperties, copyView, copyJavascript]) << {
+    println 'dev()'
+
+    def hostname = InetAddress.getLocalHost().getHostName()
+    println "hostname = ${hostname}"
+
+    def systemEnv = System.getenv()
+    def buildName = systemEnv["C9_HOSTNAME"]
+    println "buildName = "+buildName
+    if(buildName == null) buildName = systemEnv["USERDOMAIN"]
+    if(buildName == null) buildName = systemEnv["USERNAME"]
+    if(buildName == null) buildName = systemEnv["USER"]
+
+    def buildProperties = new Properties()
+    file("src/main/config/"+buildName+".properties").withInputStream {
+        stream -> buildProperties.load(stream)
+    }
+
+    println "buildName = ${buildName}"
+    println "server = "+buildProperties.getProperty("server")
+    println "gradle.sourceCompatibility = "+buildProperties.getProperty("gradle.sourceCompatibility")
+    println "gradle.targetCompatibility = "+buildProperties.getProperty("gradle.targetCompatibility")
+    println buildProperties.getProperty("protocol") +"://"+buildProperties.getProperty("server") +":"+buildProperties.getProperty("port")
+  
+    copy {
+        from 'src/main/config/init.properties'
+        into 'src/main/webapp/WEB-INF'
+        filter(
+            ReplaceTokens
+            , tokens: buildProperties
+        )
+    }
+
+}
+
+task stage(dependsOn: [deleteProperties, copyView, copyJavascript]) << {
+  println 'stage()'  
+  def buildProperties = new Properties()
+  file("src/main/config/stage.properties").withInputStream { buildProperties.load(it) }
+  
+  println buildProperties.getProperty("protocol") + "://" + buildProperties.getProperty("server") + ":" + buildProperties.getProperty("port")
+
+  def server = buildProperties.getProperty("server")
+  println "server = " + server
+  
+  copy {
+    from 'src/main/config/init.properties'
+    into 'src/main/webapp/WEB-INF'
+    filter(
+      ReplaceTokens
+      , tokens: buildProperties
+    )
+  }
+
+}
+
+task prod(dependsOn: [deleteProperties, copyView, copyJavascript]) << {
+  println 'prod()'  
+  def buildProperties = new Properties()
+  file("src/main/config/prod.properties").withInputStream { buildProperties.load(it) }
+  
+  println buildProperties.getProperty("protocol") + "://" + buildProperties.getProperty("server") + ":" + buildProperties.getProperty("port")
+
+  def server = buildProperties.getProperty("server")
+  println "server = " + server
+  
+  copy {
+    from 'src/main/config/init.properties'
+    into 'src/main/webapp/WEB-INF'
+    filter(
+      ReplaceTokens
+      , tokens: buildProperties
+    )
+  }
+
+}
+
+task reloadApp(type: Copy) {
+  dependsOn war
+
+  println 'project.tasks = ' + project.tasks
+  //println 'project.tasks.explodeWar = ' + project.tasks.explodeWar
+  //println 'project.tasks.explodeWar.explodedAppDirectory = ' + project.tasks.explodeWar.explodedAppDirectory
+
+  //project.afterEvaluate {
+  //  into project.tasks.explodeWar.explodedAppDirectory
+  //  with war
+  //}
+}
+
+task deploy(dependsOn: [clean, build]) << {
+
+  println 'deploy()'  
+
+}
+
+task showArgs << {
+    println "$word1 $word2"
+}
+
+task buildName << {
+
+  println "$buildName"
+
+  def buildProperties = new Properties()
+
+  //file("src/main/config/prod.properties").withInputStream { buildProperties.load(it) }
+  //file("src/main/config/"+buildName+".properties").withInputStream {
+  file("src/main/config/"+buildName+".properties").withInputStream {
+    stream -> buildProperties.load(stream)
+  }
+  
+  println buildProperties.getProperty("protocol") + "://" + buildProperties.getProperty("server") + ":" + buildProperties.getProperty("port")
+
+  def server = buildProperties.getProperty("server")
+  println "server = " + server
+  
+  copy {
+    from 'src/main/config/init.properties'
+    into 'src/main/webapp/WEB-INF'
+    filter(
+      ReplaceTokens
+      , tokens: buildProperties
+    )
+  }
+}
+
+
+/*
+ * https://discuss.gradle.org/t/how-to-automatically-create-exploded-war-without-invoking-a-seperate-task/4479
+ */
+task explodedWar(type: Copy) {
+    into "$buildDir/exploded"
+    with war
+}
+
+war.dependsOn explodedWar
