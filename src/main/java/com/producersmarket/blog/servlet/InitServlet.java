@@ -21,11 +21,11 @@ import com.producersmarket.model.Product;
 
 @WebServlet(
     name = "InitServlet"
-    //, urlPatterns = { "/hello" }
+    , urlPatterns = { "/InitServlet" }
     , loadOnStartup = 1
-    , initParams = {
-        @WebInitParam(name = "init.properties", value = "WEB-INF/conf/init.properties" )
-    }
+    //, initParams = {
+    //    @WebInitParam(name = "init.properties", value = "WEB-INF/conf/init.properties" )
+    //}
 )
 public class InitServlet extends HttpServlet {
 
@@ -69,6 +69,10 @@ public class InitServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         logger.debug("init("+config+")");
         javaLogger.info("init("+config+")");
+
+
+        logger.info("InitServlet.class.getName() = "+InitServlet.class.getName());
+        logger.info("getClass().getName() = "+getClass().getName());
 
         servletContext = config.getServletContext();
         logger.debug("servletContext = "+servletContext);

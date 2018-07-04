@@ -25,7 +25,7 @@ import com.producersmarket.blog.database.BlogPostDatabaseManager;
 import com.producersmarket.blog.markdown.BlogImageNodeRenderer;
 import com.producersmarket.blog.model.BlogPost;
 import com.producersmarket.model.User;
-import com.producersmarket.servlet.ParentServlet;
+//import com.producersmarket.blog.servlet.ParentServlet;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -40,7 +40,7 @@ import org.commonmark.renderer.html.HtmlRenderer;
     , urlPatterns = { 
           "/blog"
         , "/blog/*"
-        //, "" // The Root 
+        , "" // The Root 
     }
 )
 public class BlogServlet extends ParentServlet {

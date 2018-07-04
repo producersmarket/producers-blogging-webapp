@@ -17,14 +17,14 @@ import com.producersmarket.blog.markdown.LinkNodeRenderer;
 import com.producersmarket.blog.markdown.SidebarNodeRenderer;
 import com.producersmarket.blog.model.BlogPost;
 import com.producersmarket.model.User;
-import com.producersmarket.database.UserDatabaseManager;
+//import com.producersmarket.database.UserDatabaseManager;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 
 
-//public class BlogPostDatabaseManager {
-public class BlogPostDatabaseManager extends UserDatabaseManager {
+public class BlogPostDatabaseManager {
+//public class BlogPostDatabaseManager extends UserDatabaseManager {
 
     private static final Logger logger = LogManager.getLogger();
     private static final String className = BlogPostDatabaseManager.class.getSimpleName();
@@ -891,7 +891,7 @@ public class BlogPostDatabaseManager extends UserDatabaseManager {
 
             String sql = new StringBuilder()
                 .append("SELECT ")
-                .append("u.id, u.name, u.business_name, u.hyphenated_name, u.ig_username, u.location, u.theme_color, bpha.show_author")
+                .append("u.id, u.name, u.business_name, u.hyphenated_name, u.instagram_handle, u.location, u.theme_color, bpha.show_author")
                 .append(" FROM user u, blog_post_has_author bpha")
                 .append(" WHERE blog_post_id = ?")
                 .append(" AND u.id = bpha.user_id")
@@ -942,5 +942,20 @@ public class BlogPostDatabaseManager extends UserDatabaseManager {
 
         //return null;
     }
+
+    public static void populateUser(User user, ResultSet resultSet) throws SQLException, Exception {
+
+        user.setId                 (resultSet.getInt   (1));
+        user.setName               (resultSet.getString(2));
+        user.setBusinessName       (resultSet.getString(3));
+        user.setHyphenatedName     (resultSet.getString(4));
+        user.setInstagramUsername  (resultSet.getString(5));
+        user.setLocation           (resultSet.getString(6));
+        user.setThemeColor         (resultSet.getString(7));
+        //user.setBackgroundImage    (resultSet.getString(21));
+        //user.setLogoImage          (resultSet.getString(22));
+        //user.setPromoVideo         (resultSet.getString(23));
+    }
+
 
 }

@@ -25,7 +25,7 @@ import javax.servlet.ServletException;
 //import com.producersmarket.markdown.NewsletterImageNodeRenderer;
 //import com.producersmarket.model.Newsletter;
 import com.producersmarket.model.User;
-import com.producersmarket.servlet.ParentServlet;
+import com.producersmarket.blog.servlet.ParentServlet;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
