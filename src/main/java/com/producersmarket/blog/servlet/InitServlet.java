@@ -70,7 +70,6 @@ public class InitServlet extends HttpServlet {
         logger.debug("init("+config+")");
         javaLogger.info("init("+config+")");
 
-
         logger.info("InitServlet.class.getName() = "+InitServlet.class.getName());
         logger.info("getClass().getName() = "+getClass().getName());
 

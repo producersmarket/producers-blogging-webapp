@@ -35,21 +35,17 @@ import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 
 @WebServlet(
-    name = "BlogServlet"
+    name = "BlogPostServlet"
     , asyncSupported=true
-    /*
     , urlPatterns = { 
-          "/blog"
-        , "/blog/*"
-        , "" // The Root 
+          "/post"
+        , "/post/*"
     }
-    */
-    , urlPatterns = { "" }
 )
-public class BlogServlet extends ParentServlet {
+public class BlogPostServlet extends ParentServlet {
 
     private static final Logger logger = LogManager.getLogger();
-    private static final java.util.logging.Logger javaLogger = java.util.logging.Logger.getLogger(BlogServlet.class.getName());
+    private static final java.util.logging.Logger javaLogger = java.util.logging.Logger.getLogger(BlogPostServlet.class.getName());
     
     private static final String ZERO = "0";
     private static final String FORWARD_SLASH = "/";
