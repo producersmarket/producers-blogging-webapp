@@ -1,6 +1,6 @@
-# Open Source Java Weblogging Web Application
+# Producers Weblogging Web Application
 
-A weblogging system written in Java, Java Servlets and JSP.
+An open source weblogging web application written in Java, Java Servlets and JSP.
 
 ## GitHub access
 
