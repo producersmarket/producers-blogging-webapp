@@ -8,7 +8,7 @@ import java.util.Map;
 import com.producersmarket.model.User;
 
 /**
- * Getters and Setters got a blog post.
+ * Getters and Setters for a blog post.
  *
  * @author dermot
  * @version 0.1 2017/09/04
