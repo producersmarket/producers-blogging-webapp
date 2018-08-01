@@ -240,3 +240,5 @@ task explodedWar(type: Copy) {
 }
 
 war.dependsOn explodedWar
+
+jar.baseName = project.name +'-'+ artifactMajorVersion +'.'+ artifactBuildNumber

@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A servlet to handle blog requests.
+ * Getters and Setters for a blog
+ * 
  * @author dermot
  * @version 0.1 2017/09/04
  */

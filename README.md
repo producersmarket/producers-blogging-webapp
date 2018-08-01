@@ -4,7 +4,7 @@ An open source weblogging web application written in Java, Java Servlets and JSP
 
 ## GitHub access
 
-Make sure you are using the GIT Bash on Windows
+If you are on Windows, make sure you are using the GIT Bash console not the CMD prompt.
 
 ### Configure the user email address
 git config --global user.email "INSERT GITHUB EMAIL ADDRESS HERE"

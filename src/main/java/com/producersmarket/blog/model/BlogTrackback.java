@@ -11,7 +11,7 @@ public class BlogTrackback {
     private long trackbackDateLong;
 
     /**
-     * Default constructor
+     * Default constructor, since we added another
      */
     public BlogTrackback() {
     }
@@ -19,16 +19,16 @@ public class BlogTrackback {
     /**
      * Trackback constructor to take a title, excerpt, url, and blog name
      *
-     * @param title Title of the trackback
-     * @param excerpt Excerpt from the trackback
-     * @param url Url for the trackback
-     * @param blogName Blog name of the trackback
+     * @param title
+     * @param excerpt
+     * @param url
+     * @param blogName
      */
     public BlogTrackback(String title, String excerpt, String url, String blogName) {
-        title = title;
-        excerpt = excerpt;
-        url = url;
-        blogName = blogName;
+        this.title = title;
+        this.excerpt = excerpt;
+        this.url = url;
+        this.blogName = blogName;
     }
 
     /**
@@ -37,7 +37,7 @@ public class BlogTrackback {
      * @return Trackback title
      */
     public String getTitle() {
-        return title;
+        return this.title;
     }
 
     /**
@@ -46,7 +46,7 @@ public class BlogTrackback {
      * @param title Trackback title
      */
     public void setTitle(String title) {
-        title = title;
+        this.title = title;
     }
 
     /**
@@ -55,7 +55,7 @@ public class BlogTrackback {
      * @return Trackback excerpt
      */
     public String getExcerpt() {
-        return excerpt;
+        return this.excerpt;
     }
 
     /**
@@ -64,7 +64,7 @@ public class BlogTrackback {
      * @param excerpt Trackback excerpt
      */
     public void setExcerpt(String excerpt) {
-        excerpt = excerpt;
+        this.excerpt = excerpt;
     }
 
     /**
@@ -73,7 +73,7 @@ public class BlogTrackback {
      * @return Trackback url
      */
     public String getUrl() {
-        return url;
+        return this.url;
     }
 
     /**
@@ -82,7 +82,7 @@ public class BlogTrackback {
      * @param url Trackback url
      */
     public void setUrl(String url) {
-        url = url;
+        this.url = url;
     }
 
     /**
@@ -91,7 +91,7 @@ public class BlogTrackback {
      * @return Trackback blog name
      */
     public String getBlogName() {
-        return blogName;
+        return this.blogName;
     }
 
     /**
@@ -100,7 +100,7 @@ public class BlogTrackback {
      * @param blogName Trackback blog name
      */
     public void setBlogName(String blogName) {
-        blogName = blogName;
+        this.blogName = blogName;
     }
 
     /**
@@ -109,7 +109,7 @@ public class BlogTrackback {
      * @param trackbackDateLong Trackback date as a <code>long</code> value
      */
     public void setTrackbackDateLong(long trackbackDateLong) {
-        trackbackDateLong = trackbackDateLong;
+        this.trackbackDateLong = trackbackDateLong;
     }
 
     /**
@@ -118,7 +118,7 @@ public class BlogTrackback {
      * @return Date of the trackback as a <code>long</code>
      */
     public long getTrackbackDateLong() {
-        return trackbackDateLong;
+        return this.trackbackDateLong;
     }
 
     /**

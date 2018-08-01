@@ -39,9 +39,8 @@ import org.commonmark.renderer.html.HtmlRenderer;
     name = "BlogCategoryServlet"
     , asyncSupported=true
     , urlPatterns = { 
-          "/blog/category"
-        , "/blog/category/*"
-        //, "" // The Root 
+          "/category"
+        , "/category/*"
     }
 )
 public class BlogCategoryServlet extends ParentServlet {
