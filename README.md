@@ -17,3 +17,8 @@ eval $(ssh-agent -s)
 
 ### Add the SSH key to the running agent.
 ssh-add ~/.ssh/id_rsa
+
+
+## Release Notes
+
+# 0.0.1.1 - Removed servlet annotations
