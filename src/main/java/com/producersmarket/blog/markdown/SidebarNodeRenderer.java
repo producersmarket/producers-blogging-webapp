@@ -29,6 +29,9 @@ import java.util.Set;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.commonmark.node.Node;
+import org.commonmark.node.Image;
+import org.commonmark.node.Link;
+import org.commonmark.node.Text;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 
@@ -83,7 +86,7 @@ public class SidebarNodeRenderer implements org.commonmark.renderer.NodeRenderer
         logger.debug("node instanceof org.commonmark.node.Image = "+(node instanceof org.commonmark.node.Image));
         logger.debug("node instanceof org.commonmark.node.Link = "+(node instanceof org.commonmark.node.Link));
 
-        if(node instanceof org.commonmark.node.Link) {
+        if(node instanceof Link) {
 
             // We only handle one type as per getNodeTypes, so we can just cast it here.
             org.commonmark.node.Link linkNode = (org.commonmark.node.Link)node;
@@ -97,25 +100,25 @@ public class SidebarNodeRenderer implements org.commonmark.renderer.NodeRenderer
             logger.debug("firstChildNode instanceof org.commonmark.node.Image = "+(firstChildNode instanceof org.commonmark.node.Image));
             logger.debug("firstChildNode instanceof org.commonmark.node.Text = "+(firstChildNode instanceof org.commonmark.node.Text));
 
-            if(firstChildNode instanceof org.commonmark.node.Image) {
+            if(firstChildNode instanceof Image) {
 
-            } else if(firstChildNode instanceof org.commonmark.node.Text) {
+            } else if(firstChildNode instanceof Text) {
 
                 String literal = ((org.commonmark.node.Text)firstChildNode).getLiteral();
                 //logger.debug("literal = "+literal);
 
                 //this.html.tag("figure");
                 if(literal != null) this.htmlWriter.text(literal);
-        
+
             }
 
         } else if(node instanceof org.commonmark.node.Image) {
 
             // Don't render images in sidebar blog posts
-        
+
         }
 
 
     }
-    
+
 }

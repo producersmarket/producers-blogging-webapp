@@ -34,18 +34,13 @@ import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 
+/*
 @WebServlet(
     name = "BlogServlet"
     , asyncSupported=true
-    /*
-    , urlPatterns = { 
-          "/blog"
-        , "/blog/*"
-        , "" // The Root 
-    }
-    */
     , urlPatterns = { "" }
 )
+*/
 public class BlogServlet extends ParentServlet {
 
     private static final Logger logger = LogManager.getLogger();

@@ -36,6 +36,7 @@ import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 */
 
+/*
 @WebServlet(
     name = "NewsletterServlet"
     , asyncSupported=true
@@ -45,6 +46,7 @@ import org.commonmark.renderer.html.HtmlRenderer;
         //, "" // The Root 
     }
 )
+*/
 public class NewsletterServlet extends ParentServlet {
 
     private static final Logger logger = LogManager.getLogger();

@@ -35,6 +35,7 @@ import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 
+/*
 @WebServlet(
     name = "BlogCategoryServlet"
     , asyncSupported=true
@@ -43,6 +44,7 @@ import org.commonmark.renderer.html.HtmlRenderer;
         , "/category/*"
     }
 )
+*/
 public class BlogCategoryServlet extends ParentServlet {
 
     private static final Logger logger = LogManager.getLogger();
