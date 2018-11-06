@@ -21,4 +21,5 @@ ssh-add ~/.ssh/id_rsa
 
 ## Release Notes
 
-# 0.0.1.1 - Removed servlet annotations
+# 0.0.1.1 - Removed servlet annotations
+# 0.0.1.2 - Added loging authentication
