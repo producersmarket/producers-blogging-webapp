@@ -70,33 +70,41 @@ public class ResetPasswordServlet extends ParentServlet {
 
             if(user != null) {
 
+                logger.debug("user.getId() = "+user.getId());
+                logger.debug("user.getEmail() = "+user.getEmail());
+
                 //if(user.getEmail() == null) throw new Exception("No email addresses on file.");
 
                 try {
 
-                    //ServletContext servletContext = getServletContext();
-                    ServletContext servletContext = getServletContext().getContext("/");
+                    ServletContext servletContext = getServletContext();
                     logger.debug("servletContext = "+servletContext);
+                    ServletContext rootServletContext = servletContext.getContext("/");
+                    logger.debug("rootServletContext = "+rootServletContext);
 
-                    String smtpServer = (String)servletContext.getAttribute("smtpServer");
-                    String smtpPort = (String)servletContext.getAttribute("smtpPort");
-                    String smtpUser = (String)servletContext.getAttribute("smtpUser");
-                    String smtpPass = (String)servletContext.getAttribute("smtpPass");
-                    String emailAddressSupport = (String)servletContext.getAttribute("emailAddressSupport");
-                    String producersRequestEmailTo = (String)servletContext.getAttribute("producersRequestEmailTo");
-                    String producersRequestEmailFrom = (String)servletContext.getAttribute("producersRequestEmailFrom");
+                    String smtpServer = (String)rootServletContext.getAttribute("smtpServer");
+                    String smtpPort = (String)rootServletContext.getAttribute("smtpPort");
+                    String smtpUser = (String)rootServletContext.getAttribute("smtpUser");
+                    String smtpPass = (String)rootServletContext.getAttribute("smtpPass");
+                    String emailAddressSupport = (String)rootServletContext.getAttribute("emailAddressSupport");
+                    //String resetPasswordEmailTo = (String)rootServletContext.getAttribute("resetPasswordEmailTo");
+                    String contextUrl = (String)servletContext.getAttribute("contextUrl");
+                    String resetPasswordEmailFrom = (String)servletContext.getAttribute("resetPasswordEmailFrom");
                         
+                    logger.debug("resetPasswordEmailFrom = "+resetPasswordEmailFrom);
+                    logger.debug("contextUrl = "+contextUrl);
+
                     Properties properties = new Properties();
 
                     properties.put("smtpServer", smtpServer);
                     properties.put("smtpPort", smtpPort);
                     properties.put("smtpUser", smtpUser);
                     properties.put("smtpPass", smtpPass);
-                    properties.put("emailAddressSupport", emailAddressSupport);
-                    properties.put("producersRequestEmailTo", producersRequestEmailTo);
-                    properties.put("producersRequestEmailFrom", producersRequestEmailFrom);
+                    //properties.put("emailAddressSupport", emailAddressSupport);
+                    properties.put("emailTo", email);
+                    properties.put("emailFrom", resetPasswordEmailFrom);
 
-                    logger.debug("properties = "+properties);
+                    //logger.debug("properties = "+properties);
 
                     //ResetPasswordMailer.send(user, true);
                     ResetPasswordMailer.send(properties, true);
@@ -115,12 +123,14 @@ public class ResetPasswordServlet extends ParentServlet {
             }
 
         } catch(java.sql.SQLException e) {
-            e.printStackTrace();
+
             StringWriter stringWriter = new StringWriter();
             PrintWriter printWriter = new PrintWriter(stringWriter);
             e.printStackTrace(printWriter);
             logger.error(stringWriter.toString());
+
         } catch(Exception exception) {
+
             StringWriter stringWriter = new StringWriter();
             PrintWriter printWriter = new PrintWriter(stringWriter);
             exception.printStackTrace(printWriter);
