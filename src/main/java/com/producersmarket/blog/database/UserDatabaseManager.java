@@ -22,10 +22,62 @@ public class UserDatabaseManager {
     private static final Logger logger = LogManager.getLogger();
     private static final String className = UserDatabaseManager.class.getSimpleName();
 
+    private static final String selectUserByPasswordResetCode = "selectUserByPasswordResetCode";
+    private static final String UPDATE_PASSWORD_HASH = "updatePasswordHash";
+
     private static String sqlSelectUserFields = new StringBuilder()
         .append("u.id, u.name, u.business_name, u.hyphenated_name, u.location, u.theme_color")
         .append(", uhi.background_image, uhi.logo_image, uhi.promo_video")
         .toString();
+
+    public static void updatePassword(int userId, String password) throws SQLException, Exception {
+        logger.debug("updatePassword("+userId+", '"+password+"')");
+
+        ConnectionManager connMgr = new ConnectionManager(className, UPDATE_PASSWORD_HASH);
+
+        try {
+
+            PreparedStatement stmt = connMgr.loadStatement(UPDATE_PASSWORD_HASH);
+            stmt.setString(1, password);
+            stmt.setInt(2, userId);
+            stmt.executeUpdate();
+
+        } finally {
+            connMgr.commit();
+        }
+
+    }
+
+
+    public static User selectUserByPasswordResetCode(String code) throws SQLException, Exception {
+        logger.debug("selectUserByPasswordResetCode("+code+")");
+
+        ConnectionManager connMgr = new ConnectionManager(className, selectUserByPasswordResetCode);
+
+        try {
+
+            PreparedStatement stmt = connMgr.loadStatement(selectUserByPasswordResetCode);
+            stmt.setString(1, code);
+
+            ResultSet resultSet = stmt.executeQuery();
+
+            if(resultSet.next()) {
+
+                User user = new User();
+                //populateUser(user, resultSet);
+                user.setId(resultSet.getInt(1));
+                user.setName(resultSet.getString(2));
+                user.setEmail(resultSet.getString(3));
+
+                return user;
+            }
+
+        } finally {
+            connMgr.commit();
+        }
+
+        return null;
+    }
 
     public static User selectUserByEmail(String email) throws SQLException, Exception {
         logger.debug("selectUserByEmail("+email+")");

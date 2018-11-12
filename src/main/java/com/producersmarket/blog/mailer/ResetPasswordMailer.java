@@ -130,7 +130,7 @@ public class ResetPasswordMailer implements Runnable {
 
             String resetLink = new StringBuilder()
               .append(this.contextUrl)
-              .append("/activate/")
+              .append("/password-reset/")
               .append(this.activationCode)
               .toString()
             ;

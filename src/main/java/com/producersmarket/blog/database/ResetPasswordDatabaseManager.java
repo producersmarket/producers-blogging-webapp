@@ -46,14 +46,15 @@ public class ResetPasswordDatabaseManager {
 
     }
 
-    public static void deleteActivationCode(int userId, String code) throws SQLException, Exception {
-        logger.debug("deleteActivationCode(userId:"+userId+", '"+code+"')");
+    //public static void deleteActivationCode(int userId, String code) throws SQLException, Exception {
+    public static void deleteActivationCode(int userId) throws SQLException, Exception {
+        logger.debug("deleteActivationCode("+userId+")");
 
         ConnectionManager connectionManager = new ConnectionManager(className, deleteActivationCode);
 
         try {
 
-            String sql = "UPDATE user SET activation_code=? WHERE id=?";
+            String sql = "UPDATE user SET activation_code = ? WHERE id = ?";
             PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
             preparedStatement.setString(1, null);
             preparedStatement.setInt(2, userId);

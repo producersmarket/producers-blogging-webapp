@@ -103,6 +103,7 @@ public class ResetPasswordServlet extends ParentServlet {
                     //properties.put("emailAddressSupport", emailAddressSupport);
                     properties.put("emailTo", email);
                     properties.put("emailFrom", resetPasswordEmailFrom);
+                    properties.put("contextUrl", contextUrl);
 
                     //logger.debug("properties = "+properties);
 
