@@ -149,6 +149,10 @@ public class InitServlet extends HttpServlet {
                 properties.setProperty("instagramClientId", instagramClientId);
                 servletContext.setAttribute("instagramClientId", instagramClientId);
 
+                String resetPasswordEmailFrom    = properties.getProperty("reset-password.email.from");
+                logger.debug("resetPasswordEmailFrom = "+resetPasswordEmailFrom);
+                servletContext.setAttribute("resetPasswordEmailFrom", resetPasswordEmailFrom);
+
                 /*
                  * Database Connection Pool
                  * JDBC Properties

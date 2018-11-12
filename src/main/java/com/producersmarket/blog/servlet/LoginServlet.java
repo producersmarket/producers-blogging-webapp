@@ -50,7 +50,7 @@ public class LoginServlet extends ParentServlet {
         logger.debug("doPost(request, response)");
 
         String email = request.getParameter("username");
-        String password = request.getParameter("password");
+        String password = request.getParameter("hash");
             
         logger.debug("email = "+email);
         logger.debug("password = "+password);
@@ -148,7 +148,7 @@ public class LoginServlet extends ParentServlet {
     }
 
     /*
-    public String doubleQuotes(String string) {
+        public String doubleQuotes(String string) {
         return new StringBuilder().append("\"").append(string).append("\"").toString();
     }
     */
