@@ -503,6 +503,109 @@ public class BlogPostDatabaseManager {
     }
     */
 
+    public static List<BlogPost> selectBlogPostsByUserId(int userId) throws SQLException, Exception {
+        logger.debug("selectBlogPostsByUserId("+userId+")");
+
+        ConnectionManager connectionManager = new ConnectionManager(className);
+
+        try {
+
+            String sqlFields = "bp.id, hyphenated_name, title, subtitle, meta_description, body, date_published, datetime_published, enabled, priority";
+
+            String sql = new StringBuilder()
+                .append("SELECT ").append(sqlFields)
+                .append(" FROM blog_post bp, blog_post_has_author bpha")
+                .append(" WHERE user_id = ?")
+                .append(" AND bp.id = bpha.blog_post_id")
+                .toString();
+
+            logger.debug(sql);
+
+            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            preparedStatement.setInt(1, userId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if(resultSet.next()) {
+
+                List<BlogPost> blogPostList = new ArrayList<BlogPost>();
+                BlogPost blogPost = null;
+
+                do {
+
+                    blogPost = new BlogPost();
+
+                    //populateBlogPost(relatedBlogPost, resultSet);
+                    blogPost.setId               (resultSet.getInt(1));
+                    blogPost.setHyphenatedName   (resultSet.getString(2));
+                    blogPost.setTitle            (resultSet.getString(3));
+                    blogPost.setSubtitle         (resultSet.getString(4));
+                    blogPost.setMetaDescription  (resultSet.getString(5));
+                    //blogPost.setBody             (resultSet.getString(6));
+                    String body = resultSet.getString(6);
+                    blogPost.setDatePublished    (resultSet.getDate(7));
+                    blogPost.setDatetimePublished(resultSet.getDate(8));
+                    blogPost.setIsDisabled       (!resultSet.getBoolean(9));
+                    blogPost.setPriority         (resultSet.getInt(10));
+                    //logger.debug("resultSet.getString(11) = "+resultSet.getString(11));
+                    //blogPost.setImagePath        (resultSet.getString(11));
+
+                    selectBlogPostAuthors(blogPost, connectionManager);
+
+                    BlogCategoryDatabaseManager.selectBlogPostCategories(blogPost, connectionManager);
+
+                    //selectRelatedBlogPosts(blogPost, connectionManager);
+
+                    Parser parser = Parser.builder().build();
+                    Node document = parser.parse(body);
+                    //HtmlRenderer renderer = HtmlRenderer.builder().build();
+                    HtmlRenderer renderer = HtmlRenderer.builder()
+
+                        /*
+                        .nodeRendererFactory(
+                            new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
+                                public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
+                                    return new BlogImageNodeRenderer(htmlNodeRendererContext);
+                                }
+                            }
+                        )
+                        */
+
+                        .nodeRendererFactory(
+                            new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
+                                public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
+                                    return new SidebarNodeRenderer(htmlNodeRendererContext);
+                                }
+                            }
+                        )
+
+                    .build();
+
+                    String bodyHtml = renderer.render(document);
+
+                    blogPost.setBody(bodyHtml);
+
+                    blogPostList.add(blogPost);
+
+                } while(resultSet.next());
+
+                if(blogPostList != null) logger.debug("blogPostList.size() = "+blogPostList.size());
+
+                return blogPostList;
+
+            } // if(resultSet.next()) {
+
+        } catch(Exception e) {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            e.printStackTrace(printWriter);
+            logger.error(stringWriter.toString());
+        } finally {
+            connectionManager.commit();
+        }
+
+        return null;
+    }
+
     public static List<BlogPost> selectBlogPosts() throws SQLException, Exception {
         logger.debug("selectBlogPosts()");
 

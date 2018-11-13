@@ -46,7 +46,7 @@ public class SidebarNodeRenderer implements org.commonmark.renderer.NodeRenderer
     private final org.commonmark.renderer.html.HtmlWriter htmlWriter;
 
     public SidebarNodeRenderer(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-        logger.debug("("+htmlNodeRendererContext+")");
+        //logger.debug("("+htmlNodeRendererContext+")");
 
         this.htmlWriter = htmlNodeRendererContext.getWriter();
     }
@@ -56,7 +56,7 @@ public class SidebarNodeRenderer implements org.commonmark.renderer.NodeRenderer
      */
     @Override
     public Set<Class<? extends Node>> getNodeTypes() {
-        logger.debug("getNodeTypes()");
+        //logger.debug("getNodeTypes()");
 
         // Return the node types we want to use this renderer for.
         //return Collections.<Class<? extends Node>>singleton(org.commonmark.node.Image.class);
@@ -81,24 +81,24 @@ public class SidebarNodeRenderer implements org.commonmark.renderer.NodeRenderer
 
     @Override
     public void render(Node node) {
-        logger.debug("render("+node+")");
+        //logger.debug("render("+node+")");
 
-        logger.debug("node instanceof org.commonmark.node.Image = "+(node instanceof org.commonmark.node.Image));
-        logger.debug("node instanceof org.commonmark.node.Link = "+(node instanceof org.commonmark.node.Link));
+        //logger.debug("node instanceof org.commonmark.node.Image = "+(node instanceof org.commonmark.node.Image));
+        //logger.debug("node instanceof org.commonmark.node.Link = "+(node instanceof org.commonmark.node.Link));
 
         if(node instanceof Link) {
 
             // We only handle one type as per getNodeTypes, so we can just cast it here.
             org.commonmark.node.Link linkNode = (org.commonmark.node.Link)node;
 
-            logger.debug("linkNode.Destination() = "+linkNode.getDestination());
-            logger.debug("linkNode.getTitle() = "+linkNode.getTitle());
-            logger.debug("linkNode.getFirstChild() = "+linkNode.getFirstChild());
+            //logger.debug("linkNode.Destination() = "+linkNode.getDestination());
+            //logger.debug("linkNode.getTitle() = "+linkNode.getTitle());
+            //logger.debug("linkNode.getFirstChild() = "+linkNode.getFirstChild());
 
             org.commonmark.node.Node firstChildNode = node.getFirstChild(); // Blog link may be Image or Text
 
-            logger.debug("firstChildNode instanceof org.commonmark.node.Image = "+(firstChildNode instanceof org.commonmark.node.Image));
-            logger.debug("firstChildNode instanceof org.commonmark.node.Text = "+(firstChildNode instanceof org.commonmark.node.Text));
+            //logger.debug("firstChildNode instanceof org.commonmark.node.Image = "+(firstChildNode instanceof org.commonmark.node.Image));
+            //logger.debug("firstChildNode instanceof org.commonmark.node.Text = "+(firstChildNode instanceof org.commonmark.node.Text));
 
             if(firstChildNode instanceof Image) {
 

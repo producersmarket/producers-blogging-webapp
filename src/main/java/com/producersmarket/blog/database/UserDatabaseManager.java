@@ -15,7 +15,8 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import com.ispaces.database.connection.ConnectionManager;
 //import com.producersmarket.model.BlogPost;
-import com.producersmarket.model.User;
+//import com.producersmarket.model.User;
+import com.producersmarket.blog.model.User;
 
 public class UserDatabaseManager {
 

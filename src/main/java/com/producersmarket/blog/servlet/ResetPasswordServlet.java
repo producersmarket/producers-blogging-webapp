@@ -70,6 +70,7 @@ public class ResetPasswordServlet extends ParentServlet {
 
             if(user != null) {
 
+                logger.debug("user = "+user);
                 logger.debug("user.getId() = "+user.getId());
                 logger.debug("user.getEmail() = "+user.getEmail());
 

@@ -49,6 +49,8 @@ public class PasswordResetServlet extends ParentServlet {
 
             if(user != null) {
 
+                logger.debug("user = "+user);
+
                 if(user.getEmail() == null) throw new Exception("No email address on file.");
 
                 request.setAttribute("code", code);

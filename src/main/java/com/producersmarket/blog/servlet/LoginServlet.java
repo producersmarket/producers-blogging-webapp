@@ -3,6 +3,7 @@ package com.producersmarket.blog.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,7 +14,12 @@ import javax.servlet.ServletException;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
+import com.producersmarket.blog.database.BlogPostDatabaseManager;
 import com.producersmarket.blog.database.LoginDatabaseManager;
+import com.producersmarket.blog.database.UserDatabaseManager;
+import com.producersmarket.blog.model.BlogPost;
+import com.producersmarket.blog.model.User;
+//import com.producersmarket.model.User;
 
 public class LoginServlet extends ParentServlet {
 
@@ -74,18 +80,27 @@ public class LoginServlet extends ParentServlet {
                 HttpSession httpSession = request.getSession(true); // create the session
                 logger.debug("httpSession.getId() = "+httpSession.getId());
 
-                /*
-                User user = UserManager.selectUserByEmail(email);
+                User user = UserDatabaseManager.selectUserByEmail(email);
                 logger.debug("user = "+user);
 
                 if(user != null) {
 
                     logger.debug("user.getId() = "+user.getId());
 
+                    httpSession.setAttribute("userId", user.getId());
+
+                    List<BlogPost> blogPostList = BlogPostDatabaseManager.selectBlogPostsByUserId(user.getId());
+                    if(blogPostList != null) {
+                        logger.debug("blogPostList.size() = "+blogPostList.size());
+                        request.setAttribute("blogPostList", blogPostList);
+                        user.setBlogPostList(blogPostList);
+                        request.setAttribute("user", user);
+                    }
+
+                    /*
                     UserManager.updateUserLoggedIn(user.getId(), httpSession.getId());
 
                     // Request attributes
-                    request.setAttribute("user", user);
                     //request.setAttribute("userId", user.getId());
                     //request.setAttribute("userName", firstName + SPACE + lastName);
                     //request.setAttribute("userName", name);
@@ -98,7 +113,6 @@ public class LoginServlet extends ParentServlet {
 
                     // Session attributes
                     //session.setAttribute("user", user);
-                    httpSession.setAttribute("userId", user.getId());
                     //session.setAttribute("googleId", googleIdString);
                     //session.setAttribute("googleId", id);
                     //session.setAttribute("humanApiAccessToken", humanApiAccessToken);
@@ -106,23 +120,22 @@ public class LoginServlet extends ParentServlet {
                     //session.setAttribute("googleAccessToken", accessToken);
 
                     ////includeUtf8(request, response, "/view/landing.jsp");
-                    //String backendUrl = (String)getServletContext().getAttribute("backendUrl");
                     //logger.debug("backendUrl = "+backendUrl);
                     //response.sendRedirect(backendUrl + "/store");
+                    */
 
-                    includeUtf8(request, response, "/land.jsp");
+                    includeUtf8(request, response, "/view/user.jsp");
 
                     return;
                     
                 } // if(user != null) {
-                */
 
                 //includeUtf8(request, response, "/land.jsp");
                 include(request, response, "/view/blog-list.jsp");
 
             } else { // if(passwordHash != null
 
-                request.setAttribute("errorMessage", "User Not Found");
+                request.setAttribute("errorMessage", "Incorrect password");
                 includeUtf8(request, response, "/view/login.jsp");
                 return;
 

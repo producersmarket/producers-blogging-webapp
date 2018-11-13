@@ -44,10 +44,9 @@ import org.commonmark.renderer.html.HtmlRenderer;
     }
 )
 */
-public class BlogPostServlet extends ParentServlet {
+public class EditPostServlet extends ParentServlet {
 
     private static final Logger logger = LogManager.getLogger();
-    private static final java.util.logging.Logger javaLogger = java.util.logging.Logger.getLogger(BlogPostServlet.class.getName());
     
     private static final String ZERO = "0";
     private static final String FORWARD_SLASH = "/";
@@ -56,7 +55,6 @@ public class BlogPostServlet extends ParentServlet {
 
     public void init(ServletConfig config) throws ServletException {
         logger.debug("init("+config+")");
-        javaLogger.info("init(config)");
 
         //this.executor = Executors.newFixedThreadPool(2);  // The thread pool executor to execute the file management requests and recommit/resend the response.
         this.executor = new java.util.concurrent.ThreadPoolExecutor(
@@ -72,34 +70,23 @@ public class BlogPostServlet extends ParentServlet {
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         logger.debug("doGet(request, response)");
-        javaLogger.info("doGet(request, response)");
 
         try {
 
-            String blogName = null;
-            String pathInfo = request.getPathInfo();
-            logger.debug("pathInfo = "+pathInfo);
+            String blogPostId = request.getParameter("postId");
 
-            if(pathInfo != null) {
+            if(blogPostId != null) {
 
-                blogName = pathInfo.substring(1, pathInfo.length());
-                logger.debug("blogName = "+blogName);
+                try {
+
+                    this.executor.execute(
+                        new BlogPostIdRequest(request.startAsync(), Integer.parseInt(blogPostId))
+                    );
+
+                } catch(NumberFormatException e) {
+                }
 
             }
-
-            if(blogName != null && blogName.length() > 0) {
-
-                this.executor.execute(new BlogPostNameRequest(request.startAsync(), blogName.toLowerCase()));
-
-                //return;
-
-            } else {
-
-                this.executor.execute(new BlogRequest(request.startAsync()));
-
-                //return;
-
-            } // if(pathInfo != null) {
 
         } catch(Exception e) {
 
@@ -114,111 +101,20 @@ public class BlogPostServlet extends ParentServlet {
         //writeOut(response, ZERO);
     }
 
-    /*
-     * Constructor takes the AsyncContext, which contains the request/response.
-     */
-    public class BlogRequest implements Runnable {
+    public class BlogPostIdRequest implements Runnable {
 
         AsyncContext asyncContext;
-        //int blogPostId;
+        int blogPostId;
 
-        // Grab the userId and path from the HttpServletRequest contained in the AsyncContext.
-        public BlogRequest(
-            AsyncContext asyncContext
-          //, int blogPostId
-        ) {
+        public BlogPostIdRequest(AsyncContext asyncContext, int blogPostId) {
 
-            //logger.debug(new StringBuilder().append("BlogPostRequest(asyncContext").append(", '").append(blogPostId).append("')").toString());
-            logger.debug("BlogRequest(asyncContext)");
+            logger.debug(new StringBuilder().append("BlogPostNameRequest(asyncContext").append(", '").append(blogPostId).append("')").toString());
 
             this.asyncContext = asyncContext;
             this.asyncContext.setTimeout(1000*5);  // 5 seconds timeout
-            //this.blogPostId = blogPostId;
+            this.blogPostId = blogPostId;
         }
 
-        // Perform the file listing request, build the JSON string, and write it to the response object in this.asyncContext.getResponse().
-        public void run() {
-            //logger.debug("run()");
-
-            try {
-
-                blogRequest(
-                    (HttpServletRequest)this.asyncContext.getRequest()
-                  , (HttpServletResponse)this.asyncContext.getResponse()
-                  //, this.blogPostId
-                );
-
-                this.asyncContext.complete();          // and complete the request.
-
-            } catch(IOException e) {
-                logger.error(e);
-            } catch(Exception e) {
-                logger.error(e);
-            }
-
-        } // public void run()
-
-    }
-
-    /*
-     */
-    public void blogRequest(
-        HttpServletRequest request
-      , HttpServletResponse response
-      //, int blogPostId
-    ) throws IOException, ServletException {
-
-        logger.debug("blogRequest(request, response)");
-
-        //int blogPostId;
-
-        try {
-
-            /*
-            int[] blogPostIds = new int[51];
-            for(int i = 0; i < blogPostIds.length; i++) {
-                blogPostIds[i] = (i + 1);
-            }
-            List<BlogPost> blogPostList = BlogPostDatabaseManager.selectBlogPosts(blogPostIds);
-            */
-            List<BlogPost> blogPostList = BlogPostDatabaseManager.selectBlogPosts();
-
-            if(blogPostList != null) {
-                logger.debug("blogPostList.size() = "+blogPostList.size());
-                request.setAttribute("blogPostList", blogPostList);
-            }
-
-            //include(request, response, "/view/blog.jsp");
-            //include(request, response, "/view/blog-posts.jsp");
-            include(request, response, "/view/blog-list.jsp");
-
-        } catch(Exception e) {
-            StringWriter stringWriter = new StringWriter();
-            PrintWriter printWriter = new PrintWriter(stringWriter);
-            e.printStackTrace(printWriter);
-            logger.error(stringWriter.toString());
-        }
-    }
-
-    public class BlogPostNameRequest implements Runnable {
-
-        AsyncContext asyncContext;
-        String blogPostName;
-
-        // Grab the userId and path from the HttpServletRequest contained in the AsyncContext.
-        public BlogPostNameRequest(
-            AsyncContext asyncContext
-          , String blogPostName
-        ) {
-
-            logger.debug(new StringBuilder().append("BlogPostNameRequest(asyncContext").append(", '").append(blogPostName).append("')").toString());
-
-            this.asyncContext = asyncContext;
-            this.asyncContext.setTimeout(1000*5);  // 5 seconds timeout
-            this.blogPostName = blogPostName;
-        }
-
-        // Perform the file listing request, build the JSON string, and write it to the response object in this.asyncContext.getResponse().
         public void run() {
             //logger.debug("run()");
 
@@ -227,7 +123,7 @@ public class BlogPostServlet extends ParentServlet {
                 blogPostRequest(
                     (HttpServletRequest)this.asyncContext.getRequest()
                   , (HttpServletResponse)this.asyncContext.getResponse()
-                  , this.blogPostName
+                  , this.blogPostId
                 );
 
                 this.asyncContext.complete();          // and complete the request.
@@ -245,22 +141,18 @@ public class BlogPostServlet extends ParentServlet {
     public void blogPostRequest(
         HttpServletRequest request
       , HttpServletResponse response
-      , String blogPostName
+      , String blogPostId
     ) throws IOException, ServletException {
 
-        logger.debug("blogPostRequest(request, response, '"+blogPostName+"')");
-
-        //include(request, response, "/view/blog/"+blogPostName+".jsp");
-
-        //request.setAttribute("blogPostNameHyphenated", blogPostName);
+        logger.debug("blogPostRequest(request, response, "+blogPostId+")");
 
         try {
 
-            BlogPost blogPost = BlogPostDatabaseManager.selectBlogPostByHyphenatedName(blogPostName);
+            BlogPost blogPost = BlogPostDatabaseManager.selectBlogPostById(blogPostId);
 
             if(blogPost != null) {
 
-                logger.debug(blogPost.getId()+" "+blogPost.getHyphenatedName());
+                logger.debug("blogPost.getId() = "+blogPost.getId());
 
                 Parser parser = Parser.builder().build();
                 Node document = parser.parse(blogPost.getBody());
@@ -283,30 +175,7 @@ public class BlogPostServlet extends ParentServlet {
 
                 request.setAttribute("blogPost", blogPost);
 
-                includeUtf8(request, response, "/view/blog/blog-post.jsp");
-
-            } else { // if(blogPost != null) {
-
-                String errorMessage = "Blog Post Not Found!";
-                logger.warn(errorMessage);
-
-
-                //writeOut(response, errorMessage);
-
-                if(blogPostName.equals("what-is-nutrient-density")) {
-
-                    response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
-                    response.setHeader("Location", "http://www.producersmarket.com/blog/Nutrient-Density");
-                    response.setHeader("Connection", "close");
-
-                } else {
-
-                    logger.debug("Missing blog post: "+blogPostName);
-                    logger.warn("Missing blog post: "+blogPostName);
-                    logger.error("Missing blog post: "+blogPostName);
-
-                }
-
+                includeUtf8(request, response, "/view/edit-blog-post.jsp");
 
             } // if(blogPost != null) {
 
