@@ -9,19 +9,23 @@ import java.util.Set;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+
 import com.ispaces.database.connection.ConnectionManager;
+
+/*
 import com.producersmarket.blog.markdown.BlogImageNodeRenderer;
 import com.producersmarket.blog.markdown.LinkNodeRenderer;
 import com.producersmarket.blog.markdown.SidebarNodeRenderer;
-import com.producersmarket.blog.model.BlogPost;
-import com.producersmarket.model.User;
 //import com.producersmarket.database.UserDatabaseManager;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
-
+*/
+import com.producersmarket.blog.model.BlogPost;
+import com.producersmarket.model.User;
 
 public class BlogPostDatabaseManager {
 //public class BlogPostDatabaseManager extends UserDatabaseManager {
@@ -215,9 +219,9 @@ public class BlogPostDatabaseManager {
                     String relatedBlogPostImagePath = resultSet.getString("bphrbp.image_path");
                     if(relatedBlogPostImagePath != null) relatedBlogPost.setImagePath(relatedBlogPostImagePath);
 
+                    /*
                     Parser parser = Parser.builder().build();
                     Node document = parser.parse(relatedBlogPost.getBody());
-
                     //HtmlRenderer renderer = HtmlRenderer.builder().build();
                     HtmlRenderer renderer = HtmlRenderer.builder()
 
@@ -227,52 +231,46 @@ public class BlogPostDatabaseManager {
                             }
                         }
 
-                        /*
-                        .nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
+                        //.nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
+                        //    // Skip over images in the sidebar blog post HTML.
+                        //    public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
+                        //        //return new ImageNodeRenderer(htmlNodeRendererContext);
+                        //        //return new ImageNodeRenderer(htmlNodeRendererContext) {
+                        //        return new org.commonmark.renderer.NodeRenderer() {
+                        //            //public void run() { doStuffWith(someData); }
+                        //            @Override public void render(Node node) {
+                        //                //logger.debug("render("+node+")");
+                        //            }
+                        //            @Override public Set<Class<? extends Node>> getNodeTypes() {
+                        //                //logger.debug("getNodeTypes()");
+                        //                return Collections.<Class<? extends Node>>singleton(org.commonmark.node.Image.class); // Return the node types we want to use this renderer for.
+                        //            }
+                        //        };
+                        //    }
 
-                            // Skip over images in the sidebar blog post HTML.
-                            public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                                //return new ImageNodeRenderer(htmlNodeRendererContext);
-                                //return new ImageNodeRenderer(htmlNodeRendererContext) {
-                                return new org.commonmark.renderer.NodeRenderer() {
-                                    //public void run() { doStuffWith(someData); }
-                                    @Override public void render(Node node) {
-                                        //logger.debug("render("+node+")");
-                                    }
-                                    @Override public Set<Class<? extends Node>> getNodeTypes() {
-                                        //logger.debug("getNodeTypes()");
-                                        return Collections.<Class<? extends Node>>singleton(org.commonmark.node.Image.class); // Return the node types we want to use this renderer for.
-                                    }
-                                };
-                            }
+                        //}).nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
+                        //    public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
+                        //        return new LinkNodeRenderer(htmlNodeRendererContext);
+                        //    }
+                        //}
 
-                        }).nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-                            public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                                return new LinkNodeRenderer(htmlNodeRendererContext);
-                            }
-                        }
-                        */
-
-                        /*
-                        }).nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-                            public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                                //return new ImageNodeRenderer(htmlNodeRendererContext);
-                                //return new ImageNodeRenderer(htmlNodeRendererContext) {
-                                return new org.commonmark.renderer.NodeRenderer() {
-                                    //public void run() { doStuffWith(someData); }
-                                    @Override public void render(Node node) {
-                                        //logger.debug("render("+node+")");
-                                        this.html.text(node.toString());
-                                    }
-                                    @Override public Set<Class<? extends Node>> getNodeTypes() {
-                                        //logger.debug("getNodeTypes()");
-                                        return Collections.<Class<? extends Node>>singleton(org.commonmark.node.Link.class); // Return the node types we want to use this renderer for.
-                                    }
-                                };
-                            }
-
-                        }
-                        */
+                        //}).nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
+                        //    public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
+                        //        //return new ImageNodeRenderer(htmlNodeRendererContext);
+                        //        //return new ImageNodeRenderer(htmlNodeRendererContext) {
+                        //        return new org.commonmark.renderer.NodeRenderer() {
+                        //            //public void run() { doStuffWith(someData); }
+                        //            @Override public void render(Node node) {
+                        //                //logger.debug("render("+node+")");
+                        //                this.html.text(node.toString());
+                        //            }
+                        //            @Override public Set<Class<? extends Node>> getNodeTypes() {
+                        //                //logger.debug("getNodeTypes()");
+                        //                return Collections.<Class<? extends Node>>singleton(org.commonmark.node.Link.class); // Return the node types we want to use this renderer for.
+                        //            }
+                        //        };
+                        //    }
+                        //}
 
                         ).build();
 
@@ -282,6 +280,7 @@ public class BlogPostDatabaseManager {
                     logger.debug("bodyHtml.length()                  = "+bodyHtml.length());
 
                     relatedBlogPost.setBody(bodyHtml);
+                    */
 
                     blogPostList.add(relatedBlogPost);
 
@@ -362,6 +361,7 @@ public class BlogPostDatabaseManager {
                     String blogPostImagePath = resultSet.getString("phbp.image_path");
                     if(blogPostImagePath != null) blogPost.setImagePath(blogPostImagePath);
 
+                    /*
                     Parser parser = Parser.builder().build();
                     Node document = parser.parse(blogPost.getBody());
                     //HtmlRenderer renderer = HtmlRenderer.builder().build();
@@ -373,53 +373,46 @@ public class BlogPostDatabaseManager {
                             }
                         }
 
-                        /*
-                        .nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
+                        //.nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
+                        //    // Skip over images in the sidebar.
+                        //    public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
+                        //        //return new ImageNodeRenderer(htmlNodeRendererContext);
+                        //        //return new ImageNodeRenderer(htmlNodeRendererContext) {
+                        //        return new org.commonmark.renderer.NodeRenderer() {
+                        //            //public void run() { doStuffWith(someData); }
+                        //            @Override public void render(Node node) {
+                        //                //logger.debug("render("+node+")");
+                        //            }
+                        //            @Override public Set<Class<? extends Node>> getNodeTypes() {
+                        //                //logger.debug("getNodeTypes()");
+                        //                return Collections.<Class<? extends Node>>singleton(org.commonmark.node.Image.class); // Return the node types we want to use this renderer for.
+                        //            }
+                        //        };
+                        //    }
+                        //}).nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
+                        //
+                        //    public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
+                        //        return new LinkNodeRenderer(htmlNodeRendererContext);
+                        //    }
+                        //}
 
-                            // Skip over images in the sidebar.
-                            public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                                //return new ImageNodeRenderer(htmlNodeRendererContext);
-                                //return new ImageNodeRenderer(htmlNodeRendererContext) {
-                                return new org.commonmark.renderer.NodeRenderer() {
-                                    //public void run() { doStuffWith(someData); }
-                                    @Override public void render(Node node) {
-                                        //logger.debug("render("+node+")");
-                                    }
-                                    @Override public Set<Class<? extends Node>> getNodeTypes() {
-                                        //logger.debug("getNodeTypes()");
-                                        return Collections.<Class<? extends Node>>singleton(org.commonmark.node.Image.class); // Return the node types we want to use this renderer for.
-                                    }
-                                };
-                            }
-
-                        }).nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-
-                            public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                                return new LinkNodeRenderer(htmlNodeRendererContext);
-                            }
-                        }
-                        */
-
-                        /*
-                        }).nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-                            public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                                //return new ImageNodeRenderer(htmlNodeRendererContext);
-                                //return new ImageNodeRenderer(htmlNodeRendererContext) {
-                                return new org.commonmark.renderer.NodeRenderer() {
-                                    //public void run() { doStuffWith(someData); }
-                                    @Override public void render(Node node) {
-                                        //logger.debug("render("+node+")");
-                                        this.html.text(node.toString());
-                                    }
-                                    @Override public Set<Class<? extends Node>> getNodeTypes() {
-                                        //logger.debug("getNodeTypes()");
-                                        return Collections.<Class<? extends Node>>singleton(org.commonmark.node.Link.class); // Return the node types we want to use this renderer for.
-                                    }
-                                };
-                            }
-
-                        }
-                        */
+                        //}).nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
+                        //    public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
+                        //        //return new ImageNodeRenderer(htmlNodeRendererContext);
+                        //        //return new ImageNodeRenderer(htmlNodeRendererContext) {
+                        //        return new org.commonmark.renderer.NodeRenderer() {
+                        //            //public void run() { doStuffWith(someData); }
+                        //            @Override public void render(Node node) {
+                        //                //logger.debug("render("+node+")");
+                        //                this.html.text(node.toString());
+                        //            }
+                        //            @Override public Set<Class<? extends Node>> getNodeTypes() {
+                        //                //logger.debug("getNodeTypes()");
+                        //                return Collections.<Class<? extends Node>>singleton(org.commonmark.node.Link.class); // Return the node types we want to use this renderer for.
+                        //            }
+                        //        };
+                        //    }
+                        //}
 
                         ).build();
 
@@ -429,6 +422,7 @@ public class BlogPostDatabaseManager {
                     logger.debug("bodyHtml.length()                  = "+bodyHtml.length());
 
                     blogPost.setBody(bodyHtml);
+                    */
 
                     blogPostList.add(blogPost);
 
@@ -540,8 +534,7 @@ public class BlogPostDatabaseManager {
                     blogPost.setTitle            (resultSet.getString(3));
                     blogPost.setSubtitle         (resultSet.getString(4));
                     blogPost.setMetaDescription  (resultSet.getString(5));
-                    //blogPost.setBody             (resultSet.getString(6));
-                    String body = resultSet.getString(6);
+                    blogPost.setBody             (resultSet.getString(6));
                     blogPost.setDatePublished    (resultSet.getDate(7));
                     blogPost.setDatetimePublished(resultSet.getDate(8));
                     blogPost.setIsDisabled       (!resultSet.getBoolean(9));
@@ -554,35 +547,6 @@ public class BlogPostDatabaseManager {
                     BlogCategoryDatabaseManager.selectBlogPostCategories(blogPost, connectionManager);
 
                     //selectRelatedBlogPosts(blogPost, connectionManager);
-
-                    Parser parser = Parser.builder().build();
-                    Node document = parser.parse(body);
-                    //HtmlRenderer renderer = HtmlRenderer.builder().build();
-                    HtmlRenderer renderer = HtmlRenderer.builder()
-
-                        /*
-                        .nodeRendererFactory(
-                            new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-                                public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                                    return new BlogImageNodeRenderer(htmlNodeRendererContext);
-                                }
-                            }
-                        )
-                        */
-
-                        .nodeRendererFactory(
-                            new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-                                public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                                    return new SidebarNodeRenderer(htmlNodeRendererContext);
-                                }
-                            }
-                        )
-
-                    .build();
-
-                    String bodyHtml = renderer.render(document);
-
-                    blogPost.setBody(bodyHtml);
 
                     blogPostList.add(blogPost);
 
@@ -656,8 +620,7 @@ public class BlogPostDatabaseManager {
                     blogPost.setTitle            (resultSet.getString(3));
                     blogPost.setSubtitle         (resultSet.getString(4));
                     blogPost.setMetaDescription  (resultSet.getString(5));
-                    //blogPost.setBody             (resultSet.getString(6));
-                    String body = resultSet.getString(6);
+                    blogPost.setBody             (resultSet.getString(6));
                     blogPost.setDatePublished    (resultSet.getDate(7));
                     blogPost.setDatetimePublished(resultSet.getDate(8));
                     blogPost.setIsDisabled       (!resultSet.getBoolean(9));
@@ -670,35 +633,6 @@ public class BlogPostDatabaseManager {
                     BlogCategoryDatabaseManager.selectBlogPostCategories(blogPost, connectionManager);
 
                     //selectRelatedBlogPosts(blogPost, connectionManager);
-
-                    Parser parser = Parser.builder().build();
-                    Node document = parser.parse(body);
-                    //HtmlRenderer renderer = HtmlRenderer.builder().build();
-                    HtmlRenderer renderer = HtmlRenderer.builder()
-
-                        /*
-                        .nodeRendererFactory(
-                            new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-                                public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                                    return new BlogImageNodeRenderer(htmlNodeRendererContext);
-                                }
-                            }
-                        )
-                        */
-
-                        .nodeRendererFactory(
-                            new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-                                public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                                    return new SidebarNodeRenderer(htmlNodeRendererContext);
-                                }
-                            }
-                        )
-
-                    .build();
-
-                    String bodyHtml = renderer.render(document);
-
-                    blogPost.setBody(bodyHtml);
 
                     blogPostList.add(blogPost);
 
@@ -777,8 +711,7 @@ public class BlogPostDatabaseManager {
                     blogPost.setTitle            (resultSet.getString(3));
                     blogPost.setSubtitle         (resultSet.getString(4));
                     blogPost.setMetaDescription  (resultSet.getString(5));
-                    //blogPost.setBody             (resultSet.getString(6));
-                    String body = resultSet.getString(6);
+                    blogPost.setBody             (resultSet.getString(6));
                     blogPost.setDatePublished    (resultSet.getDate(7));
                     blogPost.setDatetimePublished(resultSet.getDate(8));
                     blogPost.setIsDisabled       (!resultSet.getBoolean(9));
@@ -790,35 +723,6 @@ public class BlogPostDatabaseManager {
                     BlogCategoryDatabaseManager.selectBlogPostCategories(blogPost, connectionManager);
 
                     //selectRelatedBlogPosts(blogPost, connectionManager);
-
-                    Parser parser = Parser.builder().build();
-                    Node document = parser.parse(body);
-                    //HtmlRenderer renderer = HtmlRenderer.builder().build();
-                    HtmlRenderer renderer = HtmlRenderer.builder()
-
-                        /*
-                        .nodeRendererFactory(
-                            new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-                                public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                                    return new BlogImageNodeRenderer(htmlNodeRendererContext);
-                                }
-                            }
-                        )
-                        */
-
-                        .nodeRendererFactory(
-                            new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-                                public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                                    return new SidebarNodeRenderer(htmlNodeRendererContext);
-                                }
-                            }
-                        )
-
-                    .build();
-
-                    String bodyHtml = renderer.render(document);
-
-                    blogPost.setBody(bodyHtml);
 
                     blogPostList.add(blogPost);
 
@@ -901,6 +805,7 @@ public class BlogPostDatabaseManager {
 
                     selectRelatedBlogPosts(blogPost, connectionManager);
 
+                    /*
                     Parser parser = Parser.builder().build();
                     Node document = parser.parse(blogPost.getBody());
                     //HtmlRenderer renderer = HtmlRenderer.builder().build();
@@ -920,6 +825,7 @@ public class BlogPostDatabaseManager {
                     //logger.debug("bodyHtml.length()           = "+bodyHtml.length());
 
                     blogPost.setBody(bodyHtml);
+                    */
 
                     blogPostList.add(blogPost);
 

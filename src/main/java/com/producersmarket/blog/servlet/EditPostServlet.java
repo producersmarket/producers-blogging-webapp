@@ -141,37 +141,18 @@ public class EditPostServlet extends ParentServlet {
     public void blogPostRequest(
         HttpServletRequest request
       , HttpServletResponse response
-      , String blogPostId
+      , int blogPostId
     ) throws IOException, ServletException {
 
         logger.debug("blogPostRequest(request, response, "+blogPostId+")");
 
         try {
 
-            BlogPost blogPost = BlogPostDatabaseManager.selectBlogPostById(blogPostId);
+            BlogPost blogPost = BlogPostDatabaseManager.selectBlogPost(blogPostId);
 
             if(blogPost != null) {
 
                 logger.debug("blogPost.getId() = "+blogPost.getId());
-
-                Parser parser = Parser.builder().build();
-                Node document = parser.parse(blogPost.getBody());
-                //HtmlRenderer renderer = HtmlRenderer.builder().build();
-                HtmlRenderer renderer = HtmlRenderer.builder()
-                    .nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-                        public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                            return new BlogImageNodeRenderer(htmlNodeRendererContext);
-                        }
-                    }).build();
-
-                String bodyHtml = renderer.render(document);
-
-                logger.debug("blogPost.getBody() = "+blogPost.getBody());
-                logger.debug("bodyHtml           = "+bodyHtml);
-                logger.debug("blogPost.getBody().length() = "+blogPost.getBody().length());
-                logger.debug("bodyHtml.length()           = "+bodyHtml.length());
-
-                blogPost.setBody(bodyHtml);
 
                 request.setAttribute("blogPost", blogPost);
 

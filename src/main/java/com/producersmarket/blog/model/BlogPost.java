@@ -5,6 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 //import java.text.SimpleDateFormat;
+
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
+
+import com.producersmarket.blog.markdown.BlogImageNodeRenderer;
+import com.producersmarket.blog.markdown.LinkNodeRenderer;
+import com.producersmarket.blog.markdown.SidebarNodeRenderer;
+import com.producersmarket.blog.model.BlogPost;
 import com.producersmarket.model.User;
 
 /**
@@ -109,6 +118,37 @@ public class BlogPost {
     public String getBody() {
         return body;
     }
+
+    public String getBodyAsHtml() {
+    
+        Parser parser = Parser.builder().build();
+        Node document = parser.parse(body);
+        //HtmlRenderer renderer = HtmlRenderer.builder().build();
+        HtmlRenderer renderer = HtmlRenderer.builder()
+
+            /*
+            .nodeRendererFactory(
+                new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
+                    public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
+                        return new BlogImageNodeRenderer(htmlNodeRendererContext);
+                    }
+                }
+            )
+            */
+
+            .nodeRendererFactory(
+                new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
+                    public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
+                        return new SidebarNodeRenderer(htmlNodeRendererContext);
+                    }
+                }
+            )
+
+        .build();
+
+        return renderer.render(document);
+    }
+
     public void setBody(String body){
         this.body = body;
     }
