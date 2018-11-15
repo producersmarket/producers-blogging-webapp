@@ -130,19 +130,43 @@ public class EditPostServlet extends BlogPostServlet {
 
         try {
 
-            String blogPostId = request.getParameter("postId");
+            String blogToken = null;
+            String pathInfo = request.getPathInfo();
+            int blogPostId = -1;
+            logger.debug("pathInfo = "+pathInfo);
 
-            if(blogPostId != null) {
+            if(pathInfo != null) {
+                blogToken = pathInfo.substring(1, pathInfo.length());
+            } else {
+                blogToken = request.getParameter("postId");
+            }
+            logger.debug("blogToken = "+blogToken);
+
+
+            if(blogToken != null && blogToken.length() > 0) {
 
                 try {
 
-                    this.executor.execute(
-                        new BlogPostIdRequest(request.startAsync(), Integer.parseInt(blogPostId))
-                    );
+                    blogPostId = Integer.parseInt(blogToken);
+                    logger.debug("blogPostId = "+blogPostId);
 
                 } catch(NumberFormatException e) {
-                }
 
+                    StringWriter stringWriter = new StringWriter();
+                    PrintWriter printWriter = new PrintWriter(stringWriter);
+                    e.printStackTrace(printWriter);
+                    logger.error(stringWriter.toString());
+
+                }
+            }
+
+            try {
+
+                this.executor.execute(
+                    new BlogPostIdRequest(request.startAsync(), blogPostId)
+                );
+
+            } catch(NumberFormatException e) {
             }
 
         } catch(Exception e) {
@@ -176,7 +200,7 @@ public class EditPostServlet extends BlogPostServlet {
 
                 request.setAttribute("blogPost", blogPost);
 
-                includeUtf8(request, response, "/view/edit-blog-post.jsp");
+                includeUtf8(request, response, "/view/edit-post.jsp");
 
             } // if(blogPost != null) {
 
