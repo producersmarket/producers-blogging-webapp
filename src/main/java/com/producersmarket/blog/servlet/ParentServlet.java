@@ -29,7 +29,6 @@ public class ParentServlet extends InitServlet {
     public static final String RIGHT_SQUARE = "]";
     public static final String DOUBLE_QUOTE = "\"";
 	
-
     public static ServletContext servletContext;
 
     /**
@@ -208,6 +207,5 @@ public class ParentServlet extends InitServlet {
         
         return -1;
     }
-
 
 }

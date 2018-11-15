@@ -70,34 +70,54 @@ public class BlogPostServlet extends ParentServlet {
         super.init(config);
     }
 
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        logger.debug("doPost(request, response)");
+
+        doGet(request, response);
+    }
+
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         logger.debug("doGet(request, response)");
         javaLogger.info("doGet(request, response)");
 
         try {
 
-            String blogName = null;
+            String blogToken = null;
             String pathInfo = request.getPathInfo();
+            int blogPostId = -1;
             logger.debug("pathInfo = "+pathInfo);
 
             if(pathInfo != null) {
-
-                blogName = pathInfo.substring(1, pathInfo.length());
-                logger.debug("blogName = "+blogName);
-
+                blogToken = pathInfo.substring(1, pathInfo.length());
+                logger.debug("blogToken = "+blogToken);
             }
 
-            if(blogName != null && blogName.length() > 0) {
+            if(blogToken != null && blogToken.length() > 0) {
 
-                this.executor.execute(new BlogPostNameRequest(request.startAsync(), blogName.toLowerCase()));
+                try {
 
-                //return;
+                    blogPostId = Integer.parseInt(blogToken);
+                    logger.debug("blogPostId = "+blogPostId);
+
+                    this.executor.execute(new BlogPostIdRequest(request.startAsync(), blogPostId));
+
+                } catch(NumberFormatException e) {
+
+                    StringWriter stringWriter = new StringWriter();
+                    PrintWriter printWriter = new PrintWriter(stringWriter);
+                    e.printStackTrace(printWriter);
+                    logger.error(stringWriter.toString());
+
+                    this.executor.execute(new BlogPostNameRequest(request.startAsync(), blogToken.toLowerCase()));
+                }
+
+                return;
 
             } else {
 
                 this.executor.execute(new BlogRequest(request.startAsync()));
 
-                //return;
+                return;
 
             } // if(pathInfo != null) {
 
@@ -112,6 +132,76 @@ public class BlogPostServlet extends ParentServlet {
         }
 
         //writeOut(response, ZERO);
+        response.sendError(HttpServletResponse.SC_NOT_FOUND);
+    }
+
+    public class BlogPostIdRequest implements Runnable {
+
+        AsyncContext asyncContext;
+        int blogPostId;
+
+        public BlogPostIdRequest(AsyncContext asyncContext, int blogPostId) {
+
+            logger.debug(new StringBuilder().append("BlogPostNameRequest(asyncContext").append(", '").append(blogPostId).append("')").toString());
+
+            this.asyncContext = asyncContext;
+            this.asyncContext.setTimeout(1000*5);  // 5 seconds timeout
+            this.blogPostId = blogPostId;
+        }
+
+        public void run() {
+            //logger.debug("run()");
+
+            try {
+
+                blogPostRequest(
+                    (HttpServletRequest)this.asyncContext.getRequest()
+                  , (HttpServletResponse)this.asyncContext.getResponse()
+                  , this.blogPostId
+                );
+
+                this.asyncContext.complete();          // and complete the request.
+
+            } catch(IOException e) {
+                logger.error(e);
+            } catch(Exception e) {
+                logger.error(e);
+            }
+
+        } // public void run()
+
+    }
+
+    public void blogPostRequest(
+        HttpServletRequest request
+      , HttpServletResponse response
+      , int blogPostId
+    ) throws IOException, ServletException {
+
+        logger.debug("blogPostRequest(request, response, "+blogPostId+")");
+
+        try {
+
+            BlogPost blogPost = BlogPostDatabaseManager.selectBlogPost(blogPostId);
+
+            if(blogPost != null) {
+
+                logger.debug("blogPost.getId() = "+blogPost.getId());
+
+                request.setAttribute("blogPost", blogPost);
+
+                //includeUtf8(request, response, "/view/edit-blog-post.jsp");
+                includeUtf8(request, response, "/view/blog/blog-post.jsp");
+
+            } // if(blogPost != null) {
+
+        } catch(Exception e) {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            e.printStackTrace(printWriter);
+            logger.error(stringWriter.toString());
+        }
+
     }
 
     /*

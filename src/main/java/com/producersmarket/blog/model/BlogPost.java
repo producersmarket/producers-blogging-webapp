@@ -6,9 +6,16 @@ import java.util.List;
 import java.util.Map;
 //import java.text.SimpleDateFormat;
 
+//import org.apache.commons.lang.StringEscapeUtils;
+//import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
+
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
+
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.producersmarket.blog.markdown.BlogImageNodeRenderer;
 import com.producersmarket.blog.markdown.LinkNodeRenderer;
@@ -25,6 +32,7 @@ import com.producersmarket.model.User;
 
 public class BlogPost {
 
+    private static final Logger logger = LogManager.getLogger();
     private static final int EXCERPT_LENGTH = 333;
 
     private int id = -1;
@@ -69,6 +77,7 @@ public class BlogPost {
     public int getId() {
         return id;
     }
+    
     public void setId(int id) {
         this.id = id;
     }
@@ -90,6 +99,19 @@ public class BlogPost {
     public String getTitle() {
         return title;
     }
+
+    public String getTitleEscaped() {
+        //return org.apache.commons.lang.StringEscapeUtils(title);
+        //return org.apache.commons.lang3.StringEscapeUtils(title);
+        //return null;
+
+        //logger.debug("StringEscapeUtils.escapeEcmaScript("+title+") = "+StringEscapeUtils.escapeEcmaScript(title));
+        //logger.debug("StringEscapeUtils.escapeHtml4("+title+") = "+StringEscapeUtils.escapeHtml4(title));
+
+        //return StringEscapeUtils.escapeEcmaScript(title);
+        return StringEscapeUtils.escapeHtml4(title);
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }

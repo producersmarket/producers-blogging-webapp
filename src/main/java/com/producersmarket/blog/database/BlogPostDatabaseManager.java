@@ -966,5 +966,30 @@ public class BlogPostDatabaseManager {
         //user.setPromoVideo         (resultSet.getString(23));
     }
 
+    public static void updateBlogPost(BlogPost blogPost) throws SQLException, Exception {
+
+        String sqlName = "updateBlogPost";
+        ConnectionManager connectionManager = new ConnectionManager(className, sqlName);
+
+        try {
+
+            //PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
+
+            String sql = "UPDATE blog_post SET title = ?, body = ? WHERE id = ?";
+            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+
+            preparedStatement.setString(1, blogPost.getTitle());
+            preparedStatement.setString(2, blogPost.getBody());
+            //preparedStatement.setString(2, blogPost.getSubtitle());
+            //preparedStatement.setString(3, blogPost.getMetaDescription());
+            //preparedStatement.setString(5, blogPost.getHyphenatedName());
+            preparedStatement.setInt(3, blogPost.getId());
+
+            preparedStatement.executeUpdate();
+
+        } finally {
+            connectionManager.commit();
+        }
+    }
 
 }
