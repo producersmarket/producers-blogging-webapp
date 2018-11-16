@@ -103,10 +103,12 @@ public class BlogPostServlet extends ParentServlet {
 
                 } catch(NumberFormatException e) {
 
+                    /*
                     StringWriter stringWriter = new StringWriter();
                     PrintWriter printWriter = new PrintWriter(stringWriter);
                     e.printStackTrace(printWriter);
                     logger.error(stringWriter.toString());
+                    */
 
                     this.executor.execute(new BlogPostNameRequest(request.startAsync(), blogToken.toLowerCase()));
                 }

@@ -9,6 +9,7 @@ import java.util.Set;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -850,7 +851,7 @@ public class BlogPostDatabaseManager {
     }
 
     public static BlogPost selectBlogPost(int blogPostId) throws SQLException, Exception {
-        logger.debug("selectBlogPostsByBlogPostId("+blogPostId+", connectionManager)");
+        logger.debug("selectBlogPost("+blogPostId+", connectionManager)");
 
         //ConnectionManager connectionManager = new ConnectionManager(className, com.producersmarket.servlet.InitServlet.connectionPool);
         //ConnectionManager connectionManager = new ConnectionManager();
@@ -975,17 +976,50 @@ public class BlogPostDatabaseManager {
 
             //PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
 
-            String sql = "UPDATE blog_post SET title = ?, body = ? WHERE id = ?";
+            String sql = "UPDATE blog_post SET title = ?, subtitle = ?, body = ? WHERE id = ?";
             PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
 
             preparedStatement.setString(1, blogPost.getTitle());
-            preparedStatement.setString(2, blogPost.getBody());
+            preparedStatement.setString(2, blogPost.getSubtitle());
+            preparedStatement.setString(3, blogPost.getBody());
             //preparedStatement.setString(2, blogPost.getSubtitle());
             //preparedStatement.setString(3, blogPost.getMetaDescription());
             //preparedStatement.setString(5, blogPost.getHyphenatedName());
-            preparedStatement.setInt(3, blogPost.getId());
+            preparedStatement.setInt(4, blogPost.getId());
 
             preparedStatement.executeUpdate();
+
+        } finally {
+            connectionManager.commit();
+        }
+    }
+
+    public static void insertBlogPost(BlogPost blogPost) throws SQLException, Exception {
+
+        String sqlName = "insertBlogPost";
+        ConnectionManager connectionManager = new ConnectionManager(className, sqlName);
+
+        try {
+
+            //PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
+
+            //String sql = "INSERT INTO blog_post (title, body) VALUES (?, ?)";
+            String sql = "INSERT INTO blog_post (title, subtitle, body, updated_by, created_by, date_created) VALUES (?, ?, ?, ?, ?, NOW())";
+            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+            preparedStatement.setString(1, blogPost.getTitle());
+            preparedStatement.setString(2, blogPost.getSubtitle());
+            preparedStatement.setString(3, blogPost.getBody());
+            preparedStatement.setInt(4, blogPost.getUserId());
+            preparedStatement.setInt(5, blogPost.getUserId());
+            //preparedStatement.setString(2, blogPost.getSubtitle());
+            //preparedStatement.setString(3, blogPost.getMetaDescription());
+            //preparedStatement.setString(5, blogPost.getHyphenatedName());
+
+            preparedStatement.executeUpdate();
+
+            ResultSet resultSet = preparedStatement.getGeneratedKeys();
+            if(resultSet.next()) blogPost.setId(resultSet.getInt(1));
 
         } finally {
             connectionManager.commit();

@@ -47,7 +47,7 @@ public class BlogPost {
     private String imagePath = null;
     private String keywords = null;
     private List<String> keywordList = null;
-    private String userId = null;
+    private int userId = -1;
     private User author;
     private List<User> authorList;
     private String postedBy = null;
@@ -142,6 +142,15 @@ public class BlogPost {
     }
 
     public String getBodyAsHtml() {
+    
+        Parser parser = Parser.builder().build();
+        Node document = parser.parse(body);
+        HtmlRenderer renderer = HtmlRenderer.builder().build();
+
+        return renderer.render(document);
+    }
+
+    public String getBodyAsHtmlForSidebar() {
     
         Parser parser = Parser.builder().build();
         Node document = parser.parse(body);
@@ -248,15 +257,16 @@ public class BlogPost {
         return this.blogCategoryList;
     }
 
-    // String userId
-    public void setUserId(String userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
     }
-    public String getUserId(){
+
+    public int getUserId() {
         return userId;
     }
-    public String getUserIdString(){
-        return userId;
+
+    public String getUserIdString() {
+        return String.valueOf(userId);
     }
 
     public User getAuthor() {
@@ -276,17 +286,29 @@ public class BlogPost {
     public void setDatePublished(Date datePublished) {
         this.datePublished = datePublished;
     }
+
     public Date getDatePublished() {
         return datePublished;
     }
+
     public String getDatePublishedFormatted() {
         //return SimpleDateFormat(datePublishedPattern).format(datePublished);
-        java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat(this.datePublishedPattern, java.util.Locale.ENGLISH);
-        return formatter.format(datePublished);
+
+        if(this.datePublished != null) {
+            java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat(this.datePublishedPattern, java.util.Locale.ENGLISH);
+            return formatter.format(datePublished);
+        }
+
+        return null;
     }
+
     public String getDatePublishedFormatted(String pattern) {
-        java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat(pattern, java.util.Locale.ENGLISH);
-        return formatter.format(datePublished);
+        if(this.datePublished != null) {
+            java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat(pattern, java.util.Locale.ENGLISH);
+            return formatter.format(datePublished);
+        }
+
+        return null;
     }
 
     public Date getDatetimePublished() {

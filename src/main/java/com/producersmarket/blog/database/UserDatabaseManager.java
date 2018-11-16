@@ -128,21 +128,16 @@ public class UserDatabaseManager {
     }
     */
 
-    /*
     public static User selectUserById(int userId) throws SQLException, Exception {
-        logger.debug("selectUserByHyphenatedName('"+userId+"')");
+        logger.debug("selectUserById("+userId+")");
 
-        //ConnectionManager connectionManager = new ConnectionManager(className, com.producersmarket.servlet.InitServlet.connectionPool);
-        ConnectionManager connectionManager = new ConnectionManager();
+        ConnectionManager connectionManager = new ConnectionManager(className);
 
         try {
 
             String sql = new StringBuilder()
-                .append("SELECT ")
-                //.append("u.id, u.name, u.business_name, u.hyphenated_name, u.location, u.theme_color, uhi.background_image, uhi.logo_image, uhi.promo_video")
-                .append("u.id, u.name, u.business_name, u.hyphenated_name, u.ig_username, u.location, u.theme_color")
+                .append("SELECT u.id, u.name, u.email")
                 .append(" FROM user u")
-                //.append(" LEFT OUTER JOIN user_has_image uhi ON uhi.user_id = uis.user_id")
                 .append(" WHERE u.id = ?")
                 .toString();
 
@@ -155,7 +150,10 @@ public class UserDatabaseManager {
             if(resultSet.next()) {
 
                 User user = new User();
-                populateUser(user, resultSet);
+                //populateUser(user, resultSet);
+                user.setId(resultSet.getInt(1));
+                user.setName(resultSet.getString(2));
+                user.setEmail(resultSet.getString(3));
 
                 return user;
             }
@@ -166,7 +164,6 @@ public class UserDatabaseManager {
 
         return null;
     }
-    */
 
     /*
     //public static List<User> selectBlogPostAuthors(BlogPost blogPost, ConnectionManager connectionManager) throws SQLException, Exception {

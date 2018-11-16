@@ -72,28 +72,64 @@ public class EditPostServlet extends BlogPostServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         logger.debug("doPost(request, response)");
 
+        BlogPost blogPost = new BlogPost();
+
+        /*
+        HttpSession httpSession = request.getSession(false);
+        logger.debug("httpSession = "+httpSession);
+
+        Object userIdObject = null;
+
+        if(
+          httpSession != null
+          && (userIdObject = httpSession.getAttribute("userId")) != null
+        ) {
+
+            logger.debug("httpSession.getId() = "+httpSession.getId());
+            logger.debug("userIdObject = "+userIdObject);
+
+            int userId = Integer.valueOf((String) userIdObject);
+            logger.debug("userId = "+userId);
+        */
+        String userIdString = request.getParameter("userId");
+        logger.debug("userIdString = "+userIdString);
+        int userId = -1;
+        try {
+            userId = Integer.parseInt(userIdString);
+            blogPost.setUserId(userId);
+        } catch(NumberFormatException e) {
+        }
+        logger.debug("userId = "+userId);
+
         String blogPostIdString = request.getParameter("blogPostId");
         logger.debug("blogPostIdString = "+blogPostIdString);
         int blogPostId = -1;
         try {
             blogPostId = Integer.parseInt(blogPostIdString);
+            blogPost.setId(blogPostId);
         } catch(NumberFormatException e) {
         }
         logger.debug("blogPostId = "+blogPostId);
+
         String title = request.getParameter("title");
+        String subtitle = request.getParameter("subtitle");
         String body = request.getParameter("body");
 
         logger.debug("title = "+title);
+        logger.debug("subtitle = "+subtitle);
         logger.debug("body = "+body);
 
-        BlogPost blogPost = new BlogPost();
-        blogPost.setId(blogPostId);
+        blogPost.setSubtitle(subtitle);
         blogPost.setTitle(title);
         blogPost.setBody(body);
 
         try {
 
-            BlogPostDatabaseManager.updateBlogPost(blogPost);
+            if(blogPost.getId() > 0) {
+                BlogPostDatabaseManager.updateBlogPost(blogPost);
+            } else {
+                BlogPostDatabaseManager.insertBlogPost(blogPost);
+            }
 
             //include(request, response, "/view/email-sent.jsp");
             //javax.servlet.RequestDispatcher rd = this.config.getServletContext().getRequestDispatcher("/import-contacts");
@@ -142,13 +178,16 @@ public class EditPostServlet extends BlogPostServlet {
             }
             logger.debug("blogToken = "+blogToken);
 
-
             if(blogToken != null && blogToken.length() > 0) {
 
                 try {
 
                     blogPostId = Integer.parseInt(blogToken);
                     logger.debug("blogPostId = "+blogPostId);
+
+                    this.executor.execute(new BlogPostIdRequest(request.startAsync(), blogPostId));
+
+                    return;
 
                 } catch(NumberFormatException e) {
 
@@ -158,15 +197,6 @@ public class EditPostServlet extends BlogPostServlet {
                     logger.error(stringWriter.toString());
 
                 }
-            }
-
-            try {
-
-                this.executor.execute(
-                    new BlogPostIdRequest(request.startAsync(), blogPostId)
-                );
-
-            } catch(NumberFormatException e) {
             }
 
         } catch(Exception e) {
@@ -180,6 +210,7 @@ public class EditPostServlet extends BlogPostServlet {
         }
 
         //writeOut(response, ZERO);
+        includeUtf8(request, response, "/view/edit-post.jsp");
     }
 
     public void blogPostRequest(

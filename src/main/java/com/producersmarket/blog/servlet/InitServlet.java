@@ -203,7 +203,7 @@ public class InitServlet extends HttpServlet {
                 /*
                  * Configure the javax.servlet.SessionCookieConfig.
                  */
-                this.configureCookies(properties);
+                //this.configureCookies(properties);
                
             } catch(Exception exception) {
                 StringWriter stringWriter = new StringWriter();
