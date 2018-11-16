@@ -34,6 +34,94 @@ public class BlogPostDatabaseManager {
     private static final Logger logger = LogManager.getLogger();
     private static final String className = BlogPostDatabaseManager.class.getSimpleName();
 
+    public static void updateBlogPost(BlogPost blogPost) throws SQLException, Exception {
+
+        String sqlName = "updateBlogPost";
+        ConnectionManager connectionManager = new ConnectionManager(className, sqlName);
+
+        try {
+
+            //PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
+
+            String sql = "UPDATE blog_post SET title = ?, subtitle = ?, body = ? WHERE id = ?";
+            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+
+            preparedStatement.setString(1, blogPost.getTitle());
+            preparedStatement.setString(2, blogPost.getSubtitle());
+            preparedStatement.setString(3, blogPost.getBody());
+            //preparedStatement.setString(2, blogPost.getSubtitle());
+            //preparedStatement.setString(3, blogPost.getMetaDescription());
+            //preparedStatement.setString(5, blogPost.getHyphenatedName());
+            preparedStatement.setInt(4, blogPost.getId());
+
+            preparedStatement.executeUpdate();
+
+        } finally {
+            connectionManager.commit();
+        }
+    }
+
+    public static void insertBlogPost(BlogPost blogPost) throws SQLException, Exception {
+
+        String sqlName = "insertBlogPost";
+        ConnectionManager connectionManager = new ConnectionManager(className, sqlName);
+
+        try {
+
+            //PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
+
+            //String sql = "INSERT INTO blog_post (title, body) VALUES (?, ?)";
+            String sql = "INSERT INTO blog_post (hyphenated_name, title, subtitle, body, updated_by, created_by, date_created) VALUES (?, ?, ?, ?, ?, ?, NOW())";
+            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+            preparedStatement.setString(1, blogPost.getHyphenatedName());
+            preparedStatement.setString(2, blogPost.getTitle());
+            preparedStatement.setString(3, blogPost.getSubtitle());
+            preparedStatement.setString(4, blogPost.getBody());
+            preparedStatement.setInt(5, blogPost.getUserId());
+            preparedStatement.setInt(6, blogPost.getUserId());
+            //preparedStatement.setString(2, blogPost.getSubtitle());
+            //preparedStatement.setString(3, blogPost.getMetaDescription());
+            //preparedStatement.setString(5, blogPost.getHyphenatedName());
+
+            preparedStatement.executeUpdate();
+
+            ResultSet resultSet = preparedStatement.getGeneratedKeys();
+            if(resultSet.next()) {
+
+                blogPost.setId(resultSet.getInt(1));
+
+                insertBlogPostHasAuthor(blogPost.getId(), blogPost.getUserId());
+            }
+
+        } finally {
+            connectionManager.commit();
+        }
+    }
+
+    public static void insertBlogPostHasAuthor(int blogPostId, int userId) throws SQLException, Exception {
+        logger.debug("insertBlogPostHasAuthor("+blogPostId+", "+userId+")");
+
+        String sqlName = "insertBlogPostHasAuthor";
+        ConnectionManager connectionManager = new ConnectionManager(className, sqlName);
+
+        try {
+
+            //PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
+
+            String sql = "INSERT INTO blog_post_has_author (blog_post_id, user_id) VALUES (?, ?)";
+            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+
+            preparedStatement.setInt(1, blogPostId);
+            preparedStatement.setInt(2, userId);
+            preparedStatement.executeUpdate();
+
+        } finally {
+            connectionManager.commit();
+        }
+    }
+
+
     public static void populateBlogPost(
         BlogPost blogPost
         , ResultSet resultSet
@@ -965,65 +1053,6 @@ public class BlogPostDatabaseManager {
         //user.setBackgroundImage    (resultSet.getString(21));
         //user.setLogoImage          (resultSet.getString(22));
         //user.setPromoVideo         (resultSet.getString(23));
-    }
-
-    public static void updateBlogPost(BlogPost blogPost) throws SQLException, Exception {
-
-        String sqlName = "updateBlogPost";
-        ConnectionManager connectionManager = new ConnectionManager(className, sqlName);
-
-        try {
-
-            //PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
-
-            String sql = "UPDATE blog_post SET title = ?, subtitle = ?, body = ? WHERE id = ?";
-            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
-
-            preparedStatement.setString(1, blogPost.getTitle());
-            preparedStatement.setString(2, blogPost.getSubtitle());
-            preparedStatement.setString(3, blogPost.getBody());
-            //preparedStatement.setString(2, blogPost.getSubtitle());
-            //preparedStatement.setString(3, blogPost.getMetaDescription());
-            //preparedStatement.setString(5, blogPost.getHyphenatedName());
-            preparedStatement.setInt(4, blogPost.getId());
-
-            preparedStatement.executeUpdate();
-
-        } finally {
-            connectionManager.commit();
-        }
-    }
-
-    public static void insertBlogPost(BlogPost blogPost) throws SQLException, Exception {
-
-        String sqlName = "insertBlogPost";
-        ConnectionManager connectionManager = new ConnectionManager(className, sqlName);
-
-        try {
-
-            //PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
-
-            //String sql = "INSERT INTO blog_post (title, body) VALUES (?, ?)";
-            String sql = "INSERT INTO blog_post (title, subtitle, body, updated_by, created_by, date_created) VALUES (?, ?, ?, ?, ?, NOW())";
-            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-
-            preparedStatement.setString(1, blogPost.getTitle());
-            preparedStatement.setString(2, blogPost.getSubtitle());
-            preparedStatement.setString(3, blogPost.getBody());
-            preparedStatement.setInt(4, blogPost.getUserId());
-            preparedStatement.setInt(5, blogPost.getUserId());
-            //preparedStatement.setString(2, blogPost.getSubtitle());
-            //preparedStatement.setString(3, blogPost.getMetaDescription());
-            //preparedStatement.setString(5, blogPost.getHyphenatedName());
-
-            preparedStatement.executeUpdate();
-
-            ResultSet resultSet = preparedStatement.getGeneratedKeys();
-            if(resultSet.next()) blogPost.setId(resultSet.getInt(1));
-
-        } finally {
-            connectionManager.commit();
-        }
     }
 
 }

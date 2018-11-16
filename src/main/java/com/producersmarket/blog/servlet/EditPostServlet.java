@@ -74,43 +74,6 @@ public class EditPostServlet extends BlogPostServlet {
 
         BlogPost blogPost = new BlogPost();
 
-        /*
-        HttpSession httpSession = request.getSession(false);
-        logger.debug("httpSession = "+httpSession);
-
-        Object userIdObject = null;
-
-        if(
-          httpSession != null
-          && (userIdObject = httpSession.getAttribute("userId")) != null
-        ) {
-
-            logger.debug("httpSession.getId() = "+httpSession.getId());
-            logger.debug("userIdObject = "+userIdObject);
-
-            int userId = Integer.valueOf((String) userIdObject);
-            logger.debug("userId = "+userId);
-        */
-        String userIdString = request.getParameter("userId");
-        logger.debug("userIdString = "+userIdString);
-        int userId = -1;
-        try {
-            userId = Integer.parseInt(userIdString);
-            blogPost.setUserId(userId);
-        } catch(NumberFormatException e) {
-        }
-        logger.debug("userId = "+userId);
-
-        String blogPostIdString = request.getParameter("blogPostId");
-        logger.debug("blogPostIdString = "+blogPostIdString);
-        int blogPostId = -1;
-        try {
-            blogPostId = Integer.parseInt(blogPostIdString);
-            blogPost.setId(blogPostId);
-        } catch(NumberFormatException e) {
-        }
-        logger.debug("blogPostId = "+blogPostId);
-
         String title = request.getParameter("title");
         String subtitle = request.getParameter("subtitle");
         String body = request.getParameter("body");
@@ -122,6 +85,62 @@ public class EditPostServlet extends BlogPostServlet {
         blogPost.setSubtitle(subtitle);
         blogPost.setTitle(title);
         blogPost.setBody(body);
+
+        if(
+               EMPTY.equals(title)
+            && EMPTY.equals(body)
+        ) {
+
+            includeUtf8(request, response, "/view/edit-post.jsp");
+
+            return;
+        }
+
+        // get the userId from the request
+        /*    
+        String userIdString = request.getParameter("userId");
+        logger.debug("userIdString = "+userIdString);
+        int userId = -1;
+        try {
+            userId = Integer.parseInt(userIdString);
+            blogPost.setUserId(userId);
+        } catch(NumberFormatException e) {
+        }
+        logger.debug("userId = "+userId);
+        */
+
+        // or get the userId from the session, better
+        HttpSession httpSession = request.getSession(false);
+        Object userIdObject = null;
+        int userId = -1;
+
+        if(
+          httpSession != null
+          && (userIdObject = httpSession.getAttribute("userId")) != null
+        ) {
+
+            //userId = Integer.valueOf((String) userIdObject);
+            userId = ((Integer)userIdObject).intValue();
+
+            logger.debug("httpSession.getId() = "+httpSession.getId());
+            logger.debug("userIdObject = "+userIdObject);
+            logger.debug("userId = "+userId);
+
+            blogPost.setUserId(userId);
+        }
+
+        String blogPostIdString = request.getParameter("blogPostId");
+        logger.debug("blogPostIdString = "+blogPostIdString);
+        int blogPostId = -1;
+        try {
+            blogPostId = Integer.parseInt(blogPostIdString);
+            blogPost.setId(blogPostId);
+        } catch(NumberFormatException e) {
+            // No blog post ID, must be a new post
+            blogPost.createHyphenatedName();
+        }
+        logger.debug("blogPostId = "+blogPostId);
+
 
         try {
 

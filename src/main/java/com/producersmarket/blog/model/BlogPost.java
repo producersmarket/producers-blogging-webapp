@@ -85,8 +85,39 @@ public class BlogPost {
     public String getHyphenatedName() {
         return hyphenatedName;
     }
+
     public void setHyphenatedName(String hyphenatedName) {
         this.hyphenatedName = hyphenatedName;
+    }
+
+    public void createHyphenatedName() {
+
+        //StringBuilder stringBuilder = new StringBuilder();
+
+        if(this.title != null) {
+
+            //stringBuilder
+            this.setHyphenatedName(replaceStringsInString(this.title, " ", "-"));
+            logger.debug("this.getHyphenatedName() = "+this.getHyphenatedName());
+        }
+    }
+
+    public static String replaceStringsInString(String string, String pattern, String replaceStr) {
+
+        if(string == null || pattern == null || replaceStr == null) return null;
+        StringBuilder stringBuilder = new StringBuilder();
+
+        int replaceIndex = -1;
+        while((replaceIndex = string.indexOf(pattern)) > -1) {
+
+            stringBuilder.append(string.substring(0, replaceIndex));
+            stringBuilder.append(replaceStr);
+            string = string.substring(replaceIndex + pattern.length());
+        }
+
+        stringBuilder.append(string);
+
+        return stringBuilder.toString();
     }
 
     public Blog getBlog() {
