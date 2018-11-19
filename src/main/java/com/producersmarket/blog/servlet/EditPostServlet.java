@@ -74,10 +74,12 @@ public class EditPostServlet extends BlogPostServlet {
 
         BlogPost blogPost = new BlogPost();
 
+        String hyphenatedName = request.getParameter("hyphenatedName");
         String title = request.getParameter("title");
         String subtitle = request.getParameter("subtitle");
         String body = request.getParameter("body");
 
+        logger.debug("hyphenatedName = "+hyphenatedName);
         logger.debug("title = "+title);
         logger.debug("subtitle = "+subtitle);
         logger.debug("body = "+body);
@@ -135,6 +137,7 @@ public class EditPostServlet extends BlogPostServlet {
         try {
             blogPostId = Integer.parseInt(blogPostIdString);
             blogPost.setId(blogPostId);
+            blogPost.setHyphenatedName(hyphenatedName);
         } catch(NumberFormatException e) {
             // No blog post ID, must be a new post
             blogPost.createHyphenatedName();

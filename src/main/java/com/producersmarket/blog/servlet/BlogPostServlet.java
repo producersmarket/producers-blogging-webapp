@@ -354,6 +354,7 @@ public class BlogPostServlet extends ParentServlet {
 
                 logger.debug(blogPost.getId()+" "+blogPost.getHyphenatedName());
 
+                /*
                 Parser parser = Parser.builder().build();
                 Node document = parser.parse(blogPost.getBody());
                 //HtmlRenderer renderer = HtmlRenderer.builder().build();
@@ -372,6 +373,7 @@ public class BlogPostServlet extends ParentServlet {
                 logger.debug("bodyHtml.length()           = "+bodyHtml.length());
 
                 blogPost.setBody(bodyHtml);
+                */
 
                 request.setAttribute("blogPost", blogPost);
 
@@ -382,22 +384,11 @@ public class BlogPostServlet extends ParentServlet {
                 String errorMessage = "Blog Post Not Found!";
                 logger.warn(errorMessage);
 
+                getServletContext().getRequestDispatcher(
+                    new StringBuilder().append("/missing-post/").append(blogPostName).toString()
+                ).forward(request, response);
 
                 //writeOut(response, errorMessage);
-
-                if(blogPostName.equals("what-is-nutrient-density")) {
-
-                    response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
-                    response.setHeader("Location", "http://www.producersmarket.com/blog/Nutrient-Density");
-                    response.setHeader("Connection", "close");
-
-                } else {
-
-                    logger.debug("Missing blog post: "+blogPostName);
-                    logger.warn("Missing blog post: "+blogPostName);
-                    logger.error("Missing blog post: "+blogPostName);
-
-                }
 
 
             } // if(blogPost != null) {

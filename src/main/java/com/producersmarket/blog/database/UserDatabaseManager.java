@@ -88,7 +88,7 @@ public class UserDatabaseManager {
         try {
 
             String sql = new StringBuilder()
-                .append("SELECT id ")
+                .append("SELECT id, name, email")
                 .append(" FROM user")
                 .append(" WHERE email = ?")
                 .toString();
@@ -101,6 +101,8 @@ public class UserDatabaseManager {
 
                 User user = new User();
                 user.setId(resultSet.getInt(1));
+                user.setName(resultSet.getString(2));
+                user.setEmail(resultSet.getString(3));
 
                 return user;
             }

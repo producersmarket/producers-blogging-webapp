@@ -65,6 +65,9 @@ public class LoginServlet extends ParentServlet {
             request.setAttribute("errorMessage", "Please Enter an Email Address");
             includeUtf8(request, response, "/view/login.jsp");
             return;
+        } else {
+            // make sure the email is lowercase
+            email = email.toLowerCase();
         }
 
         try {

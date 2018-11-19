@@ -43,16 +43,16 @@ public class BlogPostDatabaseManager {
 
             //PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
 
-            String sql = "UPDATE blog_post SET title = ?, subtitle = ?, body = ? WHERE id = ?";
+            String sql = "UPDATE blog_post SET title = ?, subtitle = ?, body = ?, hyphenated_name = ? WHERE id = ?";
             PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
 
             preparedStatement.setString(1, blogPost.getTitle());
             preparedStatement.setString(2, blogPost.getSubtitle());
             preparedStatement.setString(3, blogPost.getBody());
+            preparedStatement.setString(4, blogPost.getHyphenatedName());
             //preparedStatement.setString(2, blogPost.getSubtitle());
             //preparedStatement.setString(3, blogPost.getMetaDescription());
-            //preparedStatement.setString(5, blogPost.getHyphenatedName());
-            preparedStatement.setInt(4, blogPost.getId());
+            preparedStatement.setInt(5, blogPost.getId());
 
             preparedStatement.executeUpdate();
 
@@ -158,18 +158,13 @@ public class BlogPostDatabaseManager {
     public static BlogPost selectBlogPostByHyphenatedName(String blogPostName) throws SQLException, Exception {
         logger.debug("selectBlogPostByHyphenatedName("+blogPostName+")");
 
-        //ConnectionManager connectionManager = new ConnectionManager(className, com.producersmarket.servlet.InitServlet.connectionPool);
         ConnectionManager connectionManager = new ConnectionManager(className);
-        //ConnectionManager connectionManager = new ConnectionManager();
 
         try {
 
-            //'id', 'hyphenated_name', 'title', 'sub_title', 'text', 'date_published', 'datetime_published', 'enabled', 'priority', 'updated_by', 'created_by', 'date_updated', 'date_created'
-            //String sqlFields = "id, hyphenated_name, title, subtitle, body, date_published, datetime_published, enabled, priority, updated_by, created_by, date_updated, date_created";
             String sqlFields = "id, hyphenated_name, title, subtitle, meta_description, body, date_published, datetime_published, enabled, priority";
             String sql = new StringBuilder()
-                .append("SELECT ")
-                .append(sqlFields)  
+                .append("SELECT ").append(sqlFields)  
                 .append(" FROM blog_post WHERE hyphenated_name = ?")
                 .toString();
 
@@ -662,26 +657,12 @@ public class BlogPostDatabaseManager {
     public static List<BlogPost> selectBlogPosts() throws SQLException, Exception {
         logger.debug("selectBlogPosts()");
 
-        //ConnectionManager connectionManager = new ConnectionManager(className, com.producersmarket.servlet.InitServlet.connectionPool);
-        //ConnectionManager connectionManager = new ConnectionManager();
         ConnectionManager connectionManager = new ConnectionManager(className);
 
         try {
 
-            //String sqlFields = "id, hyphenated_name, title, subtitle, meta_description, body, date_published, datetime_published, enabled, priority";
             String sqlFields = "bp.id, hyphenated_name, title, subtitle, meta_description, body, date_published, datetime_published, enabled, priority, bphi.image_path";
 
-            /*
-            String sql = new StringBuilder()
-                .append("SELECT ").append(sqlFields)
-                //.append(" FROM blog_post")
-                .append(" FROM blog_post bp, blog_post_has_image bphi")
-                .append(" WHERE enabled = 1")
-                .append(" AND bp.id = bphi.blog_post_id")
-                .append(" ORDER BY bp.id DESC")
-                .toString();
-            */
-            //String sql = "SELECT bp.id FROM blog_post bp LEFT JOIN blog_post_has_image bphi ON bp.id = bphi.blog_post_id WHERE enabled = 1";
             String sql = new StringBuilder()
                 .append("SELECT ").append(sqlFields)
                 .append(" FROM blog_post bp")
@@ -941,14 +922,10 @@ public class BlogPostDatabaseManager {
     public static BlogPost selectBlogPost(int blogPostId) throws SQLException, Exception {
         logger.debug("selectBlogPost("+blogPostId+", connectionManager)");
 
-        //ConnectionManager connectionManager = new ConnectionManager(className, com.producersmarket.servlet.InitServlet.connectionPool);
-        //ConnectionManager connectionManager = new ConnectionManager();
         ConnectionManager connectionManager = new ConnectionManager(className);
 
         try {
 
-            //'id', 'hyphenated_name', 'title', 'sub_title', 'text', 'date_published', 'datetime_published', 'enabled', 'priority', 'updated_by', 'created_by', 'date_updated', 'date_created'
-            //String sqlFields = "id, hyphenated_name, title, subtitle, body, date_published, datetime_published, enabled, priority, updated_by, created_by, date_updated, date_created";
             String sqlFields = "id, hyphenated_name, title, subtitle, meta_description, body, date_published, datetime_published, enabled, priority";
             String sql = new StringBuilder()
                 .append("SELECT ")
@@ -963,8 +940,15 @@ public class BlogPostDatabaseManager {
             if(resultSet.next()) {
 
                 BlogPost blogPost = new BlogPost();
+                
                 populateBlogPost(blogPost, resultSet);
                 //populateBlogPost(blogPost, resultSet, connectionManager);
+
+                selectBlogPostAuthors(blogPost, connectionManager);
+
+                selectRelatedBlogPosts(blogPost, connectionManager);
+
+                selectKeywords(blogPost, connectionManager);
 
                 return blogPost;
             }

@@ -175,8 +175,24 @@ public class BlogPost {
     public String getBodyAsHtml() {
     
         Parser parser = Parser.builder().build();
-        Node document = parser.parse(body);
+        Node document = parser.parse(this.body);
         HtmlRenderer renderer = HtmlRenderer.builder().build();
+
+        return renderer.render(document);
+    }
+
+    public String getBodyAsHtmlWithImages() {
+
+        Parser parser = Parser.builder().build();
+        Node document = parser.parse(this.body);
+        HtmlRenderer renderer = HtmlRenderer
+            .builder()
+            .nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
+                public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
+                    return new BlogImageNodeRenderer(htmlNodeRendererContext);
+                }
+            })
+            .build();
 
         return renderer.render(document);
     }
@@ -221,10 +237,12 @@ public class BlogPost {
 
     public String getExcerpt(int length) {
 
-        if(body.length() > length) {
-            return this.body.substring(0, length);
+        String excerpt = getBodyAsHtmlForSidebar();
+
+        if(excerpt.length() > length) {
+            return excerpt.substring(0, length);
         } else {
-            return body;
+            return excerpt;
         }
     }
 
