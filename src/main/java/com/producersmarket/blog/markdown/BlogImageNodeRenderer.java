@@ -1,26 +1,5 @@
 package com.producersmarket.blog.markdown;
 
-/*
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.List;
-import java.util.ResourceBundle;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.AsyncContext;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import com.producersmarket.manager.BlogPostManager;
-import com.producersmarket.model.BlogPost;
-import com.producersmarket.model.User;
-import com.producersmarket.servlet.ParentServlet;
-*/
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,17 +8,22 @@ import java.util.Set;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
+import org.commonmark.node.Image;
 import org.commonmark.node.Node;
+import org.commonmark.node.Text;
 import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlNodeRendererContext;
 import org.commonmark.renderer.html.HtmlRenderer;
+import org.commonmark.renderer.html.HtmlWriter;
+import org.commonmark.renderer.NodeRenderer;
 
-public class BlogImageNodeRenderer implements org.commonmark.renderer.NodeRenderer {
+public class BlogImageNodeRenderer implements NodeRenderer {
 
     private static final Logger logger = LogManager.getLogger();
 
-    private final org.commonmark.renderer.html.HtmlWriter htmlWriter;
+    private final HtmlWriter htmlWriter;
 
-    public BlogImageNodeRenderer(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
+    public BlogImageNodeRenderer(HtmlNodeRendererContext htmlNodeRendererContext) {
         //logger.debug("("+htmlNodeRendererContext+")");
 
         this.htmlWriter = htmlNodeRendererContext.getWriter();
@@ -50,16 +34,16 @@ public class BlogImageNodeRenderer implements org.commonmark.renderer.NodeRender
         //logger.debug("getNodeTypes()");
 
         // Return the node types we want to use this renderer for.
-        return Collections.<Class<? extends Node>>singleton(org.commonmark.node.Image.class);
+        return Collections.<Class<? extends Node>>singleton(Image.class);
     }
 
     @Override
     public void render(Node node) {
         //logger.debug("render("+node+")");
 
-        // We only handle one type as per getNodeTypes, so we can just cast it here.
-        org.commonmark.node.Image imageNode = (org.commonmark.node.Image)node;
-        org.commonmark.node.Text textNode = (org.commonmark.node.Text)imageNode.getFirstChild();
+        // we only handle one type as per getNodeTypes so we can just cast it here
+        org.commonmark.node.Image imageNode = (Image)node;
+        org.commonmark.node.Text textNode = (Text)imageNode.getFirstChild();
 
         /*
         logger.debug("imageNode = "+imageNode);
@@ -69,7 +53,7 @@ public class BlogImageNodeRenderer implements org.commonmark.renderer.NodeRender
         //logger.debug("imageNode.getFirstChild() = "+imageNode.getFirstChild());
         */
 
-        // Create the node attributes
+        // create the node attributes
         Map<String,String> attributeMap = new HashMap() {{
             put("src", imageNode.getDestination());
             //put("alt", imageNode.getTitle()); // title can be null

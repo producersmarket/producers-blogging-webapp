@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 //import java.text.SimpleDateFormat;
 
-//import org.apache.commons.lang.StringEscapeUtils;
-//import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
 import org.commonmark.node.Node;
@@ -21,14 +19,8 @@ import com.producersmarket.blog.markdown.BlogImageNodeRenderer;
 import com.producersmarket.blog.markdown.LinkNodeRenderer;
 import com.producersmarket.blog.markdown.SidebarNodeRenderer;
 import com.producersmarket.blog.model.BlogPost;
+import com.producersmarket.blog.markdown.TextOnlyNodeRenderer;
 import com.producersmarket.model.User;
-
-/**
- * Getters and Setters for a blog post.
- *
- * @author dermot
- * @version 0.1 2017/09/04
- */
 
 public class BlogPost {
 
@@ -181,6 +173,57 @@ public class BlogPost {
         return renderer.render(document);
     }
 
+    public String getBodyText(int length) {
+        logger.debug("getBodyText("+length+")");
+
+        String bodyText = getBodyText();
+
+        if(bodyText.length() > length) {
+
+            int indexOfSpace = bodyText.indexOf(" ", length);
+            //int indexOfSpace = bodyText.indexOf(' ', length);
+            logger.debug("indexOfSpace = "+indexOfSpace);
+
+            String bodySubstring = bodyText.substring(0, length);
+
+            int lastIndexOfDot = bodySubstring.lastIndexOf(".");
+            int lastIndexOfExclamation = bodySubstring.lastIndexOf("!");
+
+            logger.debug("lastIndexOfDot = "+lastIndexOfDot);
+            logger.debug("lastIndexOfExclamation = "+lastIndexOfExclamation);
+
+            int excerptLength = lastIndexOfDot;
+            if(lastIndexOfExclamation > lastIndexOfDot) excerptLength = lastIndexOfExclamation;
+
+            if(excerptLength != -1) {
+                bodySubstring = bodySubstring.substring(0, excerptLength + 1);
+            } else if(indexOfSpace > length) {
+                if(indexOfSpace > length) length = indexOfSpace;
+                bodySubstring = bodyText.substring(0, length);
+            }
+
+            return bodySubstring;
+        }
+
+        return bodyText;
+    }
+
+    public String getBodyText() {
+
+        Parser parser = Parser.builder().build();
+        Node document = parser.parse(this.body);
+        HtmlRenderer renderer = HtmlRenderer
+            .builder()
+            .nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
+                public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
+                    return new TextOnlyNodeRenderer(htmlNodeRendererContext);
+                }
+            })
+            .build();
+
+        return renderer.render(document);
+    }
+
     public String getBodyAsHtmlWithImages() {
 
         Parser parser = Parser.builder().build();
@@ -237,7 +280,8 @@ public class BlogPost {
 
     public String getExcerpt(int length) {
 
-        String excerpt = getBodyAsHtmlForSidebar();
+        //String excerpt = getBodyText();
+        String excerpt = getBodyText(length);
 
         if(excerpt.length() > length) {
             return excerpt.substring(0, length);
