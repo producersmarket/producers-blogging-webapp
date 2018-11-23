@@ -177,14 +177,12 @@ public class BlogPost {
         logger.debug("getBodyText("+length+")");
 
         String bodyText = getBodyText();
+        //logger.debug(bodyText);
 
         if(bodyText.length() > length) {
 
-            int indexOfSpace = bodyText.indexOf(" ", length);
-            //int indexOfSpace = bodyText.indexOf(' ', length);
-            logger.debug("indexOfSpace = "+indexOfSpace);
-
             String bodySubstring = bodyText.substring(0, length);
+            logger.debug(bodySubstring);
 
             int lastIndexOfDot = bodySubstring.lastIndexOf(".");
             int lastIndexOfExclamation = bodySubstring.lastIndexOf("!");
@@ -192,16 +190,34 @@ public class BlogPost {
             logger.debug("lastIndexOfDot = "+lastIndexOfDot);
             logger.debug("lastIndexOfExclamation = "+lastIndexOfExclamation);
 
-            int excerptLength = lastIndexOfDot;
-            if(lastIndexOfExclamation > lastIndexOfDot) excerptLength = lastIndexOfExclamation;
+            int excerptLength = -1;
 
-            if(excerptLength != -1) {
-                bodySubstring = bodySubstring.substring(0, excerptLength + 1);
-            } else if(indexOfSpace > length) {
-                if(indexOfSpace > length) length = indexOfSpace;
-                bodySubstring = bodyText.substring(0, length);
+            if(lastIndexOfDot != -1) excerptLength = lastIndexOfDot;
+
+            if(lastIndexOfExclamation != -1) {
+                if(lastIndexOfExclamation > lastIndexOfDot) excerptLength = lastIndexOfExclamation;
             }
 
+            logger.debug("excerptLength = "+excerptLength);
+
+            if(excerptLength != -1) {
+
+                return bodyText.substring(0, excerptLength);
+
+            } else {
+
+                int indexOfSpace = bodyText.indexOf(" ", length);
+                //int indexOfSpace = bodyText.indexOf(' ', length);
+                logger.debug("indexOfSpace = "+indexOfSpace);
+
+                if(indexOfSpace != -1) {
+                    logger.debug("bodyText.substring(0, indexOfSpace) = "+bodyText.substring(0, indexOfSpace));
+                    logger.debug("return "+bodyText.substring(0, indexOfSpace));
+                    return bodyText.substring(0, indexOfSpace);
+                }
+            }
+
+            logger.debug("return "+bodySubstring);
             return bodySubstring;
         }
 
@@ -280,6 +296,8 @@ public class BlogPost {
 
     public String getExcerpt(int length) {
 
+        return getBodyText(length);
+        /*
         //String excerpt = getBodyText();
         String excerpt = getBodyText(length);
 
@@ -288,6 +306,7 @@ public class BlogPost {
         } else {
             return excerpt;
         }
+        */
     }
 
     public void setMetaDescription(String metaDescription) {

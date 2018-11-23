@@ -668,6 +668,7 @@ public class BlogPostDatabaseManager {
                 .append(" FROM blog_post bp")
                 .append(" LEFT JOIN blog_post_has_image bphi ON bp.id = bphi.blog_post_id")
                 .append(" WHERE enabled = 1")
+                .append(" ORDER BY bp.priority")
                 .toString();
 
             logger.debug(sql);
