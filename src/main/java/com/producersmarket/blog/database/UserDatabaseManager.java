@@ -31,6 +31,7 @@ public class UserDatabaseManager {
         .append(", uhi.background_image, uhi.logo_image, uhi.promo_video")
         .toString();
 
+    /*
     public static void updatePassword(int userId, String password) throws SQLException, Exception {
         logger.debug("updatePassword("+userId+", '"+password+"')");
 
@@ -48,8 +49,9 @@ public class UserDatabaseManager {
         }
 
     }
+    */
 
-
+    /*
     public static User selectUserByPasswordResetCode(String code) throws SQLException, Exception {
         logger.debug("selectUserByPasswordResetCode("+code+")");
 
@@ -79,6 +81,7 @@ public class UserDatabaseManager {
 
         return null;
     }
+    */
 
     public static User selectUserByEmail(String email) throws SQLException, Exception {
         logger.debug("selectUserByEmail("+email+")");

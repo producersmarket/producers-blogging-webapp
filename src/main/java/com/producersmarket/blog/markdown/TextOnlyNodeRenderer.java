@@ -187,26 +187,32 @@ public class TextOnlyNodeRenderer implements NodeRenderer {
                     logger.debug("    nextNode instanceof Link");
 
                     Node nextNodeFirstChild = nextNode.getFirstChild();
-                    logger.debug("        nextNodeFirstChild.toString() = "+nextNodeFirstChild.toString());
 
-                    if(nextNodeFirstChild instanceof Text) {
+                    if(nextNodeFirstChild != null) {
+                        logger.debug("        nextNodeFirstChild.toString() = "+nextNodeFirstChild.toString());
 
-                        String literal = ((Text)nextNodeFirstChild).getLiteral();
-                        logger.debug("        literal = "+literal);
-                        if(literal != null) this.htmlWriter.text(literal);
+                        if(nextNodeFirstChild instanceof Text) {
+
+                            String literal = ((Text)nextNodeFirstChild).getLiteral();
+                            logger.debug("        literal = "+literal);
+                            if(literal != null) this.htmlWriter.text(literal);
+                        }
                     }
 
                 } else if(nextNode instanceof Paragraph) {
                     logger.debug("    nextNode instanceof Paragraph");
 
                     Node nextNodeFirstChild = nextNode.getFirstChild();
-                    logger.debug("        nextNodeFirstChild.toString() = "+nextNodeFirstChild.toString());
+                    if(nextNodeFirstChild != null) {
 
-                    if(nextNodeFirstChild instanceof Text) {
+                        logger.debug("        nextNodeFirstChild.toString() = "+nextNodeFirstChild.toString());
 
-                        String literal = ((Text)nextNodeFirstChild).getLiteral();
-                        logger.debug("        literal = "+literal);
-                        if(literal != null) this.htmlWriter.text(literal);
+                        if(nextNodeFirstChild instanceof Text) {
+
+                            String literal = ((Text)nextNodeFirstChild).getLiteral();
+                            logger.debug("        literal = "+literal);
+                            if(literal != null) this.htmlWriter.text(literal);
+                        }
                     }
 
                 }
