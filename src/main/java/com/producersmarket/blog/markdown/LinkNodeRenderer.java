@@ -55,7 +55,6 @@ public class LinkNodeRenderer implements org.commonmark.renderer.NodeRenderer {
     public void render(Node node) {
         //logger.debug("render("+node+")");
 
-        // We only handle one type as per getNodeTypes, so we can just cast it here.
         org.commonmark.node.Link linkNode = (org.commonmark.node.Link)node;
 
         //logger.debug("linkNode.Destination() = "+linkNode.getDestination());

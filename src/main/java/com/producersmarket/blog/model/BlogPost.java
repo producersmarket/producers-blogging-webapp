@@ -18,8 +18,9 @@ import org.apache.logging.log4j.LogManager;
 import com.producersmarket.blog.markdown.BlogImageNodeRenderer;
 import com.producersmarket.blog.markdown.LinkNodeRenderer;
 import com.producersmarket.blog.markdown.SidebarNodeRenderer;
-import com.producersmarket.blog.model.BlogPost;
 import com.producersmarket.blog.markdown.TextOnlyNodeRenderer;
+import com.producersmarket.blog.markdown.CustomImagesAndLinksRenderer;
+import com.producersmarket.blog.model.BlogPost;
 import com.producersmarket.model.User;
 
 public class BlogPost {
@@ -256,6 +257,22 @@ public class BlogPost {
         return renderer.render(document);
     }
 
+    public String getBodyAsHtmlWithCustomImagesAndLinks() {
+
+        Parser parser = Parser.builder().build();
+        Node document = parser.parse(this.body);
+        
+        HtmlRenderer renderer = HtmlRenderer
+            .builder()
+            .nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
+                public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
+                    return new CustomImagesAndLinksRenderer(htmlNodeRendererContext);
+                }
+            })
+            .build();
+
+        return renderer.render(document);
+    }
     public String getBodyAsHtmlForSidebar() {
     
         Parser parser = Parser.builder().build();
