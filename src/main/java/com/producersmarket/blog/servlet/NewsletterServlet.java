@@ -94,7 +94,8 @@ public class NewsletterServlet extends ParentServlet {
 
             if(newsletterName != null && newsletterName.length() > 0) {
 
-                executor.execute(
+                //executor.execute(
+                super.execute(
                     new NewsletterNameRequest(
                         request.startAsync()
                       , newsletterName.toLowerCase()
@@ -105,7 +106,8 @@ public class NewsletterServlet extends ParentServlet {
 
             } else {
 
-                executor.execute(
+                //executor.execute(
+                super.execute(
                     new NewsletterRequest(
                         request.startAsync()
                     )

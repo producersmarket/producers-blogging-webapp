@@ -15,7 +15,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import com.producersmarket.blog.database.BlogPostDatabaseManager;
-import com.producersmarket.blog.database.LoginDatabaseManager;
 import com.producersmarket.blog.database.UserDatabaseManager;
 import com.producersmarket.blog.model.BlogPost;
 import com.producersmarket.blog.model.User;

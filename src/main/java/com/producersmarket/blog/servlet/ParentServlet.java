@@ -29,12 +29,14 @@ public class ParentServlet extends InitServlet {
     public static final String RIGHT_SQUARE = "]";
     public static final String DOUBLE_QUOTE = "\"";
 	
-    public static ServletContext servletContext;
+    //public static ServletContext servletContext;
+    private ServletContext servletContext;
 
     /**
      * Executor to process asynchronous http requests.
      */
-    public static java.util.concurrent.Executor executor = null;
+    //public static java.util.concurrent.Executor executor = null;
+    private java.util.concurrent.Executor executor = null;
 	
     public String doubleQuotes(String string) {
         return new StringBuilder().append(DOUBLE_QUOTE).append(string).append(DOUBLE_QUOTE).toString();
@@ -48,9 +50,9 @@ public class ParentServlet extends InitServlet {
     public void init(ServletConfig config) throws ServletException {
         logger.debug("init(config)");
 
-        servletContext = config.getServletContext();
+        this.servletContext = config.getServletContext();
 
-        executor = new java.util.concurrent.ThreadPoolExecutor(
+        this.executor = new java.util.concurrent.ThreadPoolExecutor(
             10
           , 10
           , 50000L
@@ -87,7 +89,7 @@ public class ParentServlet extends InitServlet {
             //logger.debug("this.getServletConfig() = "+this.getServletConfig());
             //if(this.getServletConfig() != null) logger.debug("this.getServletConfig().getServletContext() = "+this.getServletConfig().getServletContext());
             //this.getServletConfig().getServletContext().getRequestDispatcher(jspPath).include(request, response);
-            servletContext.getRequestDispatcher(jspPath).include(request, response);
+            this.servletContext.getRequestDispatcher(jspPath).include(request, response);
             //request.getRequestDispatcher(jspPath).include(request, response);
 
         } catch(java.io.FileNotFoundException e) {
@@ -153,7 +155,7 @@ public class ParentServlet extends InitServlet {
             //this.getServletConfig().getServletContext().getRequestDispatcher(path).include(request, response);
             //context.getRequestDispatcher(path).include(request, response);
 
-            servletContext.getRequestDispatcher(path).include(request, response);
+            this.servletContext.getRequestDispatcher(path).include(request, response);
 
             try {
                 //response.getOutputStream().flush(); // yes/no/why?
@@ -206,6 +208,12 @@ public class ParentServlet extends InitServlet {
         }
         
         return -1;
+    }
+
+    protected void execute(Runnable runnable) {
+        logger.debug("execute(runnable)");
+
+        this.executor.execute(runnable);
     }
 
 }

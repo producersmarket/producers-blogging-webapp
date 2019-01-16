@@ -67,16 +67,18 @@ public class TextOnlyNodeRenderer implements NodeRenderer {
 
     @Override
     public void render(Node node) {
-        logger.debug("render("+node+")");
+        //logger.debug("render("+node+")");
 
+        /*
         logger.debug("node.toString() = "+node.toString());
         logger.debug("    node instanceof Paragraph = "+(node instanceof Paragraph));
         logger.debug("    node instanceof Image = "+(node instanceof Image));
         logger.debug("    node instanceof Link = "+(node instanceof Link));
         logger.debug("    node instanceof StrongEmphasis = "+(node instanceof StrongEmphasis));
+        */
 
         if(node instanceof Link) {
-            logger.debug("    node instanceof Link");
+            //logger.debug("    node instanceof Link");
 
             // We only handle one type as per getNodeTypes, so we can just cast it here.
             Link linkNode = (Link)node;
@@ -98,10 +100,9 @@ public class TextOnlyNodeRenderer implements NodeRenderer {
 
                 // render hyperlinks as just text without the link
                 String literal = ((Text)firstChildNode).getLiteral();
-                logger.debug("        literal = "+literal);
+                //logger.debug("        literal = "+literal);
 
                 if(literal != null) this.htmlWriter.text(literal);
-
             }
 
             /*
@@ -119,12 +120,12 @@ public class TextOnlyNodeRenderer implements NodeRenderer {
             */
 
         } else if(node instanceof Image) {
-            logger.debug("    node instanceof Image");
+            //logger.debug("    node instanceof Image");
 
             // don't render images
 
         } else if(node instanceof StrongEmphasis) {
-            logger.debug("    node instanceof StrongEmphasis");
+            //logger.debug("    node instanceof StrongEmphasis");
 
             // don't render strong emphasis
             Node firstChildNode = node.getFirstChild(); // Blog link may be Image or Text
@@ -136,7 +137,7 @@ public class TextOnlyNodeRenderer implements NodeRenderer {
                 if(firstChildNode instanceof Text) {
 
                     String literal = ((Text)firstChildNode).getLiteral();
-                    logger.debug("        literal = "+literal);
+                    //logger.debug("        literal = "+literal);
 
                     if(literal != null) this.htmlWriter.text(literal);
 
@@ -147,7 +148,7 @@ public class TextOnlyNodeRenderer implements NodeRenderer {
             }
 
         } else if(node instanceof Paragraph) {
-            logger.debug("    node instanceof Paragraph");
+            //logger.debug("    node instanceof Paragraph");
 
             /*
             Node firstChildNode = node.getFirstChild(); // Blog link may be Image or Text
@@ -168,49 +169,52 @@ public class TextOnlyNodeRenderer implements NodeRenderer {
 
             do {
 
+                /*
                 logger.debug("nextNode = "+nextNode);
                 logger.debug("    nextNode instanceof Paragraph = "+(nextNode instanceof Paragraph));
                 logger.debug("    nextNode instanceof Image = "+(nextNode instanceof Image));
                 logger.debug("    nextNode instanceof Link = "+(nextNode instanceof Link));
                 logger.debug("    nextNode instanceof StrongEmphasis = "+(nextNode instanceof StrongEmphasis));
                 logger.debug("    nextNode instanceof Text = "+(nextNode instanceof Text));
-
+                */
 
                 if(nextNode instanceof Text) {
 
                     String literal = ((Text)nextNode).getLiteral();
-                    logger.debug("        literal = "+literal);
+                    //logger.debug("        literal = "+literal);
 
                     if(literal != null) this.htmlWriter.text(literal);
 
                 } else if(nextNode instanceof Link) {
-                    logger.debug("    nextNode instanceof Link");
+                    //logger.debug("    nextNode instanceof Link");
 
                     Node nextNodeFirstChild = nextNode.getFirstChild();
 
                     if(nextNodeFirstChild != null) {
-                        logger.debug("        nextNodeFirstChild.toString() = "+nextNodeFirstChild.toString());
+                        //logger.debug("        nextNodeFirstChild.toString() = "+nextNodeFirstChild.toString());
 
                         if(nextNodeFirstChild instanceof Text) {
 
                             String literal = ((Text)nextNodeFirstChild).getLiteral();
-                            logger.debug("        literal = "+literal);
+                            //logger.debug("        literal = "+literal);
+
                             if(literal != null) this.htmlWriter.text(literal);
                         }
                     }
 
                 } else if(nextNode instanceof Paragraph) {
-                    logger.debug("    nextNode instanceof Paragraph");
+                    //logger.debug("    nextNode instanceof Paragraph");
 
                     Node nextNodeFirstChild = nextNode.getFirstChild();
                     if(nextNodeFirstChild != null) {
 
-                        logger.debug("        nextNodeFirstChild.toString() = "+nextNodeFirstChild.toString());
+                        //logger.debug("        nextNodeFirstChild.toString() = "+nextNodeFirstChild.toString());
 
                         if(nextNodeFirstChild instanceof Text) {
 
                             String literal = ((Text)nextNodeFirstChild).getLiteral();
-                            logger.debug("        literal = "+literal);
+                            //logger.debug("        literal = "+literal);
+
                             if(literal != null) this.htmlWriter.text(literal);
                         }
                     }
@@ -222,13 +226,15 @@ public class TextOnlyNodeRenderer implements NodeRenderer {
             } while(nextNode != null);
 
         } else if(node instanceof Text) {
-            logger.debug("    node instanceof Text");
+            //logger.debug("    node instanceof Text");
 
             Node firstChildNode = node.getFirstChild(); // Blog link may be Image or Text
             if(firstChildNode != null) {
                 if(firstChildNode instanceof Text) {
+
                     String literal = ((Text)firstChildNode).getLiteral();
-                    logger.debug("        literal = "+literal);
+                    //logger.debug("        literal = "+literal);
+
                     if(literal != null) this.htmlWriter.text(literal);
                 }
             }
