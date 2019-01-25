@@ -154,12 +154,14 @@ public class EditPostServlet extends BlogPostServlet {
             }
 
             //include(request, response, "/view/email-sent.jsp");
-            //javax.servlet.RequestDispatcher rd = this.config.getServletContext().getRequestDispatcher("/import-contacts");
-            //rd.forward(request, response);
-
+            //javax.servlet.RequestDispatcher requestDispatcher = this.config.getServletContext().getRequestDispatcher("/import-contacts");
+            //requestDispatcher.forward(request, response);
+            /*
             getServletContext().getRequestDispatcher(
                 new StringBuilder().append("/post/").append(blogPost.getId()).toString()
             ).forward(request, response);
+            */
+            super.blogPostRequest(request, response, blogPost.getId());
 
             return;
 
