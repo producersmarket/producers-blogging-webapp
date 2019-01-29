@@ -39,3 +39,4 @@ ssh-add ~/.ssh/id_rsa
 * 0.0.1.11 - Added CustomImagesAndLinksRenderer
 * 0.0.1.13 - ParentServlet made servletContent non-static, private
 * 0.0.1.14 - EditPostServlet changed how blog post is loaded after edit
+* 0.0.1.15 - Fixed bug in CustomImagesAndLinksRenderer
