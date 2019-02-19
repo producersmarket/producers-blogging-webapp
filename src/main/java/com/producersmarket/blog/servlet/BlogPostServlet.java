@@ -174,12 +174,7 @@ public class BlogPostServlet extends ParentServlet {
 
     }
 
-    public void blogPostRequest(
-        HttpServletRequest request
-      , HttpServletResponse response
-      , int blogPostId
-    ) throws IOException, ServletException {
-
+    public void blogPostRequest(HttpServletRequest request, HttpServletResponse response, int blogPostId) throws IOException, ServletException {
         logger.debug("blogPostRequest(request, response, "+blogPostId+")");
 
         try {

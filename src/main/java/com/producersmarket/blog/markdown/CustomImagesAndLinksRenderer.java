@@ -69,12 +69,14 @@ public class CustomImagesAndLinksRenderer implements NodeRenderer {
     public void render(Node node) {
         logger.debug("render("+node+")");
 
+        /*
         logger.debug("node.toString() = "+node.toString());
         logger.debug("    node instanceof Image = "+(node instanceof Image));
         logger.debug("    node instanceof Link = "+(node instanceof Link));
+        */
 
         if(node instanceof Link) {
-            logger.debug("    node instanceof Link");
+            //logger.debug("    node instanceof Link");
 
             Link linkNode = (Link)node;
 
@@ -89,8 +91,7 @@ public class CustomImagesAndLinksRenderer implements NodeRenderer {
 
             if(firstChildNode instanceof Image) {
 
-                // don't render images
-                this.renderImageNode(node);
+                this.renderImageNode(firstChildNode);
 
             } else if(firstChildNode instanceof Text) {
 
@@ -102,27 +103,17 @@ public class CustomImagesAndLinksRenderer implements NodeRenderer {
 
                 this.htmlWriter.tag("a", attributeMap);
 
-                //String literal = ((org.commonmark.node.Text)firstChildNode).getLiteral();
                 org.commonmark.node.Text textNode = (Text)firstChildNode;
 
                 if(textNode != null) { // textNode can be empty/null
 
                     String literal = textNode.getLiteral();
-                    logger.debug("literal = "+literal);
+                    //logger.debug("literal = "+literal);
 
-                    //if(altText != null) attributeMap.put("alt", altText);
                     if(literal != null) this.htmlWriter.text(literal);
                 }
 
                 this.htmlWriter.tag("/a");
-
-                //if(literal != null) this.htmlWriter.text(literal);
-
-                // render hyperlinks as just text without the link
-            //    String literal = ((Text)firstChildNode).getLiteral();
-            //    logger.debug("        literal = "+literal);
-            //    if(literal != null) this.htmlWriter.text(literal);
-
             }
 
             /*
@@ -140,9 +131,8 @@ public class CustomImagesAndLinksRenderer implements NodeRenderer {
             */
 
         } else if(node instanceof Image) {
-            logger.debug("    node instanceof Image");
+            //logger.debug("    node instanceof Image");
 
-            // don't render images
             this.renderImageNode(node);
 
         /*
