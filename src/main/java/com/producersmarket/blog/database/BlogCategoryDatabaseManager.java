@@ -29,8 +29,9 @@ public class BlogCategoryDatabaseManager {
 
         try {
 
-            String sql = "SELECT id, category FROM blog_category ORDER BY priority";
-            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            //String sql = "SELECT id, category FROM blog_category ORDER BY priority";
+            //PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogCategoriesOrderByPriority");
 
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -73,8 +74,9 @@ public class BlogCategoryDatabaseManager {
 
         try {
 
-            String sql = "SELECT id, category FROM blog_category ORDER BY priority";
-            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            //String sql = "SELECT id, category FROM blog_category ORDER BY priority";
+            //PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogCategoryMapOrderByPriority");
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if(resultSet.next()) {
@@ -114,7 +116,7 @@ public class BlogCategoryDatabaseManager {
 
         try {
 
-            String sql = "SELECT image_path FROM blog_category_has_image WHERE blog_category_id = ?";
+            //String sql = "SELECT image_path FROM blog_category_has_image WHERE blog_category_id = ?";
             Product product = null;
             Iterator<Product> productIterator = productList.iterator();
 
@@ -122,7 +124,8 @@ public class BlogCategoryDatabaseManager {
 
                 product = productIterator.next();
 
-                PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+                //PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+                PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogCategoryImages");
                 preparedStatement.setInt(1, product.getId());
                 ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -149,6 +152,7 @@ public class BlogCategoryDatabaseManager {
 
         try {
 
+            /*
             String sql = new StringBuilder()
                 .append("SELECT ")
                 .append(" blog_category_id")
@@ -159,6 +163,8 @@ public class BlogCategoryDatabaseManager {
             logger.debug(sql);
 
             PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            */
+            PreparedStatement preparedStatement = connectionManager.prepareStatement("selectBlogPostCategoryIds");
             preparedStatement.setInt(1, blogPost.getId());
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -195,6 +201,7 @@ public class BlogCategoryDatabaseManager {
 
         try {
 
+            /*
             String sql = new StringBuilder()
                 .append("SELECT ")
                 .append(" category")
@@ -206,6 +213,8 @@ public class BlogCategoryDatabaseManager {
             logger.debug(sql);
 
             PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            */
+            PreparedStatement preparedStatement = connectionManager.prepareStatement("selectBlogPostCategories");
             preparedStatement.setInt(1, blogPost.getId());
 
             ResultSet resultSet = preparedStatement.executeQuery();

@@ -43,8 +43,9 @@ public class BlogPostDatabaseManager {
 
             //PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
 
-            String sql = "UPDATE blog_post SET title = ?, subtitle = ?, body = ?, hyphenated_name = ? WHERE id = ?";
-            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            //String sql = "UPDATE blog_post SET title = ?, subtitle = ?, body = ?, hyphenated_name = ? WHERE id = ?";
+            //PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
 
             preparedStatement.setString(1, blogPost.getTitle());
             preparedStatement.setString(2, blogPost.getSubtitle());
@@ -68,11 +69,9 @@ public class BlogPostDatabaseManager {
 
         try {
 
-            //PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
-
-            //String sql = "INSERT INTO blog_post (title, body) VALUES (?, ?)";
-            String sql = "INSERT INTO blog_post (hyphenated_name, title, subtitle, body, updated_by, created_by, date_created) VALUES (?, ?, ?, ?, ?, ?, NOW())";
-            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            //String sql = "INSERT INTO blog_post (hyphenated_name, title, subtitle, body, updated_by, created_by, date_created) VALUES (?, ?, ?, ?, ?, ?, NOW())";
+            //PreparedStatement preparedStatement = connectionManager.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName, Statement.RETURN_GENERATED_KEYS);
 
             preparedStatement.setString(1, blogPost.getHyphenatedName());
             preparedStatement.setString(2, blogPost.getTitle());
@@ -109,8 +108,9 @@ public class BlogPostDatabaseManager {
 
             //PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
 
-            String sql = "INSERT INTO blog_post_has_author (blog_post_id, user_id) VALUES (?, ?)";
-            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            //String sql = "INSERT INTO blog_post_has_author (blog_post_id, user_id) VALUES (?, ?)";
+            //PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
 
             preparedStatement.setInt(1, blogPostId);
             preparedStatement.setInt(2, userId);
@@ -162,13 +162,16 @@ public class BlogPostDatabaseManager {
 
         try {
 
+            /*
             String sqlFields = "id, hyphenated_name, title, subtitle, meta_description, body, date_published, datetime_published, enabled, priority";
             String sql = new StringBuilder()
                 .append("SELECT ").append(sqlFields)  
                 .append(" FROM blog_post WHERE hyphenated_name = ?")
                 .toString();
 
-            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            //PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            */
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogPostByHyphenatedName");
             preparedStatement.setString(1, blogPostName);
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -219,6 +222,7 @@ public class BlogPostDatabaseManager {
 
         try {
 
+            /*
             String sql = new StringBuilder()
                 .append("SELECT keyword")
                 .append(" FROM blog_post_has_keyword")
@@ -227,6 +231,8 @@ public class BlogPostDatabaseManager {
             logger.debug(sql);
 
             PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            */
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectKeywords");
             preparedStatement.setInt(1, blogPost.getId());
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -262,6 +268,7 @@ public class BlogPostDatabaseManager {
 
         try {
 
+            /*
             String sqlFields = "bp.id, bp.hyphenated_name, bp.title, bp.subtitle, bp.meta_description, bp.body, bp.date_published, bp.datetime_published, bp.enabled, bp.priority, bphrbp.title, bphrbp.image_path";
 
             String sql = new StringBuilder()
@@ -274,6 +281,8 @@ public class BlogPostDatabaseManager {
             logger.debug(sql);
 
             PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            */
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectRelatedBlogPosts");
             preparedStatement.setInt(1, blogPost.getId());
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -296,11 +305,11 @@ public class BlogPostDatabaseManager {
                      * Select the custom sidebar title from the blog_post_has_related_blog_posts table,
                      */
                     //String relatedBlogPostTitle = resultSet.getString(10);
-                    String relatedBlogPostTitle = resultSet.getString("bphrbp.title");
+                    String relatedBlogPostTitle = resultSet.getString("rp.title");
                     relatedBlogPost.setAlternativeTitle(relatedBlogPostTitle);
                     //if(relatedBlogPostTitle != null) relatedBlogPost.setTitle(relatedBlogPostTitle); // overwrite the blog post title with the title from blog_post_has_related_blog_posts
 
-                    String relatedBlogPostImagePath = resultSet.getString("bphrbp.image_path");
+                    String relatedBlogPostImagePath = resultSet.getString("rp.imagepath");
                     if(relatedBlogPostImagePath != null) relatedBlogPost.setImagePath(relatedBlogPostImagePath);
 
                     /*
@@ -394,7 +403,7 @@ public class BlogPostDatabaseManager {
 
         try {
 
-            //String sqlFields = "bp.id, bp.hyphenated_name, bp.title, bp.subtitle, bp.meta_description, bp.body, bp.date_published, bp.datetime_published, bp.enabled, bp.priority, bphrbp.title, bphrbp.image_path";
+            /*
             String sqlFields = "bp.id, bp.hyphenated_name, bp.title, bp.subtitle, bp.meta_description, bp.body, bp.date_published, bp.datetime_published, bp.enabled, bp.priority, phbp.title, phbp.image_path";
 
             String sql = new StringBuilder()
@@ -408,6 +417,9 @@ public class BlogPostDatabaseManager {
             logger.debug(sql);
 
             PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            */
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogPostsByProducerId");
+
             preparedStatement.setInt(1, producerId);
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -439,10 +451,10 @@ public class BlogPostDatabaseManager {
                     //selectRelatedBlogPosts(relatedBlogPost, connectionManager);
 
                     // Select the custom sidebar title from the blog_post_has_related_blog_posts table,
-                    String blogPostTitle = resultSet.getString("phbp.title");
+                    String blogPostTitle = resultSet.getString("pp.title");
                     if(blogPostTitle != null) blogPost.setTitle(blogPostTitle); // overwrite the blog post title with the title from blog_post_has_related_blog_posts
 
-                    String blogPostImagePath = resultSet.getString("phbp.image_path");
+                    String blogPostImagePath = resultSet.getString("pp.imagepath");
                     if(blogPostImagePath != null) blogPost.setImagePath(blogPostImagePath);
 
                     /*
@@ -588,6 +600,7 @@ public class BlogPostDatabaseManager {
 
         try {
 
+            /*
             String sqlFields = "bp.id, hyphenated_name, title, subtitle, meta_description, body, date_published, datetime_published, enabled, priority";
 
             String sql = new StringBuilder()
@@ -600,6 +613,8 @@ public class BlogPostDatabaseManager {
             logger.debug(sql);
 
             PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            */
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogPostsByUserId");
             preparedStatement.setInt(1, userId);
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -661,6 +676,7 @@ public class BlogPostDatabaseManager {
 
         try {
 
+            /*
             String sqlFields = "bp.id, hyphenated_name, title, subtitle, meta_description, body, date_published, datetime_published, enabled, priority, bphi.image_path";
 
             String sql = new StringBuilder()
@@ -674,6 +690,8 @@ public class BlogPostDatabaseManager {
             logger.debug(sql);
 
             PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            */
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogPosts");
 
             ResultSet resultSet = preparedStatement.executeQuery();
             if(resultSet.next()) {
@@ -734,18 +752,9 @@ public class BlogPostDatabaseManager {
 
         try {
 
-            //String sqlFields = "bp.id, hyphenated_name, title, subtitle, meta_description, body, date_published, datetime_published, enabled, priority";
+            /*
             String sqlFields = "bp.id, hyphenated_name, title, subtitle, meta_description, body, date_published, datetime_published, enabled, priority, bphi.image_path";
             String selectBlogCategoryId = "SELECT blog_category.id FROM blog_category WHERE category = ?";
-
-            /*
-            String sql = new StringBuilder()
-                .append("SELECT ").append(sqlFields)
-                .append(" FROM blog_post bp")
-                .append(" LEFT JOIN blog_post_has_image bphi ON bp.id = bphi.blog_post_id")
-                .append(" WHERE enabled = 1")
-                .toString();
-            */
 
             String sql = new StringBuilder()
                 .append("SELECT ").append(sqlFields)
@@ -764,6 +773,9 @@ public class BlogPostDatabaseManager {
             //logger.debug(sql);
 
             PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            */
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogPostsByCategoryName");
+
             preparedStatement.setString(1, categoryName);
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -829,20 +841,37 @@ public class BlogPostDatabaseManager {
 
         try {
 
-            //String sqlFields = "bp.id, bp.hyphenated_name, bp.title, bp.subtitle, bp.meta_description, bp.body, bp.date_published, bp.datetime_published, bp.enabled, bp.priority, bphrbp.title, bphrbp.image_path";
+            /*
             String sqlFields = "bp.id, bp.hyphenated_name, bp.title, bp.subtitle, bp.meta_description, bp.body, bp.date_published, bp.datetime_published, bp.enabled, bp.priority";
 
             StringBuilder sqlBuilder = new StringBuilder()
                 .append("SELECT ").append(sqlFields)
-                //.append(" FROM blog_post bp, blog_post_has_related_blog_posts bphrbp")
-                .append(" FROM blog_post bp")
-                //.append(" WHERE bp.id IN (?)")
+                .append(" FROM post p")
                 .append(" WHERE bp.id IN (");
                 for(int i = 0; i < blogPostIds.length; i++) {
                     if(i > 0) sqlBuilder.append(",");
                     sqlBuilder.append(blogPostIds[i]);
                 }
                 sqlBuilder.append(")");
+
+            String sql = sqlBuilder.toString();
+
+            logger.debug(sql);
+
+            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            */
+
+            String sqlFields = connectionManager.getSqlString("blog-fields");
+
+            StringBuilder sqlBuilder = new StringBuilder().append(sqlFields);
+            sqlBuilder.append("(");
+
+            for(int i = 0; i < blogPostIds.length; i++) {
+                if(i > 0) sqlBuilder.append(",");
+                sqlBuilder.append(blogPostIds[i]);
+            }
+
+            sqlBuilder.append(")");
 
             String sql = sqlBuilder.toString();
 
@@ -927,6 +956,7 @@ public class BlogPostDatabaseManager {
 
         try {
 
+            /*
             String sqlFields = "id, hyphenated_name, title, subtitle, meta_description, body, date_published, datetime_published, enabled, priority";
             String sql = new StringBuilder()
                 .append("SELECT ")
@@ -935,6 +965,8 @@ public class BlogPostDatabaseManager {
                 .toString();
 
             PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            */
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogPost");
             preparedStatement.setInt(1, blogPostId);
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -972,6 +1004,7 @@ public class BlogPostDatabaseManager {
 
         try {
 
+            /*
             String sql = new StringBuilder()
                 .append("SELECT ")
                 .append("u.id, u.name, u.business_name, u.hyphenated_name, u.instagram_handle, u.location, u.theme_color, bpha.show_author")
@@ -983,6 +1016,9 @@ public class BlogPostDatabaseManager {
             logger.debug(sql);
 
             PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            */
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogPostAuthors");
+
             preparedStatement.setInt(1, blogPost.getId());
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -994,7 +1030,7 @@ public class BlogPostDatabaseManager {
 
                 do {
 
-                    boolean showAuthor = resultSet.getBoolean("show_author");
+                    boolean showAuthor = resultSet.getBoolean("showauthor");
                     //logger.debug("showAuthor = "+showAuthor);
 
                     if(showAuthor) {
