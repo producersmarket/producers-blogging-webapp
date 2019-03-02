@@ -10,9 +10,13 @@ import java.util.Map;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import com.ispaces.database.connection.ConnectionManager;
+
+//import com.ispaces.database.connection.ConnectionManager;
+import com.ispaces.dbcp.ConnectionManager;
+
 import com.producersmarket.blog.model.BlogPost;
 import com.producersmarket.model.Product;
 import com.producersmarket.model.User;
@@ -31,6 +35,47 @@ public class BlogCategoryDatabaseManager {
 
             //String sql = "SELECT id, category FROM blog_category ORDER BY priority";
             //PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogCategoriesOrderByPriority");
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if(resultSet.next()) {
+
+                List<Product> productList = new ArrayList<Product>();
+                Product product = new Product();
+
+                do {
+
+                    product = new Product();
+
+                    product.setId(resultSet.getInt(1));
+                    product.setName(resultSet.getString(2));
+
+                    logger.debug("product.getName() = "+product.getName());
+
+                    productList.add(product);
+
+                } while(resultSet.next());
+
+                logger.debug("productList.size() = "+productList.size());
+
+                selectBlogCategoryImages(productList, connectionManager);
+
+                return productList;
+            }
+
+        } finally {
+            connectionManager.commit();
+        }
+
+        return null;
+    }
+
+    public static List<Product> selectBlogCategoriesOrderByPriority(ConnectionManager connectionManager) throws SQLException, Exception {
+        logger.debug("selectBlogCategoriesOrderByPriority(connectionManager)");
+
+        try {
+
             PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogCategoriesOrderByPriority");
 
             ResultSet resultSet = preparedStatement.executeQuery();

@@ -14,7 +14,7 @@ import java.sql.Statement;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import com.ispaces.database.connection.ConnectionManager;
+import com.ispaces.dbcp.ConnectionManager;
 
 /*
 import com.producersmarket.blog.markdown.BlogImageNodeRenderer;

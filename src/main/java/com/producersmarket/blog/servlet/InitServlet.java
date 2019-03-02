@@ -15,7 +15,10 @@ import javax.servlet.ServletException;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import com.ispaces.database.connection.ConnectionPool;
+
+import com.ispaces.dbcp.ConnectionPool;
+import com.ispaces.dbcp.ConnectionManager;
+
 import com.producersmarket.blog.database.BlogCategoryDatabaseManager;
 import com.producersmarket.model.Product;
 
@@ -49,12 +52,31 @@ public class InitServlet extends HttpServlet {
     public Properties properties = null;
 
     /**
-     * A connection pool to use upon start up.
+     * A database connection pool to use upon start up.
      */
-    public ConnectionPool connectionPool;
+    private ConnectionPool connectionPool;
+
+    /**
+     * A database connection manager
+     */
+    private ConnectionManager connectionManager;
 
     public ConnectionPool getConnectionPool() {
-        return this.connectionPool;        
+        logger.debug("getConnectionPool()");
+
+        logger.debug("this = "+this);
+        logger.debug("this.connectionPool = "+this.connectionPool);
+
+        return this.connectionPool;
+    }
+
+    public ConnectionManager getConnectionManager() {
+        logger.debug("getConnectionManager()");
+
+        logger.debug("this = "+this);
+        logger.debug("this.connectionManager = "+this.connectionManager);
+
+        return this.connectionManager;
     }
 
     /**
@@ -157,7 +179,8 @@ public class InitServlet extends HttpServlet {
                  * Database Connection Pool
                  * JDBC Properties
                  */
-                
+
+                /*                
                 String jdbcDriver = properties.getProperty("database-driver");
                 String databaseUrl = properties.getProperty("database-url");
                 String databaseUsername = properties.getProperty("database-username");
@@ -191,10 +214,11 @@ public class InitServlet extends HttpServlet {
 
                 this.connectionPool = new ConnectionPool(connectionPoolProperties);
                 logger.debug("this.connectionPool = "+this.connectionPool);
+                */
 
-                com.ispaces.database.connection.ConnectionManager.loadStatements(this.connectionPool);
-                com.ispaces.database.manager.JavaClassManager.init(this.connectionPool);
-                com.ispaces.database.manager.ConnectionPoolManager.initConnectionPoolMap(this.connectionPool);
+                //com.ispaces.database.connection.ConnectionManager.loadStatements(this.connectionPool);
+                //com.ispaces.database.manager.JavaClassManager.init(this.connectionPool);
+                //com.ispaces.database.manager.ConnectionPoolManager.initConnectionPoolMap(this.connectionPool);
 
                 List<Product> blogCategoryList = BlogCategoryDatabaseManager.selectBlogCategoriesOrderByPriority();
                 servletContext.setAttribute("blogCategoryList", blogCategoryList);
@@ -220,6 +244,81 @@ public class InitServlet extends HttpServlet {
 
         //} // if(!inited) {
         } // if(contextInitialized != null) {
+
+        this.connectionPool = (ConnectionPool) servletContext.getAttribute("connectionPool");
+        logger.debug("this.connectionPool = "+this.connectionPool);
+
+        if(this.connectionPool == null) {
+
+            String jdbcDriver = properties.getProperty("database-driver");
+            String databaseUrl = properties.getProperty("database-url");
+            String databaseUsername = properties.getProperty("database-username");
+            String databasePassword = properties.getProperty("database-password");
+
+            logger.debug("jdbcDriver = "+jdbcDriver);
+            logger.debug("databaseUrl = "+databaseUrl);
+            logger.debug("databaseUsername = "+databaseUsername);
+            logger.debug("databasePassword = "+databasePassword);
+
+            properties.setProperty("databaseUrl", databaseUrl);
+            servletContext.setAttribute("databaseUrl", databaseUrl);
+            properties.setProperty("jdbcDriver", jdbcDriver);
+            servletContext.setAttribute("jdbcDriver", jdbcDriver);
+            properties.setProperty("databaseUsername", databaseUsername);
+            servletContext.setAttribute("databaseUsername", databaseUsername);
+            properties.setProperty("databasePassword", databasePassword);
+            servletContext.setAttribute("databasePassword", databasePassword);
+
+            java.util.Properties connectionPoolProperties = new java.util.Properties();
+            connectionPoolProperties.setProperty("id", "-1");
+            connectionPoolProperties.setProperty("url", databaseUrl);
+            connectionPoolProperties.setProperty("driver", jdbcDriver);
+            connectionPoolProperties.setProperty("username", databaseUsername);
+            connectionPoolProperties.setProperty("password", databasePassword);
+            connectionPoolProperties.setProperty("minConns", "2");
+            connectionPoolProperties.setProperty("maxConns", "10");
+            connectionPoolProperties.setProperty("maxAgeDays", "0.1");
+            connectionPoolProperties.setProperty("maxIdleSeconds", "60");
+            logger.debug("connectionPoolProperties = " + connectionPoolProperties);
+
+            try {
+
+                this.connectionPool = new ConnectionPool(connectionPoolProperties);
+                logger.debug("this.connectionPool = " + this.connectionPool);
+
+                servletContext.setAttribute("connectionPool", this.connectionPool);
+
+                this.connectionManager = new ConnectionManager( (ConnectionPool) this.connectionPool );
+                logger.debug("this.connectionManager = " + this.connectionManager);                
+
+            } catch(java.io.IOException ioException) {
+                StringWriter stringWriter = new StringWriter();
+                PrintWriter printWriter = new PrintWriter(stringWriter);
+                ioException.printStackTrace(printWriter);
+                logger.error(stringWriter.toString());
+            }
+
+        } else { // if(this.connectionPool == null) {
+
+            if(this.connectionManager == null) {
+                this.connectionManager = new ConnectionManager( (ConnectionPool) this.connectionPool );
+                logger.debug("this.connectionManager = " + this.connectionManager);                
+            }
+
+        }
+
+        try {
+
+            List<Product> blogCategoryList = BlogCategoryDatabaseManager.selectBlogCategoriesOrderByPriority(this.connectionManager);
+            servletContext.setAttribute("blogCategoryList", blogCategoryList);
+            if(blogCategoryList != null) logger.debug("blogCategoryList.size() = "+blogCategoryList.size());
+
+        } catch(Exception e) {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            e.printStackTrace(printWriter);
+            logger.error(stringWriter.toString());
+        }
 
         super.init(config);
     }
