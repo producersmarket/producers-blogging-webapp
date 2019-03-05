@@ -11,9 +11,12 @@ import java.util.Set;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import com.ispaces.database.connection.ConnectionManager;
+
+import com.ispaces.dbcp.ConnectionManager;
+
 //import com.producersmarket.model.BlogPost;
 //import com.producersmarket.model.User;
 import com.producersmarket.blog.model.User;
@@ -149,6 +152,33 @@ public class UserDatabaseManager {
             logger.debug(sql);
 
             PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            preparedStatement.setInt(1, userId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if(resultSet.next()) {
+
+                User user = new User();
+                //populateUser(user, resultSet);
+                user.setId(resultSet.getInt(1));
+                user.setName(resultSet.getString(2));
+                user.setEmail(resultSet.getString(3));
+
+                return user;
+            }
+
+        } finally {
+            connectionManager.commit();
+        }
+
+        return null;
+    }
+
+    public static User selectUserById(int userId, ConnectionManager connectionManager) throws SQLException, Exception {
+        logger.debug("selectUserById("+userId+", connectionManager)");
+
+        try {
+
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectUserById");
             preparedStatement.setInt(1, userId);
 
             ResultSet resultSet = preparedStatement.executeQuery();

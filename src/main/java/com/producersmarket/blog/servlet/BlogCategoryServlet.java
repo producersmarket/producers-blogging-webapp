@@ -262,7 +262,7 @@ public class BlogCategoryServlet extends ParentServlet {
 
         try {
 
-            List<BlogPost> blogPostList = BlogPostDatabaseManager.selectBlogPostsByCategoryName(blogCategoryName);
+            List<BlogPost> blogPostList = BlogPostDatabaseManager.selectBlogPostsByCategoryName(blogCategoryName, getConnectionManager());
 
             if(blogPostList != null) {
                 logger.debug("blogPostList.size() = "+blogPostList.size());

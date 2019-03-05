@@ -179,7 +179,7 @@ public class BlogPostServlet extends ParentServlet {
 
         try {
 
-            BlogPost blogPost = BlogPostDatabaseManager.selectBlogPost(blogPostId);
+            BlogPost blogPost = BlogPostDatabaseManager.selectBlogPost(blogPostId, getConnectionManager());
 
             if(blogPost != null) {
 
@@ -343,7 +343,7 @@ public class BlogPostServlet extends ParentServlet {
 
         try {
 
-            BlogPost blogPost = BlogPostDatabaseManager.selectBlogPostByHyphenatedName(blogPostName);
+            BlogPost blogPost = BlogPostDatabaseManager.selectBlogPostByHyphenatedName(blogPostName, getConnectionManager());
 
             if(blogPost != null) {
 

@@ -41,3 +41,5 @@ ssh-add ~/.ssh/id_rsa
 * 0.0.1.14 - EditPostServlet changed how blog post is loaded after edit
 * 0.0.1.15 - Fixed bug in CustomImagesAndLinksRenderer
 * 0.0.1.16 - New table naming scheme
+* 0.0.1.17 - Added getConnectionManager() and updated database access classes
+* 0.0.1.18 - Added `PublishPostServlet` and `UnpublishPostServlet`

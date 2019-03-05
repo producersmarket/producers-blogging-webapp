@@ -175,7 +175,7 @@ public class BlogPost {
     }
 
     public String getBodyText(int length) {
-        logger.debug("getBodyText("+length+")");
+        //logger.debug("getBodyText("+length+")");
 
         String bodyText = getBodyText();
         //logger.debug(bodyText);
@@ -183,13 +183,13 @@ public class BlogPost {
         if(bodyText.length() > length) {
 
             String bodySubstring = bodyText.substring(0, length);
-            logger.debug(bodySubstring);
+            //logger.debug(bodySubstring);
 
             int lastIndexOfDot = bodySubstring.lastIndexOf(".");
             int lastIndexOfExclamation = bodySubstring.lastIndexOf("!");
 
-            logger.debug("lastIndexOfDot = "+lastIndexOfDot);
-            logger.debug("lastIndexOfExclamation = "+lastIndexOfExclamation);
+            //logger.debug("lastIndexOfDot = "+lastIndexOfDot);
+            //logger.debug("lastIndexOfExclamation = "+lastIndexOfExclamation);
 
             int excerptLength = -1;
 
@@ -199,7 +199,7 @@ public class BlogPost {
                 if(lastIndexOfExclamation > lastIndexOfDot) excerptLength = lastIndexOfExclamation;
             }
 
-            logger.debug("excerptLength = "+excerptLength);
+            //logger.debug("excerptLength = "+excerptLength);
 
             if(excerptLength != -1) {
 
@@ -209,16 +209,16 @@ public class BlogPost {
 
                 int indexOfSpace = bodyText.indexOf(" ", length);
                 //int indexOfSpace = bodyText.indexOf(' ', length);
-                logger.debug("indexOfSpace = "+indexOfSpace);
+                //logger.debug("indexOfSpace = "+indexOfSpace);
 
                 if(indexOfSpace != -1) {
-                    logger.debug("bodyText.substring(0, indexOfSpace) = "+bodyText.substring(0, indexOfSpace));
-                    logger.debug("return "+bodyText.substring(0, indexOfSpace));
+                    //logger.debug("bodyText.substring(0, indexOfSpace) = "+bodyText.substring(0, indexOfSpace));
+                    //logger.debug("return "+bodyText.substring(0, indexOfSpace));
                     return bodyText.substring(0, indexOfSpace);
                 }
             }
 
-            logger.debug("return "+bodySubstring);
+            //logger.debug("return "+bodySubstring);
             return bodySubstring;
         }
 

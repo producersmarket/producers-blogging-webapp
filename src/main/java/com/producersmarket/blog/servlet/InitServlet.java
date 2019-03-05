@@ -214,7 +214,6 @@ public class InitServlet extends HttpServlet {
 
                 this.connectionPool = new ConnectionPool(connectionPoolProperties);
                 logger.debug("this.connectionPool = "+this.connectionPool);
-                */
 
                 //com.ispaces.database.connection.ConnectionManager.loadStatements(this.connectionPool);
                 //com.ispaces.database.manager.JavaClassManager.init(this.connectionPool);
@@ -223,6 +222,8 @@ public class InitServlet extends HttpServlet {
                 List<Product> blogCategoryList = BlogCategoryDatabaseManager.selectBlogCategoriesOrderByPriority();
                 servletContext.setAttribute("blogCategoryList", blogCategoryList);
                 if(blogCategoryList != null) logger.debug("blogCategoryList.size() = "+blogCategoryList.size());
+                */
+                com.ispaces.dbcp.ConnectionManager.loadStatements(getClass().getResourceAsStream("/prepared-statements.properties"));
 
                 /*
                  * Configure the javax.servlet.SessionCookieConfig.

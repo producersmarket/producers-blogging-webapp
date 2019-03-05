@@ -51,7 +51,7 @@ public class BlogCategoryDatabaseManager {
                     product.setId(resultSet.getInt(1));
                     product.setName(resultSet.getString(2));
 
-                    logger.debug("product.getName() = "+product.getName());
+                    //logger.debug("product.getName() = "+product.getName());
 
                     productList.add(product);
 
@@ -72,7 +72,7 @@ public class BlogCategoryDatabaseManager {
     }
 
     public static List<Product> selectBlogCategoriesOrderByPriority(ConnectionManager connectionManager) throws SQLException, Exception {
-        logger.debug("selectBlogCategoriesOrderByPriority(connectionManager)");
+        logger.debug("selectBlogCategoriesOrderByPriority("+connectionManager+")");
 
         try {
 
@@ -246,20 +246,7 @@ public class BlogCategoryDatabaseManager {
 
         try {
 
-            /*
-            String sql = new StringBuilder()
-                .append("SELECT ")
-                .append(" category")
-                .append(" FROM blog_category bc, blog_post_has_category bphc")
-                .append(" WHERE blog_post_id = ?")
-                .append(" AND bc.id = bphc.blog_category_id")
-                .toString();
-
-            logger.debug(sql);
-
-            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
-            */
-            PreparedStatement preparedStatement = connectionManager.prepareStatement("selectBlogPostCategories");
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogPostCategories");
             preparedStatement.setInt(1, blogPost.getId());
 
             ResultSet resultSet = preparedStatement.executeQuery();

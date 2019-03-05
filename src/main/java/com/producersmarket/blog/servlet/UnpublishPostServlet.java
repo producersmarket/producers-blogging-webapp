@@ -44,8 +44,8 @@ import org.commonmark.renderer.html.HtmlRenderer;
     }
 )
 */
-//public class EditPostServlet extends ParentServlet {
-public class EditPostServlet extends BlogPostServlet {
+//public class UnpublishPostServlet extends ParentServlet {
+public class UnpublishPostServlet extends BlogPostServlet {
 
     private static final Logger logger = LogManager.getLogger();
     
@@ -68,122 +68,6 @@ public class EditPostServlet extends BlogPostServlet {
 
         super.init(config);
     }
-
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        logger.debug("doPost(request, response)");
-
-        BlogPost blogPost = new BlogPost();
-
-        String hyphenatedName = request.getParameter("hyphenatedName");
-        String title = request.getParameter("title");
-        String subtitle = request.getParameter("subtitle");
-        String body = request.getParameter("body");
-
-        logger.debug("hyphenatedName = "+hyphenatedName);
-        logger.debug("title = "+title);
-        logger.debug("subtitle = "+subtitle);
-        //logger.debug("body = "+body);
-
-        blogPost.setSubtitle(subtitle);
-        blogPost.setTitle(title);
-        blogPost.setBody(body);
-
-        if(
-               EMPTY.equals(title)
-            && EMPTY.equals(body)
-        ) {
-
-            includeUtf8(request, response, "/view/edit-post.jsp");
-
-            return;
-        }
-
-        // get the userId from the request
-        /*    
-        String userIdString = request.getParameter("userId");
-        logger.debug("userIdString = "+userIdString);
-        int userId = -1;
-        try {
-            userId = Integer.parseInt(userIdString);
-            blogPost.setUserId(userId);
-        } catch(NumberFormatException e) {
-        }
-        logger.debug("userId = "+userId);
-        */
-
-        // or get the userId from the session, better
-        HttpSession httpSession = request.getSession(false);
-        Object userIdObject = null;
-        int userId = -1;
-
-        if(
-          httpSession != null
-          && (userIdObject = httpSession.getAttribute("userId")) != null
-        ) {
-
-            //userId = Integer.valueOf((String) userIdObject);
-            userId = ((Integer)userIdObject).intValue();
-
-            logger.debug("httpSession.getId() = "+httpSession.getId());
-            logger.debug("userIdObject = "+userIdObject);
-            logger.debug("userId = "+userId);
-
-            blogPost.setUserId(userId);
-        }
-
-        String blogPostIdString = request.getParameter("blogPostId");
-        logger.debug("blogPostIdString = "+blogPostIdString);
-        int blogPostId = -1;
-        try {
-            blogPostId = Integer.parseInt(blogPostIdString);
-            blogPost.setId(blogPostId);
-            blogPost.setHyphenatedName(hyphenatedName);
-        } catch(NumberFormatException e) {
-            // No blog post ID, must be a new post
-            blogPost.createHyphenatedName();
-        }
-        logger.debug("blogPostId = "+blogPostId);
-
-
-        try {
-
-            if(blogPost.getId() > 0) {
-                BlogPostDatabaseManager.updateBlogPost(blogPost, getConnectionManager());
-            } else {
-                BlogPostDatabaseManager.insertBlogPost(blogPost, getConnectionManager());
-            }
-
-            //include(request, response, "/view/email-sent.jsp");
-            //javax.servlet.RequestDispatcher requestDispatcher = this.config.getServletContext().getRequestDispatcher("/import-contacts");
-            //requestDispatcher.forward(request, response);
-            /*
-            getServletContext().getRequestDispatcher(
-                new StringBuilder().append("/post/").append(blogPost.getId()).toString()
-            ).forward(request, response);
-            */
-            super.blogPostRequest(request, response, blogPost.getId());
-
-            return;
-
-        } catch(java.sql.SQLException e) {
-
-            StringWriter stringWriter = new StringWriter();
-            PrintWriter printWriter = new PrintWriter(stringWriter);
-            e.printStackTrace(printWriter);
-            logger.error(stringWriter.toString());
-
-        } catch(Exception exception) {
-
-            StringWriter stringWriter = new StringWriter();
-            PrintWriter printWriter = new PrintWriter(stringWriter);
-            exception.printStackTrace(printWriter);
-            logger.error(stringWriter.toString());
-        }
-
-        //writeOut(response, ZERO);
-        response.sendError(HttpServletResponse.SC_NOT_FOUND);
-
-    } // doPost()
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         logger.debug("doGet(request, response)");
@@ -209,7 +93,7 @@ public class EditPostServlet extends BlogPostServlet {
                     blogPostId = Integer.parseInt(blogToken);
                     logger.debug("blogPostId = "+blogPostId);
 
-                    this.executor.execute(new BlogPostIdRequest(request.startAsync(), blogPostId));
+                    this.executor.execute(new UnpublishBlogPostRequest(request.startAsync(), blogPostId));
 
                     return;
 
@@ -237,6 +121,82 @@ public class EditPostServlet extends BlogPostServlet {
         includeUtf8(request, response, "/view/edit-post.jsp");
     }
 
+    public class UnpublishBlogPostRequest implements Runnable {
+
+        AsyncContext asyncContext;
+        int blogPostId;
+
+        // Grab the userId and path from the HttpServletRequest contained in the AsyncContext.
+        public UnpublishBlogPostRequest(
+            AsyncContext asyncContext
+          , int blogPostId
+        ) {
+
+            logger.debug(new StringBuilder().append("UnpublishBlogPostRequest(asyncContext").append(", '").append(blogPostId).append("')").toString());
+
+            this.asyncContext = asyncContext;
+            this.asyncContext.setTimeout(1000*5);  // 5 seconds timeout
+            this.blogPostId = blogPostId;
+        }
+
+        // Perform the file listing request, build the JSON string, and write it to the response object in this.asyncContext.getResponse().
+        public void run() {
+            //logger.debug("run()");
+
+            try {
+
+                unpublishBlogPost(
+                    (HttpServletRequest)this.asyncContext.getRequest()
+                  , (HttpServletResponse)this.asyncContext.getResponse()
+                  , this.blogPostId
+                );
+
+                this.asyncContext.complete();          // and complete the request.
+
+            } catch(IOException e) {
+                logger.error(e);
+            } catch(Exception e) {
+                logger.error(e);
+            }
+
+        } // public void run()
+
+    }
+
+    public void unpublishBlogPost(
+        HttpServletRequest request
+      , HttpServletResponse response
+      , int blogPostId
+    ) throws IOException, ServletException {
+
+        logger.debug("unpublishBlogPost(request, response, "+blogPostId+")");
+
+        try {
+
+            BlogPostDatabaseManager.updateBlogPostDisabled(blogPostId, getConnectionManager());
+
+            BlogPost blogPost = BlogPostDatabaseManager.selectBlogPost(blogPostId, getConnectionManager());
+
+            if(blogPost != null) {
+
+                logger.debug("blogPost.getId() = "+blogPost.getId());
+
+                request.setAttribute("blogPost", blogPost);
+
+                includeUtf8(request, response, "/view/edit-post.jsp");
+
+            } // if(blogPost != null) {
+
+        } catch(Exception e) {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            e.printStackTrace(printWriter);
+            logger.error(stringWriter.toString());
+        }
+
+    }
+
+    /*()
     public void blogPostRequest(
         HttpServletRequest request
       , HttpServletResponse response
@@ -267,5 +227,6 @@ public class EditPostServlet extends BlogPostServlet {
         }
 
     }
+    */
 
 }
