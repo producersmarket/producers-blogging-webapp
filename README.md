@@ -43,3 +43,5 @@ ssh-add ~/.ssh/id_rsa
 * 0.0.1.16 - New table naming scheme
 * 0.0.1.17 - Added getConnectionManager() and updated database access classes
 * 0.0.1.18 - Added `PublishPostServlet` and `UnpublishPostServlet`
+* 0.0.1.19 - New ispaces-dbcp jar
+* 0.0.1.20 - New load statements

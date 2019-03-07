@@ -106,15 +106,14 @@ public class InitServlet extends HttpServlet {
 
             try {
 
-                java.io.InputStream inputStream = servletContext.getResourceAsStream("/WEB-INF/init.properties");
-                //logger.debug("inputStream = "+inputStream);
+                java.io.InputStream initPropertiesIputStream = servletContext.getResourceAsStream("/WEB-INF/init.properties");
 
                 //this.properties = (Properties)com.ispaces.util.PropertiesUtil.getProperties(inputStream);
                 this.properties = new Properties();
 
                 try {
 
-                    this.properties.load(inputStream);
+                    this.properties.load(initPropertiesIputStream);
 
                     servletContext.setAttribute("properties", this.properties);
 
@@ -223,7 +222,28 @@ public class InitServlet extends HttpServlet {
                 servletContext.setAttribute("blogCategoryList", blogCategoryList);
                 if(blogCategoryList != null) logger.debug("blogCategoryList.size() = "+blogCategoryList.size());
                 */
-                com.ispaces.dbcp.ConnectionManager.loadStatements(getClass().getResourceAsStream("/prepared-statements.properties"));
+
+                //com.ispaces.dbcp.ConnectionManager.loadStatements(getClass().getResourceAsStream("/prepared-statements.properties"));
+                //com.ispaces.dbcp.ConnectionManager.loadStatements(getClass().getResourceAsStream("prepared-statements.properties"));
+                //java.io.InputStream initPropertiesIputStream = servletContext.getResourceAsStream("/WEB-INF/init.properties");
+                /*
+                ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+                logger.debug("classLoader = " + classLoader);
+
+                java.io.InputStream inputStream = classLoader.getResourceAsStream("prepared-statements.properties");
+                logger.debug("inputStream = " + inputStream);
+
+                com.ispaces.dbcp.ConnectionManager.loadStatements(inputStream);
+                //java.io.InputStream preparedStatementsInputStream = classLoader.getResourceAsStream("prepared-statements.properties");
+                //if(preparedStatementsInputStream == null) preparedStatementsInputStream = getClass().getResourceAsStream("/prepared-statements.properties");
+                */
+
+                java.io.InputStream preparedStatementsInputStream = servletContext.getResourceAsStream("/WEB-INF/classes/prepared-statements.properties");
+                logger.debug("preparedStatementsInputStream = " + preparedStatementsInputStream);
+                if(preparedStatementsInputStream == null) preparedStatementsInputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("prepared-statements.properties");
+                logger.debug("preparedStatementsInputStream = " + preparedStatementsInputStream);
+
+                com.ispaces.dbcp.ConnectionManager.loadStatements(preparedStatementsInputStream);
 
                 /*
                  * Configure the javax.servlet.SessionCookieConfig.
