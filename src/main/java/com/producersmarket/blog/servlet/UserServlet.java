@@ -58,7 +58,7 @@ public class UserServlet extends ParentServlet {
                 int userId = ((Integer)userIdObject).intValue();
                 logger.debug("userId = "+userId);
 
-                User user = UserDatabaseManager.selectUserById(userId);
+                User user = UserDatabaseManager.selectUserById(userId, getConnectionPool());
                 logger.debug("user = "+user);
 
                 if(user != null) {

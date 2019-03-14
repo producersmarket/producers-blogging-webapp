@@ -191,7 +191,7 @@ public class BlogCategoryServlet extends ParentServlet {
             }
             List<BlogPost> blogPostList = BlogPostDatabaseManager.selectBlogPosts(blogPostIds);
             */
-            List<BlogPost> blogPostList = BlogPostDatabaseManager.selectBlogPosts();
+            List<BlogPost> blogPostList = BlogPostDatabaseManager.selectBlogPosts(getConnectionPool());
 
             if(blogPostList != null) {
                 logger.debug("blogPostList.size() = "+blogPostList.size());
@@ -262,7 +262,7 @@ public class BlogCategoryServlet extends ParentServlet {
 
         try {
 
-            List<BlogPost> blogPostList = BlogPostDatabaseManager.selectBlogPostsByCategoryName(blogCategoryName);
+            List<BlogPost> blogPostList = BlogPostDatabaseManager.selectBlogPostsByCategoryName(blogCategoryName, getConnectionPool());
 
             if(blogPostList != null) {
                 logger.debug("blogPostList.size() = "+blogPostList.size());

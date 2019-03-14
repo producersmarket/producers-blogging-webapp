@@ -14,8 +14,8 @@ import java.sql.SQLException;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-//import com.ispaces.database.connection.ConnectionManager;
 import com.ispaces.dbcp.ConnectionManager;
+import com.ispaces.dbcp.ConnectionPool;
 
 import com.producersmarket.blog.model.BlogPost;
 import com.producersmarket.model.Product;
@@ -71,6 +71,18 @@ public class BlogCategoryDatabaseManager {
         return null;
     }
 
+    public static List<Product> selectBlogCategoriesOrderByPriority(Object connectionPoolObject) throws SQLException, Exception {
+        logger.debug("selectBlogCategoriesOrderByPriority("+connectionPoolObject+")");
+
+        return selectBlogCategoriesOrderByPriority((ConnectionPool) connectionPoolObject);
+    }
+
+    public static List<Product> selectBlogCategoriesOrderByPriority(ConnectionPool connectionPool) throws SQLException, Exception {
+        logger.debug("selectBlogCategoriesOrderByPriority("+connectionPool+")");
+
+        return selectBlogCategoriesOrderByPriority(new ConnectionManager(connectionPool));
+    }
+
     public static List<Product> selectBlogCategoriesOrderByPriority(ConnectionManager connectionManager) throws SQLException, Exception {
         logger.debug("selectBlogCategoriesOrderByPriority(connectionManager)");
 
@@ -88,7 +100,6 @@ public class BlogCategoryDatabaseManager {
                 do {
 
                     product = new Product();
-
                     product.setId(resultSet.getInt(1));
                     product.setName(resultSet.getString(2));
 

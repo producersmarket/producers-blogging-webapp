@@ -59,7 +59,7 @@ public class InitServlet extends HttpServlet {
     /**
      * A database connection manager
      */
-    private ConnectionManager connectionManager;
+    //private ConnectionManager connectionManager;
 
     public ConnectionPool getConnectionPool() {
         logger.debug("getConnectionPool()");
@@ -70,6 +70,7 @@ public class InitServlet extends HttpServlet {
         return this.connectionPool;
     }
 
+    /*
     public ConnectionManager getConnectionManager() {
         logger.debug("getConnectionManager()");
 
@@ -78,6 +79,7 @@ public class InitServlet extends HttpServlet {
 
         return this.connectionManager;
     }
+    */
 
     /**
      * A boolean flag to make sure the init() method is only called once for this servlet.
@@ -220,9 +222,11 @@ public class InitServlet extends HttpServlet {
                 //com.ispaces.database.manager.JavaClassManager.init(this.connectionPool);
                 //com.ispaces.database.manager.ConnectionPoolManager.initConnectionPoolMap(this.connectionPool);
 
+                /*
                 List<Product> blogCategoryList = BlogCategoryDatabaseManager.selectBlogCategoriesOrderByPriority();
                 servletContext.setAttribute("blogCategoryList", blogCategoryList);
                 if(blogCategoryList != null) logger.debug("blogCategoryList.size() = "+blogCategoryList.size());
+                */
 
                 /*
                  * Configure the javax.servlet.SessionCookieConfig.
@@ -288,8 +292,8 @@ public class InitServlet extends HttpServlet {
 
                 servletContext.setAttribute("connectionPool", this.connectionPool);
 
-                this.connectionManager = new ConnectionManager( (ConnectionPool) this.connectionPool );
-                logger.debug("this.connectionManager = " + this.connectionManager);                
+                //this.connectionManager = new ConnectionManager( (ConnectionPool) this.connectionPool );
+                //logger.debug("this.connectionManager = " + this.connectionManager);                
 
             } catch(java.io.IOException ioException) {
                 StringWriter stringWriter = new StringWriter();
@@ -298,18 +302,20 @@ public class InitServlet extends HttpServlet {
                 logger.error(stringWriter.toString());
             }
 
+        /*
         } else { // if(this.connectionPool == null) {
 
             if(this.connectionManager == null) {
                 this.connectionManager = new ConnectionManager( (ConnectionPool) this.connectionPool );
                 logger.debug("this.connectionManager = " + this.connectionManager);                
             }
+        */
 
         }
 
         try {
 
-            List<Product> blogCategoryList = BlogCategoryDatabaseManager.selectBlogCategoriesOrderByPriority(this.connectionManager);
+            List<Product> blogCategoryList = BlogCategoryDatabaseManager.selectBlogCategoriesOrderByPriority(this.connectionPool);
             servletContext.setAttribute("blogCategoryList", blogCategoryList);
             if(blogCategoryList != null) logger.debug("blogCategoryList.size() = "+blogCategoryList.size());
 

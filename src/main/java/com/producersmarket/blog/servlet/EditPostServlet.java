@@ -148,9 +148,9 @@ public class EditPostServlet extends BlogPostServlet {
         try {
 
             if(blogPost.getId() > 0) {
-                BlogPostDatabaseManager.updateBlogPost(blogPost);
+                BlogPostDatabaseManager.updateBlogPost(blogPost, getConnectionPool());
             } else {
-                BlogPostDatabaseManager.insertBlogPost(blogPost);
+                BlogPostDatabaseManager.insertBlogPost(blogPost, getConnectionPool());
             }
 
             //include(request, response, "/view/email-sent.jsp");
@@ -247,7 +247,7 @@ public class EditPostServlet extends BlogPostServlet {
 
         try {
 
-            BlogPost blogPost = BlogPostDatabaseManager.selectBlogPost(blogPostId);
+            BlogPost blogPost = BlogPostDatabaseManager.selectBlogPost(blogPostId, getConnectionPool());
 
             if(blogPost != null) {
 
