@@ -137,22 +137,24 @@ public class UserDatabaseManager {
     }
     */
 
-    public static User selectUserById(int userId) throws SQLException, Exception {
-        logger.debug("selectUserById("+userId+")");
+    public static User selectUserById(int userId, Object connectionPoolObject) throws SQLException, Exception {
+        logger.debug("selectUserById("+userId+", "+connectionPoolObject+")");
 
-        ConnectionManager connectionManager = new ConnectionManager(className);
+        return selectUserById(userId, (ConnectionPool) connectionPoolObject);
+    }
+
+    public static User selectUserById(int userId, ConnectionPool connectionPool) throws SQLException, Exception {
+        logger.debug("selectUserById("+userId+", "+connectionPool+")");
+
+        return selectUserById(userId, new ConnectionManager(connectionPool));
+    }
+
+    public static User selectUserById(int userId, ConnectionManager connectionManager) throws SQLException, Exception {
+        logger.debug("selectUserById("+userId+", connectionManager)");
 
         try {
 
-            String sql = new StringBuilder()
-                .append("SELECT u.id, u.name, u.email")
-                .append(" FROM user u")
-                .append(" WHERE u.id = ?")
-                .toString();
-
-            logger.debug(sql);
-
-            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectUserById");
             preparedStatement.setInt(1, userId);
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -174,20 +176,10 @@ public class UserDatabaseManager {
         return null;
     }
 
-    public static User selectUserById(int userId, Object connectionPoolObject) throws SQLException, Exception {
-        logger.debug("selectUserById("+userId+", "+connectionPoolObject+")");
+    public static User selectUserById(int userId) throws SQLException, Exception {
+        logger.debug("selectUserById("+userId+")");
 
-        return selectUserById(userId, (ConnectionPool) connectionPoolObject);
-    }
-
-    public static User selectUserById(int userId, ConnectionPool connectionPool) throws SQLException, Exception {
-        logger.debug("selectUserById("+userId+", "+connectionPool+")");
-
-        return selectUserById(userId, new ConnectionManager(connectionPool));
-    }
-
-    public static User selectUserById(int userId, ConnectionManager connectionManager) throws SQLException, Exception {
-        logger.debug("selectUserById("+userId+", connectionManager)");
+        ConnectionManager connectionManager = new ConnectionManager(className);
 
         try {
 

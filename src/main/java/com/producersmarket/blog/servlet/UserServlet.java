@@ -65,7 +65,8 @@ public class UserServlet extends ParentServlet {
 
                     logger.debug("user.getId() = "+user.getId());
 
-                    List<BlogPost> blogPostList = BlogPostDatabaseManager.selectBlogPostsByUserId(user.getId());
+                    List<BlogPost> blogPostList = BlogPostDatabaseManager.selectBlogPostsByUserId(user.getId(), getConnectionPool());
+                    
                     if(blogPostList != null) {
                         logger.debug("blogPostList.size() = "+blogPostList.size());
                         request.setAttribute("blogPostList", blogPostList);

@@ -171,13 +171,6 @@ public class BlogServlet extends ParentServlet {
 
         try {
 
-            /*
-            int[] blogPostIds = new int[51];
-            for(int i = 0; i < blogPostIds.length; i++) {
-                blogPostIds[i] = (i + 1);
-            }
-            List<BlogPost> blogPostList = BlogPostDatabaseManager.selectBlogPosts(blogPostIds);
-            */
             List<BlogPost> blogPostList = BlogPostDatabaseManager.selectBlogPosts(getConnectionPool());
 
             if(blogPostList != null) {
