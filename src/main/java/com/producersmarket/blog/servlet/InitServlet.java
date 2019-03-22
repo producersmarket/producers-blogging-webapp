@@ -110,14 +110,14 @@ public class InitServlet extends HttpServlet {
 
                 java.io.InputStream initPropertiesIputStream = servletContext.getResourceAsStream("/WEB-INF/init.properties");
 
-                //this.properties = (Properties)com.ispaces.util.PropertiesUtil.getProperties(inputStream);
+                //this.properties = (Properties)com.ispaces.util.PropertiesUtil.getProperties(initPropertiesIputStream);
                 this.properties = new Properties();
 
                 try {
 
                     this.properties.load(initPropertiesIputStream);
 
-                    servletContext.setAttribute("properties", this.properties);
+                    servletContext.setAttribute("properties", this.properties); // Make the properties available in the ServletContext
 
                 } catch(java.io.IOException ioException) {
                     StringWriter stringWriter = new StringWriter();
@@ -151,6 +151,7 @@ public class InitServlet extends HttpServlet {
                 } else {
                     stringBuilder.append("http");
                 }
+
                 stringBuilder.append("://").append(server);
                 if(port != null && !port.equals(EMPTY)) stringBuilder.append(COLON).append(port);
                 String serverUrl = stringBuilder.toString();  // Capture the serverUrl
@@ -159,18 +160,16 @@ public class InitServlet extends HttpServlet {
                 properties.setProperty("serverUrl", serverUrl);
                 servletContext.setAttribute("serverUrl", serverUrl);
 
-                stringBuilder.append("/");
+                if(context != null && !context.equals(EMPTY)) {
+                    stringBuilder.append("/").append(context);
+                } else {
+                    stringBuilder.append("/");
+                }
 
-                if(context != null && !context.equals(EMPTY)) stringBuilder.append(context);
                 String contextUrl = stringBuilder.toString();
                 logger.debug("contextUrl = "+contextUrl);
                 properties.setProperty("contextUrl", contextUrl);
                 servletContext.setAttribute("contextUrl", contextUrl);
-
-                String instagramClientId = properties.getProperty("instagram.clientid");
-                logger.debug("instagramClientId = "+instagramClientId);
-                properties.setProperty("instagramClientId", instagramClientId);
-                servletContext.setAttribute("instagramClientId", instagramClientId);
 
                 String resetPasswordEmailFrom = properties.getProperty("reset-password.email.from");
                 logger.debug("resetPasswordEmailFrom = "+resetPasswordEmailFrom);
@@ -226,6 +225,16 @@ public class InitServlet extends HttpServlet {
                 if(blogCategoryList != null) logger.debug("blogCategoryList.size() = "+blogCategoryList.size());
                 */
 
+                logger.debug("getClass().getResourceAsStream(\"prepared-statements.properties\") = " + getClass().getResourceAsStream("prepared-statements.properties"));
+                logger.debug("getClass().getResourceAsStream(\"/prepared-statements.properties\") = " + getClass().getResourceAsStream("/prepared-statements.properties"));
+                logger.debug("Thread.currentThread().getContextClassLoader().getResourceAsStream(\"prepared-statements.properties\") = " + Thread.currentThread().getContextClassLoader().getResourceAsStream("prepared-statements.properties"));
+                logger.debug("Thread.currentThread().getContextClassLoader().getResourceAsStream(\"/prepared-statements.properties\") = " + Thread.currentThread().getContextClassLoader().getResourceAsStream("/prepared-statements.properties"));
+
+                //ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+                //logger.debug("classLoader = " + classLoader);
+                //java.io.InputStream preparedStatementsInputStream = classLoader.getResourceAsStream("prepared-statements.properties");
+                //if(preparedStatementsInputStream == null) preparedStatementsInputStream = getClass().getResourceAsStream("/prepared-statements.properties");
+
                 java.io.InputStream preparedStatementsInputStream = servletContext.getResourceAsStream("/WEB-INF/classes/prepared-statements.properties");
                 logger.debug("preparedStatementsInputStream = " + preparedStatementsInputStream);
                 if(preparedStatementsInputStream == null) preparedStatementsInputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("prepared-statements.properties");
@@ -251,7 +260,6 @@ public class InitServlet extends HttpServlet {
 
             logger.debug("Servlet Already Inited!!");
 
-        //} // if(!inited) {
         } // if(contextInitialized != null) {
 
         this.connectionPool = (ConnectionPool) servletContext.getAttribute("connectionPool");
