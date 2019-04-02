@@ -46,3 +46,4 @@ ssh-add ~/.ssh/id_rsa
 * 0.0.1.19 - New ispaces-dbcp jar
 * 0.0.1.20 - New load statements
 * 0.0.1.21 - Now passing ConnectionPool object to database manager classes
+* 0.0.1.22 - Dynamic Google Keys

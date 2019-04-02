@@ -176,6 +176,15 @@ public class InitServlet extends HttpServlet {
                 logger.debug("resetPasswordEmailFrom = "+resetPasswordEmailFrom);
                 servletContext.setAttribute("resetPasswordEmailFrom", resetPasswordEmailFrom);
 
+                String googleSecretKey = properties.getProperty("google.secret.key");
+                String googleSiteKey = properties.getProperty("google.site.key");
+
+                logger.debug("googleSecretKey = "+googleSecretKey);
+                logger.debug("googleSiteKey = "+googleSiteKey);
+
+                servletContext.setAttribute("googleSecretKey", googleSecretKey);
+                servletContext.setAttribute("googleSiteKey", googleSiteKey);
+
                 /*
                  * Database Connection Pool
                  * JDBC Properties
@@ -263,11 +272,19 @@ public class InitServlet extends HttpServlet {
             String databaseUrl = properties.getProperty("database-url");
             String databaseUsername = properties.getProperty("database-username");
             String databasePassword = properties.getProperty("database-password");
+            String databaseMinimumConnections = properties.getProperty("database-mininimum-connections");
+            String databaseMaximumConnections = properties.getProperty("database-maximum-connections");
+            String databaseConnectionMaximumAgeDays = properties.getProperty("database-connection-maximum-age-days");
+            String databaseConnectionMaximumIdleSeconds = properties.getProperty("database-connection-maximum-idle-seconds");
 
-            logger.debug("jdbcDriver = "+jdbcDriver);
-            logger.debug("databaseUrl = "+databaseUrl);
-            logger.debug("databaseUsername = "+databaseUsername);
-            logger.debug("databasePassword = "+databasePassword);
+            logger.debug("jdbcDriver = " + jdbcDriver);
+            logger.debug("databaseUrl = " + databaseUrl);
+            logger.debug("databaseUsername = " + databaseUsername);
+            logger.debug("databasePassword = " + databasePassword);
+            logger.debug("databaseMinimumConnections = " + databaseMinimumConnections);
+            logger.debug("databaseMinimumConnections = " + databaseMinimumConnections);
+            logger.debug("databaseConnectionMaximumAgeDays = " + databaseConnectionMaximumAgeDays);
+            logger.debug("databaseConnectionMaximumIdleSeconds = " + databaseConnectionMaximumIdleSeconds);
 
             properties.setProperty("databaseUrl", databaseUrl);
             servletContext.setAttribute("databaseUrl", databaseUrl);
@@ -278,16 +295,23 @@ public class InitServlet extends HttpServlet {
             properties.setProperty("databasePassword", databasePassword);
             servletContext.setAttribute("databasePassword", databasePassword);
 
+            properties.setProperty("databaseMinimumConnections", databaseMinimumConnections);
+            //servletContext.setAttribute("databaseMinimumConnections", databaseMinimumConnections);
+            properties.setProperty("databaseMaximumConnections", databaseMaximumConnections);
+            properties.setProperty("databaseConnectionMaximumAgeDays", databaseConnectionMaximumAgeDays);
+            properties.setProperty("databaseConnectionMaximumIdleSeconds", databaseConnectionMaximumIdleSeconds);
+
             java.util.Properties connectionPoolProperties = new java.util.Properties();
             connectionPoolProperties.setProperty("id", "-1");
             connectionPoolProperties.setProperty("url", databaseUrl);
             connectionPoolProperties.setProperty("driver", jdbcDriver);
             connectionPoolProperties.setProperty("username", databaseUsername);
             connectionPoolProperties.setProperty("password", databasePassword);
-            connectionPoolProperties.setProperty("minConns", "2");
-            connectionPoolProperties.setProperty("maxConns", "10");
-            connectionPoolProperties.setProperty("maxAgeDays", "0.1");
-            connectionPoolProperties.setProperty("maxIdleSeconds", "60");
+            connectionPoolProperties.setProperty("minConns", databaseMinimumConnections);
+            connectionPoolProperties.setProperty("maxConns", databaseMaximumConnections);
+            connectionPoolProperties.setProperty("maxAgeDays", databaseConnectionMaximumAgeDays);
+            connectionPoolProperties.setProperty("maxIdleSeconds", databaseConnectionMaximumIdleSeconds);
+            
             logger.debug("connectionPoolProperties = " + connectionPoolProperties);
 
             try {
