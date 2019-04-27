@@ -20,7 +20,8 @@ import com.ispaces.dbcp.ConnectionPool;
 import com.ispaces.dbcp.ConnectionManager;
 
 import com.producersmarket.blog.database.BlogCategoryDatabaseManager;
-import com.producersmarket.model.Product;
+import com.producersmarket.blog.model.BlogCategory;
+import com.producersmarket.blog.model.Menuable;
 
 @WebServlet(
     name = "InitServlet"
@@ -40,6 +41,8 @@ public class InitServlet extends HttpServlet {
      */
     public static final String EMPTY = "";
     public static final String COLON = ":";
+    public static final String FORWARDSLASH = "/";
+    public static final String EIGHTY = "80";
 
     /**
      * Internal reference to the ServletContext object.
@@ -131,44 +134,36 @@ public class InitServlet extends HttpServlet {
                 String protocol    = properties.getProperty("protocol");
                 String server      = properties.getProperty("server");
                 String port        = properties.getProperty("port");
-                String context     = properties.getProperty("context");
+                String contextPath = properties.getProperty("context-path");
 
-                logger.debug("protocol = "+protocol);
-                logger.debug("server = "+server);
-                logger.debug("port = "+port);
-                logger.debug("context = "+context);
-
-                servletContext.setAttribute("server", server);
-                servletContext.setAttribute("port", port);
-
-                /*
-                 * Create the URL of the current context.
-                 */
                 StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append(protocol != null ? protocol : "http");
+                stringBuilder.append("://");
+                stringBuilder.append(server != null ? server : "localhost");
+                if(!EMPTY.equals(port) && !EIGHTY.equals(port)) stringBuilder.append(COLON).append(port);
 
-                if(protocol != null) {
-                    stringBuilder.append(protocol);
-                } else {
-                    stringBuilder.append("http");
-                }
+                String serverUrl = stringBuilder.toString() + FORWARDSLASH;
 
-                stringBuilder.append("://").append(server);
-                if(port != null && !port.equals(EMPTY)) stringBuilder.append(COLON).append(port);
-                String serverUrl = stringBuilder.toString();  // Capture the serverUrl
-
-                logger.debug("serverUrl = "+serverUrl);
-                properties.setProperty("serverUrl", serverUrl);
-                servletContext.setAttribute("serverUrl", serverUrl);
-
-                if(context != null && !context.equals(EMPTY)) {
-                    stringBuilder.append("/").append(context);
+                //stringBuilder.append(contextPath != null ? contextPath : "/");
+                if(contextPath != null && !contextPath.equals(EMPTY)) {
+                    stringBuilder.append(contextPath);
+                    if(!contextPath.equals(FORWARDSLASH)) stringBuilder.append("/");
                 } else {
                     stringBuilder.append("/");
                 }
 
                 String contextUrl = stringBuilder.toString();
+
+                logger.debug("protocol = "+protocol);
+                logger.debug("server = "+server);
+                logger.debug("port = "+port);
+                logger.debug("contextPath = "+contextPath);
+                logger.debug("serverUrl = "+serverUrl);
                 logger.debug("contextUrl = "+contextUrl);
+
+                properties.setProperty("serverUrl", serverUrl);
                 properties.setProperty("contextUrl", contextUrl);
+                servletContext.setAttribute("serverUrl", serverUrl);
                 servletContext.setAttribute("contextUrl", contextUrl);
 
                 String resetPasswordEmailFrom = properties.getProperty("reset-password.email.from");
@@ -352,9 +347,10 @@ public class InitServlet extends HttpServlet {
 
         try {
 
-            List<Product> blogCategoryList = BlogCategoryDatabaseManager.selectBlogCategoriesOrderByPriority(this.connectionPool);
+            //List<BlogCategory> blogCategoryList = BlogCategoryDatabaseManager.selectBlogCategoriesOrderByPriority(this.connectionPool);
+            List<Menuable> blogCategoryList = BlogCategoryDatabaseManager.selectBlogCategoriesOrderByPriority(this.connectionPool);
             servletContext.setAttribute("blogCategoryList", blogCategoryList);
-            if(blogCategoryList != null) logger.debug("blogCategoryList.size() = "+blogCategoryList.size());
+            if(blogCategoryList != null) logger.debug("blogCategoryList.size() = "+ blogCategoryList.size());
 
         } catch(Exception e) {
             StringWriter stringWriter = new StringWriter();
