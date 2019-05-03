@@ -105,6 +105,77 @@ public class BlogPostDatabaseManager {
         return null;
     }
 
+    public static List<BlogPost> selectAllBlogPosts(Object connectionPoolObject) throws SQLException, Exception {
+        logger.debug("selectAllBlogPosts("+connectionPoolObject+")");
+
+        return selectAllBlogPosts((ConnectionPool) connectionPoolObject);
+    }
+
+    public static List<BlogPost> selectAllBlogPosts(ConnectionPool connectionPool) throws SQLException, Exception {
+        logger.debug("selectAllBlogPosts("+connectionPool+")");
+
+        return selectAllBlogPosts(new ConnectionManager(connectionPool));
+    }
+
+    public static List<BlogPost> selectAllBlogPosts(ConnectionManager connectionManager) throws SQLException, Exception {
+        logger.debug("selectAllBlogPosts(connectionManager)");
+
+        try {
+
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectAllBlogPosts");
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if(resultSet.next()) {
+
+                List<BlogPost> blogPostList = new ArrayList<BlogPost>();
+                BlogPost blogPost = null;
+
+                do {
+
+                    blogPost = new BlogPost();
+
+                    //populateBlogPost(relatedBlogPost, resultSet);
+                    blogPost.setId               (resultSet.getInt(1));
+                    blogPost.setHyphenatedName   (resultSet.getString(2));
+                    blogPost.setTitle            (resultSet.getString(3));
+                    blogPost.setSubtitle         (resultSet.getString(4));
+                    blogPost.setMetaDescription  (resultSet.getString(5));
+                    blogPost.setBody             (resultSet.getString(6));
+                    blogPost.setDatePublished    (resultSet.getDate(7));
+                    blogPost.setDatetimePublished(resultSet.getDate(8));
+                    blogPost.setIsDisabled       (!resultSet.getBoolean(9));
+                    blogPost.setPriority         (resultSet.getInt(10));
+                    logger.debug("resultSet.getString(11) = "+resultSet.getString(11));
+                    blogPost.setImagePath        (resultSet.getString(11));
+
+                    selectBlogPostAuthors(blogPost, connectionManager);
+
+                    BlogCategoryDatabaseManager.selectBlogPostCategories(blogPost, connectionManager);
+
+                    //selectRelatedBlogPosts(blogPost, connectionManager);
+
+                    blogPostList.add(blogPost);
+
+                } while(resultSet.next());
+
+                if(blogPostList != null) logger.debug("blogPostList.size() = "+blogPostList.size());
+
+                return blogPostList;
+
+            } // if(resultSet.next()) {
+
+        } catch(Exception e) {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            e.printStackTrace(printWriter);
+            logger.error(stringWriter.toString());
+        } finally {
+            connectionManager.commit();
+        }
+
+        return null;
+    }
+
     public static List<BlogPost> selectBlogPosts() throws SQLException, Exception {
         logger.debug("selectBlogPosts()");
 

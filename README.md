@@ -49,3 +49,4 @@ ssh-add ~/.ssh/id_rsa
 * 0.0.1.22 - Dynamic Google Keys
 * 0.0.1.23 - Fixed contextUrl, ends with forward slash
 * 0.0.1.24 - Added Menuable. Updated selectBlogCategories
+* 0.0.1.25 - Added selectAllBlogPosts
