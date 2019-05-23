@@ -347,7 +347,6 @@ public class InitServlet extends HttpServlet {
 
         try {
 
-            //List<BlogCategory> blogCategoryList = BlogCategoryDatabaseManager.selectBlogCategoriesOrderByPriority(this.connectionPool);
             List<Menuable> blogCategoryList = BlogCategoryDatabaseManager.selectBlogCategoriesOrderByPriority(this.connectionPool);
             servletContext.setAttribute("blogCategoryList", blogCategoryList);
             if(blogCategoryList != null) logger.debug("blogCategoryList.size() = "+ blogCategoryList.size());
