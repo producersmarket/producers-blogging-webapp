@@ -18,7 +18,8 @@ import com.ispaces.dbcp.ConnectionManager;
 import com.ispaces.dbcp.ConnectionPool;
 
 import com.producersmarket.blog.model.BlogPost;
-import com.producersmarket.model.Product;
+import com.producersmarket.blog.model.BlogCategory;
+import com.producersmarket.blog.model.Menuable;
 import com.producersmarket.model.User;
 
 public class BlogCategoryDatabaseManager {
@@ -26,42 +27,47 @@ public class BlogCategoryDatabaseManager {
     private static final Logger logger = LogManager.getLogger();
     private static final String className = BlogCategoryDatabaseManager.class.getSimpleName();
 
-    public static List<Product> selectBlogCategoriesOrderByPriority() throws SQLException, Exception {
+    //public static List<BlogCategory> selectBlogCategoriesOrderByPriority() throws SQLException, Exception {
+    public static List<Menuable> selectBlogCategoriesOrderByPriority() throws SQLException, Exception {
         logger.debug("selectBlogCategoriesOrderByPriority()");
 
         ConnectionManager connectionManager = new ConnectionManager(className);
 
         try {
 
-            //String sql = "SELECT id, category FROM blog_category ORDER BY priority";
-            //PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
-            PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogCategoriesOrderByPriority");
+            //PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogCategoriesOrderByPriority");
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectNonEmptyBlogCategoriesOrderByPriority");
 
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if(resultSet.next()) {
 
-                List<Product> productList = new ArrayList<Product>();
-                Product product = new Product();
+                //List<BlogCategory> blogCategoryList = new ArrayList<BlogCategory>();
+                List<Menuable> blogCategoryList = new ArrayList<Menuable>();
+                //BlogCategory blogCategory = new BlogCategory();
+                Menuable blogCategory = new BlogCategory();
 
                 do {
 
-                    product = new Product();
+                    blogCategory = new BlogCategory();
 
-                    product.setId(resultSet.getInt(1));
-                    product.setName(resultSet.getString(2));
+                    blogCategory.setId(resultSet.getInt(1));
+                    blogCategory.setName(resultSet.getString(2));
+                    blogCategory.setHyphenatedName(resultSet.getString(3));
+                    blogCategory.setImagePath(resultSet.getString(4));
+                    blogCategory.setImagePathHover(resultSet.getString(5));
 
-                    //logger.debug("product.getName() = "+product.getName());
+                    logger.debug("blogCategory.getName() = "+blogCategory.getName());
 
-                    productList.add(product);
+                    blogCategoryList.add(blogCategory);
 
                 } while(resultSet.next());
 
-                logger.debug("productList.size() = "+productList.size());
+                logger.debug("blogCategoryList.size() = "+blogCategoryList.size());
 
-                selectBlogCategoryImages(productList, connectionManager);
+                //selectBlogCategoryImages(blogCategoryList, connectionManager);
 
-                return productList;
+                return blogCategoryList;
             }
 
         } finally {
@@ -71,49 +77,58 @@ public class BlogCategoryDatabaseManager {
         return null;
     }
 
-    public static List<Product> selectBlogCategoriesOrderByPriority(Object connectionPoolObject) throws SQLException, Exception {
+    //public static List<BlogCategory> selectBlogCategoriesOrderByPriority(Object connectionPoolObject) throws SQLException, Exception {
+    public static List<Menuable> selectBlogCategoriesOrderByPriority(Object connectionPoolObject) throws SQLException, Exception {
         logger.debug("selectBlogCategoriesOrderByPriority("+connectionPoolObject+")");
 
         return selectBlogCategoriesOrderByPriority((ConnectionPool) connectionPoolObject);
     }
 
-    public static List<Product> selectBlogCategoriesOrderByPriority(ConnectionPool connectionPool) throws SQLException, Exception {
+    //public static List<BlogCategory> selectBlogCategoriesOrderByPriority(ConnectionPool connectionPool) throws SQLException, Exception {
+    public static List<Menuable> selectBlogCategoriesOrderByPriority(ConnectionPool connectionPool) throws SQLException, Exception {
         logger.debug("selectBlogCategoriesOrderByPriority("+connectionPool+")");
 
         return selectBlogCategoriesOrderByPriority(new ConnectionManager(connectionPool));
     }
 
-    public static List<Product> selectBlogCategoriesOrderByPriority(ConnectionManager connectionManager) throws SQLException, Exception {
+    //public static List<BlogCategory> selectBlogCategoriesOrderByPriority(ConnectionManager connectionManager) throws SQLException, Exception {
+    public static List<Menuable> selectBlogCategoriesOrderByPriority(ConnectionManager connectionManager) throws SQLException, Exception {
         logger.debug("selectBlogCategoriesOrderByPriority("+connectionManager+")");
 
         try {
 
-            PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogCategoriesOrderByPriority");
+            //PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogCategoriesOrderByPriority");
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectNonEmptyBlogCategoriesOrderByPriority");
 
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if(resultSet.next()) {
 
-                List<Product> productList = new ArrayList<Product>();
-                Product product = new Product();
+                //List<BlogCategory> blogCategoryList = new ArrayList<BlogCategory>();
+                List<Menuable> blogCategoryList = new ArrayList<Menuable>();
+                //BlogCategory blogCategory = new BlogCategory();
+                Menuable blogCategory = new BlogCategory();
 
                 do {
 
-                    product = new Product();
-                    product.setId(resultSet.getInt(1));
-                    product.setName(resultSet.getString(2));
+                    blogCategory = new BlogCategory();
+                    blogCategory.setId(resultSet.getInt(1));
+                    blogCategory.setName(resultSet.getString(2));
+                    blogCategory.setHyphenatedName(resultSet.getString(3));
+                    blogCategory.setImagePath(resultSet.getString(4));
+                    blogCategory.setImagePathHover(resultSet.getString(5));
 
-                    logger.debug("product.getName() = "+product.getName());
+                    logger.debug("blogCategory.getName() = "+blogCategory.getName());
 
-                    productList.add(product);
+                    blogCategoryList.add(blogCategory);
 
                 } while(resultSet.next());
 
-                logger.debug("productList.size() = "+productList.size());
+                logger.debug("blogCategoryList.size() = "+blogCategoryList.size());
 
-                selectBlogCategoryImages(productList, connectionManager);
+                //selectBlogCategoryImages(blogCategoryList, connectionManager);
 
-                return productList;
+                return blogCategoryList;
             }
 
         } finally {
@@ -123,7 +138,7 @@ public class BlogCategoryDatabaseManager {
         return null;
     }
 
-    public static Map<Integer, Product> selectBlogCategoryMapOrderByPriority() throws SQLException, Exception {
+    public static Map<Integer, BlogCategory> selectBlogCategoryMapOrderByPriority() throws SQLException, Exception {
         logger.debug("selectBlogCategoryMapOrderByPriority()");
 
         ConnectionManager connectionManager = new ConnectionManager(className);
@@ -137,25 +152,25 @@ public class BlogCategoryDatabaseManager {
 
             if(resultSet.next()) {
 
-                Map<Integer, Product> blogCategoryMap = new HashMap<Integer, Product>();
-                Product product = new Product();
+                Map<Integer, BlogCategory> blogCategoryMap = new HashMap<Integer, BlogCategory>();
+                BlogCategory blogCategory = new BlogCategory();
 
                 do {
 
-                    product = new Product();
+                    blogCategory = new BlogCategory();
 
-                    product.setId(resultSet.getInt(1));
-                    product.setName(resultSet.getString(2));
+                    blogCategory.setId(resultSet.getInt(1));
+                    blogCategory.setName(resultSet.getString(2));
 
-                    logger.debug("product.getName() = "+product.getName());
+                    logger.debug("blogCategory.getName() = "+blogCategory.getName());
 
-                    blogCategoryMap.put(product.getId(), product);
+                    blogCategoryMap.put(blogCategory.getId(), blogCategory);
 
                 } while(resultSet.next());
 
                 logger.debug("blogCategoryMap.size() = "+blogCategoryMap.size());
 
-                //selectBlogCategoryImages(productList, connectionManager);
+                //selectBlogCategoryImages(blogCategoryList, connectionManager);
 
                 return blogCategoryMap;
             }
@@ -167,29 +182,29 @@ public class BlogCategoryDatabaseManager {
         return null;
     }
 
-    public static void selectBlogCategoryImages(List<Product> productList, ConnectionManager connectionManager) throws SQLException, Exception {
-        logger.debug("selectBlogCategoryImages(productList, connectionManager)");
+    public static void selectBlogCategoryImages(List<BlogCategory> blogCategoryList, ConnectionManager connectionManager) throws SQLException, Exception {
+        logger.debug("selectBlogCategoryImages(blogCategoryList, connectionManager)");
 
         try {
 
             //String sql = "SELECT image_path FROM blog_category_has_image WHERE blog_category_id = ?";
-            Product product = null;
-            Iterator<Product> productIterator = productList.iterator();
+            BlogCategory blogCategory = null;
+            Iterator<BlogCategory> blogCategoryIterator = blogCategoryList.iterator();
 
-            while(productIterator.hasNext()) {
+            while(blogCategoryIterator.hasNext()) {
 
-                product = productIterator.next();
+                blogCategory = blogCategoryIterator.next();
 
                 //PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
                 PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogCategoryImages");
-                preparedStatement.setInt(1, product.getId());
+                preparedStatement.setInt(1, blogCategory.getId());
                 ResultSet resultSet = preparedStatement.executeQuery();
 
                 if(resultSet.next()) {
 
-                    product.setImageUrl(resultSet.getString(1));
+                    blogCategory.setImagePath(resultSet.getString(1));
 
-                    logger.debug("product.getImageUrl() = "+product.getImageUrl());
+                    logger.debug("blogCategory.getImagePath() = "+blogCategory.getImagePath());
                 }
 
             }
