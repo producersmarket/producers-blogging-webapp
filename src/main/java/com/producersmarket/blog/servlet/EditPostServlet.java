@@ -1,5 +1,10 @@
 package com.producersmarket.blog.servlet;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -12,12 +17,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.ResourceBundle;
 
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
@@ -33,6 +40,12 @@ import org.apache.logging.log4j.LogManager;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
+
+@MultipartConfig(
+      fileSizeThreshold   = 1024 * 1024 * 1  // 1 MB
+    , maxFileSize         = 1024 * 1024 * 50 // 50 MB file
+    , maxRequestSize      = 1024 * 1024 * 50 // 50 MB file
+)
 
 /*
 @WebServlet(
@@ -67,6 +80,27 @@ public class EditPostServlet extends BlogPostServlet {
         );
 
         super.init(config);
+    }
+
+    /**
+     * Extracts file name from HTTP header content-disposition
+     */
+    private String extractFileName(Part part) {
+        String contentDisp = part.getHeader("content-disposition");
+        String[] items = contentDisp.split(";");
+        for (String s : items) {
+            if (s.trim().startsWith("filename")) {
+                return s.substring(s.indexOf("=") + 2, s.length()-1);
+            }
+        }
+
+        return null;
+    }
+
+    public String extractSuffix(String fileName) throws IOException, ServletException {
+        logger.debug("extractSuffix("+fileName+")");
+
+        return fileName.substring(fileName.indexOf(".") + 1);
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -144,6 +178,60 @@ public class EditPostServlet extends BlogPostServlet {
         }
         logger.debug("blogPostId = "+blogPostId);
 
+        // multipart uploads
+        Part blogImagePart = request.getPart("blogImage"); // javax.servlet.http.Part @since 3.0
+        String blogImagePartFileName = extractFileName(blogImagePart);
+        String blogImageFileNameSuffix = extractSuffix(blogImagePartFileName);
+
+        logger.debug("blogImagePart = " + blogImagePart);
+        logger.debug("blogImagePart.getName() = " + blogImagePart.getName());
+        logger.debug("blogImagePart.getSize() = " + blogImagePart.getSize());
+        logger.debug("blogImagePartFileName   = " + blogImagePartFileName);
+        logger.debug("blogImageFileNameSuffix = " + blogImageFileNameSuffix);
+
+        String systemDrive = System.getenv("SystemDrive"); // Windows only
+        logger.debug("systemDrive = " + systemDrive);
+
+        // logo image
+        StringBuilder blogImagePathBuilder = new StringBuilder();
+        if(systemDrive != null) blogImagePathBuilder.append(systemDrive);
+        blogImagePathBuilder.append(File.separator).append("var");
+        blogImagePathBuilder.append(File.separator).append("web");
+        blogImagePathBuilder.append(File.separator).append("uploaded");
+        blogImagePathBuilder.append(File.separator).append("images");
+        blogImagePathBuilder.append(File.separator).append("blog");
+        blogImagePathBuilder.append(File.separator).append(hyphenatedName);//.append("-").append(orgId);
+
+        boolean logoDirectoryCreated =  new File(blogImagePathBuilder.toString()).mkdirs();
+        logger.debug("logoDirectoryCreated = " + logoDirectoryCreated);
+
+        blogImagePathBuilder.append(File.separator).append(hyphenatedName);
+        //blogImagePathBuilder.append("-").append(orgId);
+        //blogImagePathBuilder.append("-logo.");
+        blogImagePathBuilder.append(blogImageFileNameSuffix);
+
+        String blogImagePath = blogImagePathBuilder.toString();
+        File blogImageFile = new File(blogImagePath);
+        //boolean logoDirectoryCreated =  blogImageFile.mkdirs();
+
+        logger.debug("blogImagePath = " + blogImagePath);
+        logger.debug("blogImageFile = " + blogImageFile);
+
+        InputStream blogImageInputStream = blogImagePart.getInputStream(); // Gets the content of this part as an InputStream
+        FileOutputStream blogImageFileOutputStream = new FileOutputStream(blogImageFile);
+        byte[] buffer = new byte[1024 * 8]; // 8KB buffer
+        int bytesRead;
+                            
+        while((bytesRead = blogImageInputStream.read(buffer)) != -1) {
+            blogImageFileOutputStream.write(buffer, 0, bytesRead);
+        }
+
+        blogImageInputStream.close();
+        blogImageFileOutputStream.flush();
+        blogImageFileOutputStream.close();
+
+        blogPost.setImagePath(blogImagePath.substring(blogImagePath.indexOf("uploaded")).replace("\\", "/"));
+        logger.debug("blogPost.getImagePath() = " + blogPost.getImagePath());
 
         try {
 
