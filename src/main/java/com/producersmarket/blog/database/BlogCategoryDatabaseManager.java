@@ -27,6 +27,45 @@ public class BlogCategoryDatabaseManager {
     private static final Logger logger = LogManager.getLogger();
     private static final String className = BlogCategoryDatabaseManager.class.getSimpleName();
 
+    public static Map<Integer, String> selectBlogCategories(Object connectionPoolObject) throws SQLException, Exception {
+        return selectBlogCategories( (ConnectionPool) connectionPoolObject );
+    }
+
+    public static Map<Integer, String> selectBlogCategories(ConnectionPool connectionPool) throws SQLException, Exception {
+        return selectBlogCategories( new ConnectionManager(connectionPool) );
+    }
+
+    public static Map<Integer, String> selectBlogCategories(ConnectionManager connectionManager) throws SQLException, Exception {
+        logger.debug("selectBlogCategories(connectionManager)");
+
+        try {
+
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogCategories");
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if(resultSet.next()) {
+
+                Map<Integer, String> blogCategoryMap = new HashMap<Integer, String>();
+
+                do {
+
+                    blogCategoryMap.put(resultSet.getInt(1), resultSet.getString(2));
+
+                } while(resultSet.next());
+
+                logger.debug("blogCategoryMap.size() = "+blogCategoryMap.size());
+
+                return blogCategoryMap;
+
+            } // if(resultSet.next()) {
+
+        } finally {
+            connectionManager.commit();
+        }
+
+        return null;
+    }
+
     //public static List<BlogCategory> selectBlogCategoriesOrderByPriority() throws SQLException, Exception {
     public static List<Menuable> selectBlogCategoriesOrderByPriority() throws SQLException, Exception {
         logger.debug("selectBlogCategoriesOrderByPriority()");

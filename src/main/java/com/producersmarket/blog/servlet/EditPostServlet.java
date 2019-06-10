@@ -290,6 +290,12 @@ public class EditPostServlet extends BlogPostServlet {
             }
             logger.debug("blogToken = "+blogToken);
 
+            Map<Integer, String> blogCategoryMap = (Map<Integer, String>) getServletContext().getAttribute("blogCategoryMap");
+            if(blogCategoryMap == null) {
+                blogCategoryMap = BlogCategoryDatabaseManager.selectBlogCategories(getConnectionPool());
+                getServletContext().setAttribute("blogCategoryMap", blogCategoryMap);
+            }
+
             if(blogToken != null && blogToken.length() > 0) {
 
                 try {
@@ -298,7 +304,6 @@ public class EditPostServlet extends BlogPostServlet {
                     logger.debug("blogPostId = "+blogPostId);
 
                     this.executor.execute(new BlogPostIdRequest(request.startAsync(), blogPostId));
-
                     return;
 
                 } catch(NumberFormatException e) {
