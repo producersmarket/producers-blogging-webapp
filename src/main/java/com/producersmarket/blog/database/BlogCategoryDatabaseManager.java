@@ -69,6 +69,45 @@ public class BlogCategoryDatabaseManager {
 
         return null;
     }
+            
+    public static Map<Integer, String> selectBlogCategories(Object connectionPoolObject) throws SQLException, Exception {
+        return selectBlogCategories( (ConnectionPool) connectionPoolObject );
+    }
+
+    public static Map<Integer, String> selectBlogCategories(ConnectionPool connectionPool) throws SQLException, Exception {
+        return selectBlogCategories( new ConnectionManager(connectionPool) );
+    }
+
+    public static Map<Integer, String> selectBlogCategories(ConnectionManager connectionManager) throws SQLException, Exception {
+        logger.debug("selectBlogCategories(connectionManager)");
+
+        try {
+
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogCategories");
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if(resultSet.next()) {
+
+                Map<Integer, String> blogCategoryMap = new HashMap<Integer, String>();
+
+                do {
+
+                    blogCategoryMap.put(resultSet.getInt(1), resultSet.getString(2));
+
+                } while(resultSet.next());
+
+                logger.debug("blogCategoryMap.size() = "+blogCategoryMap.size());
+
+                return blogCategoryMap;
+
+            } // if(resultSet.next()) {
+
+        } finally {
+            connectionManager.commit();
+        }
+
+        return null;
+    }
 
     //public static List<BlogCategory> selectBlogCategoriesOrderByPriority() throws SQLException, Exception {
     public static List<Menuable> selectBlogCategoriesOrderByPriority() throws SQLException, Exception {
@@ -120,29 +159,20 @@ public class BlogCategoryDatabaseManager {
         return null;
     }
 
-    //public static List<BlogCategory> selectBlogCategoriesOrderByPriority(Object connectionPoolObject) throws SQLException, Exception {
     public static List<Menuable> selectBlogCategoriesOrderByPriority(Object connectionPoolObject) throws SQLException, Exception {
-        logger.debug("selectBlogCategoriesOrderByPriority("+connectionPoolObject+")");
-
         return selectBlogCategoriesOrderByPriority((ConnectionPool) connectionPoolObject);
     }
 
-    //public static List<BlogCategory> selectBlogCategoriesOrderByPriority(ConnectionPool connectionPool) throws SQLException, Exception {
     public static List<Menuable> selectBlogCategoriesOrderByPriority(ConnectionPool connectionPool) throws SQLException, Exception {
-        logger.debug("selectBlogCategoriesOrderByPriority("+connectionPool+")");
-
         return selectBlogCategoriesOrderByPriority(new ConnectionManager(connectionPool));
     }
 
-    //public static List<BlogCategory> selectBlogCategoriesOrderByPriority(ConnectionManager connectionManager) throws SQLException, Exception {
     public static List<Menuable> selectBlogCategoriesOrderByPriority(ConnectionManager connectionManager) throws SQLException, Exception {
         logger.debug("selectBlogCategoriesOrderByPriority("+connectionManager+")");
 
         try {
 
-            //PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogCategoriesOrderByPriority");
             PreparedStatement preparedStatement = connectionManager.loadStatement("selectNonEmptyBlogCategoriesOrderByPriority");
-
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if(resultSet.next()) {
