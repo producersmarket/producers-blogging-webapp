@@ -27,6 +27,49 @@ public class BlogCategoryDatabaseManager {
     private static final Logger logger = LogManager.getLogger();
     private static final String className = BlogCategoryDatabaseManager.class.getSimpleName();
 
+    public static List<Integer> insertBlogCategory(int blogPostId, int blogCategoryId, Object connectionPoolObject) throws SQLException, Exception {
+        return insertBlogCategory(blogPostId, blogCategoryId, (ConnectionPool) connectionPoolObject);
+    }
+
+    public static List<Integer> insertBlogCategory(int blogPostId, int blogCategoryId, ConnectionPool connectionPool) throws SQLException, Exception {
+        return insertBlogCategory(blogPostId, blogCategoryId, new ConnectionManager(connectionPool));
+    }
+
+    public static List<Integer> insertBlogCategory(int blogPostId, int blogCategoryId, ConnectionManager connectionManager) throws SQLException, Exception {
+        logger.debug("insertBlogCategory("+blogPostId+", "+blogCategoryId+", connectionManager)");
+
+        try {
+
+            PreparedStatement preparedStatement = connectionManager.loadStatement("insertBlogCategory");
+            preparedStatement.setInt(1, blogPostId);
+            preparedStatement.setInt(2, blogCategoryId);
+            preparedStatement.executeUpdate();
+
+            preparedStatement = connectionManager.loadStatement("selectBlogPostCategoryIds");
+            preparedStatement.setInt(1, blogPostId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if(resultSet.next()) {
+                List<Integer> blogCategoryIdList = new ArrayList<Integer>();
+                do {
+                    blogCategoryIdList.add(resultSet.getInt(1));
+                } while(resultSet.next());
+                logger.debug("blogCategoryIdList = "+blogCategoryIdList);
+                return blogCategoryIdList;
+            }
+
+        } catch(Exception e) {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            e.printStackTrace(printWriter);
+            logger.error(stringWriter.toString());
+        } finally {
+            connectionManager.commit();
+        }
+
+        return null;
+    }
+
     //public static List<BlogCategory> selectBlogCategoriesOrderByPriority() throws SQLException, Exception {
     public static List<Menuable> selectBlogCategoriesOrderByPriority() throws SQLException, Exception {
         logger.debug("selectBlogCategoriesOrderByPriority()");
@@ -218,87 +261,62 @@ public class BlogCategoryDatabaseManager {
 
     }
 
+    public static void selectBlogPostCategoryIds(BlogPost blogPost, Object connectionPoolObject) throws SQLException, Exception {
+        logger.debug("selectBlogPostCategoryIds("+connectionPoolObject+")");
+
+        selectBlogPostCategoryIds( blogPost, (ConnectionPool) connectionPoolObject);
+    }
+
+    public static void selectBlogPostCategoryIds(BlogPost blogPost, ConnectionPool connectionPool) throws SQLException, Exception {
+        logger.debug("selectBlogPostCategoryIds("+connectionPool+")");
+
+        selectBlogPostCategoryIds( blogPost, new ConnectionManager(connectionPool));
+    }
+
     public static void selectBlogPostCategoryIds(BlogPost blogPost, ConnectionManager connectionManager) throws SQLException, Exception {
         logger.debug("selectBlogPostCategoryIds(blogPost, connectionManager)");
 
         try {
-
-            /*
-            String sql = new StringBuilder()
-                .append("SELECT ")
-                .append(" blog_category_id")
-                .append(" FROM blog_post_has_category")
-                .append(" WHERE blog_post_id = ?")
-                .toString();
-
-            logger.debug(sql);
-
-            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
-            */
             PreparedStatement preparedStatement = connectionManager.prepareStatement("selectBlogPostCategoryIds");
             preparedStatement.setInt(1, blogPost.getId());
-
             ResultSet resultSet = preparedStatement.executeQuery();
             if(resultSet.next()) {
-
-                //List userList = new ArrayList();
                 List<Integer> blogCategoryIdList = new ArrayList<Integer>(); // Lazy instantiate the blogCategoryIdList
-
                 do {
-
                     blogCategoryIdList.add(resultSet.getInt(1));
-
                 } while(resultSet.next());
-
                 if(blogCategoryIdList != null) logger.debug("blogCategoryIdList.size() = "+blogCategoryIdList.size());
-
-                //return userList;
                 blogPost.setBlogCategoryIdList(blogCategoryIdList);
-
             } // if(resultSet.next()) {
-
         } catch(Exception e) {
             StringWriter stringWriter = new StringWriter();
             PrintWriter printWriter = new PrintWriter(stringWriter);
             e.printStackTrace(printWriter);
             logger.error(stringWriter.toString());
         }
-
-        //return null;
     }
 
     public static void selectBlogPostCategories(BlogPost blogPost, ConnectionManager connectionManager) throws SQLException, Exception {
         logger.debug("selectBlogPostCategories(blogPost, connectionManager)");
 
         try {
-
             PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogPostCategories");
             preparedStatement.setInt(1, blogPost.getId());
-
             ResultSet resultSet = preparedStatement.executeQuery();
             if(resultSet.next()) {
-
                 List<String> blogCategoryList = new ArrayList<String>(); // Lazy instantiate the blogCategoryIdList
-
                 do {
-
                     blogCategoryList.add(resultSet.getString(1));
-
                 } while(resultSet.next());
-
                 if(blogCategoryList != null) logger.debug("blogCategoryList.size() = "+blogCategoryList.size());
-
                 blogPost.setBlogCategoryList(blogCategoryList);
-
             } // if(resultSet.next()) {
-
         } catch(Exception e) {
             StringWriter stringWriter = new StringWriter();
             PrintWriter printWriter = new PrintWriter(stringWriter);
             e.printStackTrace(printWriter);
             logger.error(stringWriter.toString());
         }
-
     }
 
 }

@@ -21,6 +21,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
+import com.producersmarket.blog.database.BlogCategoryDatabaseManager;
 import com.producersmarket.blog.database.BlogPostDatabaseManager;
 import com.producersmarket.blog.markdown.BlogImageNodeRenderer;
 import com.producersmarket.blog.model.BlogPost;
@@ -79,6 +80,13 @@ public class EditPostServlet extends BlogPostServlet {
         String subtitle = request.getParameter("subtitle");
         String body = request.getParameter("body");
 
+        String blogCategoryIdString = request.getParameter("blogCategoryId");
+        int blogCategoryId = -1;
+        try {
+            blogCategoryId = Integer.parseInt(blogCategoryIdString);
+        } catch(NumberFormatException e) {}
+
+        logger.debug("blogCategoryId = " + blogCategoryId);
         logger.debug("hyphenatedName = "+hyphenatedName);
         logger.debug("title = "+title);
         logger.debug("subtitle = "+subtitle);
@@ -152,6 +160,28 @@ public class EditPostServlet extends BlogPostServlet {
             } else {
                 BlogPostDatabaseManager.insertBlogPost(blogPost, getConnectionPool());
             }
+
+            try {
+
+                List<Integer> blogCategoryIdList = BlogCategoryDatabaseManager.insertBlogCategory(blogPost.getId(), blogCategoryId, getConnectionPool());
+                logger.debug("blogCategoryIdList = "+blogCategoryIdList);
+                request.setAttribute("blogCategoryIdList", blogCategoryIdList);
+
+            } catch(java.sql.SQLException e) {
+                
+                StringWriter stringWriter = new StringWriter();
+                PrintWriter printWriter = new PrintWriter(stringWriter);
+                e.printStackTrace(printWriter);
+                logger.debug(stringWriter.toString());
+
+            } catch(Exception e) {
+
+                StringWriter stringWriter = new StringWriter();
+                PrintWriter printWriter = new PrintWriter(stringWriter);
+                e.printStackTrace(printWriter);
+                logger.debug(stringWriter.toString());
+            }
+
 
             //include(request, response, "/view/email-sent.jsp");
             //javax.servlet.RequestDispatcher requestDispatcher = this.config.getServletContext().getRequestDispatcher("/import-contacts");
@@ -254,6 +284,12 @@ public class EditPostServlet extends BlogPostServlet {
                 logger.debug("blogPost.getId() = "+blogPost.getId());
 
                 request.setAttribute("blogPost", blogPost);
+
+                //List<Integer> blogCategoryIdList = BlogCategoryDatabaseManager.selectBlogCategoryIdList(blogPost.getId(), getConnectionPool());
+                BlogCategoryDatabaseManager.selectBlogPostCategoryIds(blogPost, getConnectionPool());
+                List<Integer> blogCategoryIdList = blogPost.getBlogCategoryIdList();
+                logger.debug("blogCategoryIdList = "+ blogCategoryIdList);
+                request.setAttribute("blogCategoryIdList", blogCategoryIdList);
 
                 includeUtf8(request, response, "/view/edit-post.jsp");
 

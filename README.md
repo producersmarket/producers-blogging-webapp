@@ -52,3 +52,4 @@ ssh-add ~/.ssh/id_rsa
 * 0.0.1.25 - Added selectAllBlogPosts
 * 0.0.1.26 - Fixed BlogPostsServlet path
 * 0.0.1.27 - All posts now without snippet
+* 0.0.1.28 - Add insertBlogCategory, selectBlogPostCategoryIds
