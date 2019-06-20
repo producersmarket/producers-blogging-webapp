@@ -27,20 +27,20 @@ public class BlogCategoryDatabaseManager {
     private static final Logger logger = LogManager.getLogger();
     private static final String className = BlogCategoryDatabaseManager.class.getSimpleName();
 
-    public static List<Integer> insertBlogCategory(int blogPostId, int blogCategoryId, Object connectionPoolObject) throws SQLException, Exception {
-        return insertBlogCategory(blogPostId, blogCategoryId, (ConnectionPool) connectionPoolObject);
+    public static List<Integer> insertBlogPostCategory(int blogPostId, int blogCategoryId, Object connectionPoolObject) throws SQLException, Exception {
+        return insertBlogPostCategory(blogPostId, blogCategoryId, (ConnectionPool) connectionPoolObject);
     }
 
-    public static List<Integer> insertBlogCategory(int blogPostId, int blogCategoryId, ConnectionPool connectionPool) throws SQLException, Exception {
-        return insertBlogCategory(blogPostId, blogCategoryId, new ConnectionManager(connectionPool));
+    public static List<Integer> insertBlogPostCategory(int blogPostId, int blogCategoryId, ConnectionPool connectionPool) throws SQLException, Exception {
+        return insertBlogPostCategory(blogPostId, blogCategoryId, new ConnectionManager(connectionPool));
     }
 
-    public static List<Integer> insertBlogCategory(int blogPostId, int blogCategoryId, ConnectionManager connectionManager) throws SQLException, Exception {
-        logger.debug("insertBlogCategory("+blogPostId+", "+blogCategoryId+", connectionManager)");
+    public static List<Integer> insertBlogPostCategory(int blogPostId, int blogCategoryId, ConnectionManager connectionManager) throws SQLException, Exception {
+        logger.debug("insertBlogPostCategory("+blogPostId+", "+blogCategoryId+", connectionManager)");
 
         try {
 
-            PreparedStatement preparedStatement = connectionManager.loadStatement("insertBlogCategory");
+            PreparedStatement preparedStatement = connectionManager.loadStatement("insertBlogPostCategory");
             preparedStatement.setInt(1, blogPostId);
             preparedStatement.setInt(2, blogCategoryId);
             preparedStatement.executeUpdate();

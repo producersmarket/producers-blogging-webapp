@@ -379,12 +379,9 @@ public class BlogPostServlet extends ParentServlet {
                 String errorMessage = "Blog Post Not Found!";
                 logger.warn(errorMessage);
 
-                getServletContext().getRequestDispatcher(
-                    new StringBuilder().append("/missing-post/").append(blogPostName).toString()
-                ).forward(request, response);
-
-                //writeOut(response, errorMessage);
-
+                getServletContext()
+                    .getRequestDispatcher(new StringBuilder().append("/missing-post/").append(blogPostName).toString())
+                    .forward(request, response);
 
             } // if(blogPost != null) {
 
@@ -396,14 +393,5 @@ public class BlogPostServlet extends ParentServlet {
         }
 
     }
-
-    /*
-     * https://www.javadoc.io/doc/com.atlassian.commonmark/commonmark/0.10.0
-     * https://static.javadoc.io/com.atlassian.commonmark/commonmark/0.10.0/org/commonmark/node/Image.html
-     * https://static.javadoc.io/com.atlassian.commonmark/commonmark/0.10.0/org/commonmark/renderer/html/HtmlWriter.html
-     * <figure><img src="/content/images/organic-avocado-farm-and-packing-house-michoacan-mexico/organic-avocados-lionel-packed-box_600x800.jpg" alt="Leonel Chavez, CEO of Michocan Organics" /><figcaption>Leonel Chavez, CEO of Michocan Organics</figcaption></figure>
-     * http://digitaldrummerj.me/styling-jekyll-markdown/
-     * https://github.com/atlassian/commonmark-java/blob/master/commonmark/src/main/java/org/commonmark/node/Link.java
-     */
 
 }

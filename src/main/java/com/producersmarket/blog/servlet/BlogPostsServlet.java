@@ -120,7 +120,7 @@ public class BlogPostsServlet extends ParentServlet {
                 request.setAttribute("blogPostList", blogPostList);
             }
 
-            //include(request, response, "/view/blog-list.jsp");
+              //include(request, response, "/view/blog-list.jsp");
             includeUtf8(request, response, "/view/user.jsp");
 
         } catch(Exception e) {

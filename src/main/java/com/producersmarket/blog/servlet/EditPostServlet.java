@@ -251,7 +251,7 @@ public class EditPostServlet extends BlogPostServlet {
 
             try {
 
-                List<Integer> blogCategoryIdList = BlogCategoryDatabaseManager.insertBlogCategory(blogPost.getId(), blogCategoryId, getConnectionPool());
+                List<Integer> blogCategoryIdList = BlogCategoryDatabaseManager.insertBlogPostCategory(blogPost.getId(), blogCategoryId, getConnectionPool());
                 logger.debug("blogCategoryIdList = "+blogCategoryIdList);
                 request.setAttribute("blogCategoryIdList", blogCategoryIdList);
 
