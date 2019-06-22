@@ -69,6 +69,63 @@ public class BlogCategoryDatabaseManager {
 
         return null;
     }
+
+    public static void insertBlogPostCategories(String insertBlogPostCategoriesSql, Object connectionPoolObject) throws SQLException, Exception {
+        insertBlogPostCategories(insertBlogPostCategoriesSql, (ConnectionPool) connectionPoolObject);
+    }
+
+    public static void insertBlogPostCategories(String insertBlogPostCategoriesSql, ConnectionPool connectionPool) throws SQLException, Exception {
+        insertBlogPostCategories(insertBlogPostCategoriesSql, new ConnectionManager(connectionPool));
+    }
+
+    public static void insertBlogPostCategories(String insertBlogPostCategoriesSql, ConnectionManager connectionManager) throws SQLException, Exception {
+        logger.debug("insertBlogPostCategories("+insertBlogPostCategoriesSql+", connectionManager)");
+
+        try {
+            PreparedStatement preparedStatement = connectionManager.prepareStatement(insertBlogPostCategoriesSql);
+            preparedStatement.executeUpdate();
+        } catch(Exception e) {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            e.printStackTrace(printWriter);
+            logger.error(stringWriter.toString());
+        } finally {
+            connectionManager.commit();
+        }
+    }
+
+    public static List<Integer> insertBlogPostCategories(int blogPostId, String insertBlogPostCategoriesSql, ConnectionManager connectionManager) throws SQLException, Exception {
+        logger.debug("insertBlogPostCategories("+insertBlogPostCategoriesSql+", connectionManager)");
+
+        try {
+
+            PreparedStatement preparedStatement = connectionManager.prepareStatement(insertBlogPostCategoriesSql);
+            preparedStatement.executeUpdate();
+
+            preparedStatement = connectionManager.loadStatement("selectBlogPostCategoryIds");
+            preparedStatement.setInt(1, blogPostId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if(resultSet.next()) {
+                List<Integer> blogCategoryIdList = new ArrayList<Integer>();
+                do {
+                    blogCategoryIdList.add(resultSet.getInt(1));
+                } while(resultSet.next());
+                logger.debug("blogCategoryIdList = "+blogCategoryIdList);
+                return blogCategoryIdList;
+            }
+
+        } catch(Exception e) {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            e.printStackTrace(printWriter);
+            logger.error(stringWriter.toString());
+        } finally {
+            connectionManager.commit();
+        }
+
+        return null;
+    }
             
     public static Map<Integer, String> selectBlogCategories(Object connectionPoolObject) throws SQLException, Exception {
         return selectBlogCategories( (ConnectionPool) connectionPoolObject );
@@ -292,14 +349,10 @@ public class BlogCategoryDatabaseManager {
     }
 
     public static void selectBlogPostCategoryIds(BlogPost blogPost, Object connectionPoolObject) throws SQLException, Exception {
-        logger.debug("selectBlogPostCategoryIds("+connectionPoolObject+")");
-
         selectBlogPostCategoryIds( blogPost, (ConnectionPool) connectionPoolObject);
     }
 
     public static void selectBlogPostCategoryIds(BlogPost blogPost, ConnectionPool connectionPool) throws SQLException, Exception {
-        logger.debug("selectBlogPostCategoryIds("+connectionPool+")");
-
         selectBlogPostCategoryIds( blogPost, new ConnectionManager(connectionPool));
     }
 
@@ -307,7 +360,7 @@ public class BlogCategoryDatabaseManager {
         logger.debug("selectBlogPostCategoryIds(blogPost, connectionManager)");
 
         try {
-            PreparedStatement preparedStatement = connectionManager.prepareStatement("selectBlogPostCategoryIds");
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogPostCategoryIds");
             preparedStatement.setInt(1, blogPost.getId());
             ResultSet resultSet = preparedStatement.executeQuery();
             if(resultSet.next()) {

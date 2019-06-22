@@ -114,6 +114,7 @@ public class EditPostServlet extends BlogPostServlet {
         String subtitle = request.getParameter("subtitle");
         String body = request.getParameter("body");
 
+        /*
         String blogCategoryIdString = request.getParameter("blogCategoryId");
         int blogCategoryId = -1;
         try {
@@ -121,6 +122,12 @@ public class EditPostServlet extends BlogPostServlet {
         } catch(NumberFormatException e) {}
 
         logger.debug("blogCategoryId = " + blogCategoryId);
+        */
+        // blog categories
+        String[] blogCategoryIds = request.getParameterValues("blogCategories");
+        logger.debug("blogCategoryIds = " + blogCategoryIds);
+        if(blogCategoryIds != null) logger.debug("blogCategoryIds.length = " + blogCategoryIds.length);
+
         logger.debug("hyphenatedName = "+hyphenatedName);
         logger.debug("title = "+title);
         logger.debug("subtitle = "+subtitle);
@@ -163,18 +170,17 @@ public class EditPostServlet extends BlogPostServlet {
           && (userIdObject = httpSession.getAttribute("userId")) != null
         ) {
 
-            //userId = Integer.valueOf((String) userIdObject);
-            userId = ((Integer)userIdObject).intValue();
+            userId = ( (Integer) userIdObject ).intValue();
 
-            logger.debug("httpSession.getId() = "+httpSession.getId());
-            logger.debug("userIdObject = "+userIdObject);
-            logger.debug("userId = "+userId);
+            logger.debug("httpSession.getId() = "+ httpSession.getId());
+            logger.debug("userIdObject = "+ userIdObject);
+            logger.debug("userId = "+ userId);
 
-            blogPost.setUserId(userId);
+            blogPost.setUserId( userId );
         }
 
         String blogPostIdString = request.getParameter("blogPostId");
-        logger.debug("blogPostIdString = "+blogPostIdString);
+        logger.debug("blogPostIdString = "+ blogPostIdString);
         int blogPostId = -1;
         try {
             blogPostId = Integer.parseInt(blogPostIdString);
@@ -183,63 +189,76 @@ public class EditPostServlet extends BlogPostServlet {
         } catch(NumberFormatException e) {
             // No blog post ID, must be a new post
             blogPost.createHyphenatedName();
+            hyphenatedName = blogPost.getHyphenatedName();
         }
         logger.debug("blogPostId = "+blogPostId);
+        logger.debug("hyphenatedName = "+ hyphenatedName);
 
-        // multipart uploads
+        // multipart upload
         Part blogImagePart = request.getPart("blogImage"); // javax.servlet.http.Part @since 3.0
-        String blogImagePartFileName = extractFileName(blogImagePart);
-        String blogImageFileNameSuffix = extractSuffix(blogImagePartFileName);
+        if(blogImagePart != null) {
 
-        logger.debug("blogImagePart = " + blogImagePart);
-        logger.debug("blogImagePart.getName() = " + blogImagePart.getName());
-        logger.debug("blogImagePart.getSize() = " + blogImagePart.getSize());
-        logger.debug("blogImagePartFileName   = " + blogImagePartFileName);
-        logger.debug("blogImageFileNameSuffix = " + blogImageFileNameSuffix);
+            String blogImagePartFileName = extractFileName(blogImagePart);
+            String blogImageFileNameSuffix = extractSuffix(blogImagePartFileName);
 
-        String systemDrive = System.getenv("SystemDrive"); // Windows only
-        logger.debug("systemDrive = " + systemDrive);
+            logger.debug("blogImagePart = " + blogImagePart);
+            logger.debug("blogImagePart.getName() = " + blogImagePart.getName());
+            logger.debug("blogImagePart.getSize() = " + blogImagePart.getSize());
+            logger.debug("blogImagePartFileName   = " + blogImagePartFileName);
+            logger.debug("blogImageFileNameSuffix = " + blogImageFileNameSuffix);
 
-        // logo image
-        StringBuilder blogImagePathBuilder = new StringBuilder();
-        if(systemDrive != null) blogImagePathBuilder.append(systemDrive);
-        blogImagePathBuilder.append(File.separator).append("var");
-        blogImagePathBuilder.append(File.separator).append("web");
-        blogImagePathBuilder.append(File.separator).append("uploaded");
-        blogImagePathBuilder.append(File.separator).append("images");
-        blogImagePathBuilder.append(File.separator).append("blog");
-        blogImagePathBuilder.append(File.separator).append(hyphenatedName);//.append("-").append(orgId);
+            String systemDrive = System.getenv("SystemDrive"); // Windows only
+            logger.debug("systemDrive = " + systemDrive);
 
-        boolean logoDirectoryCreated =  new File(blogImagePathBuilder.toString()).mkdirs();
-        logger.debug("logoDirectoryCreated = " + logoDirectoryCreated);
+            // logo image
+            StringBuilder blogImagePathBuilder = new StringBuilder();
+            if(systemDrive != null) blogImagePathBuilder.append(systemDrive);
+            blogImagePathBuilder
+                .append(File.separator).append("var")
+                .append(File.separator).append("web")
+                .append(File.separator).append("uploaded")
+                .append(File.separator).append("images")
+                .append(File.separator).append("blog")
+                .append(File.separator).append(hyphenatedName);
 
-        blogImagePathBuilder.append(File.separator).append(hyphenatedName);
-        //blogImagePathBuilder.append("-").append(orgId);
-        //blogImagePathBuilder.append("-logo.");
-        blogImagePathBuilder.append(blogImageFileNameSuffix);
+            boolean blogImageDirectoryCreated =  new File(blogImagePathBuilder.toString()).mkdirs();
+            logger.debug("blogImageDirectoryCreated = " + blogImageDirectoryCreated);
 
-        String blogImagePath = blogImagePathBuilder.toString();
-        File blogImageFile = new File(blogImagePath);
-        //boolean logoDirectoryCreated =  blogImageFile.mkdirs();
+            blogImagePathBuilder.append(File.separator).append(hyphenatedName);
+            blogImagePathBuilder.append(".").append(blogImageFileNameSuffix);
 
-        logger.debug("blogImagePath = " + blogImagePath);
-        logger.debug("blogImageFile = " + blogImageFile);
+            String blogImagePath = blogImagePathBuilder.toString();
+            File blogImageFile = new File(blogImagePath);
 
-        InputStream blogImageInputStream = blogImagePart.getInputStream(); // Gets the content of this part as an InputStream
-        FileOutputStream blogImageFileOutputStream = new FileOutputStream(blogImageFile);
-        byte[] buffer = new byte[1024 * 8]; // 8KB buffer
-        int bytesRead;
-                            
-        while((bytesRead = blogImageInputStream.read(buffer)) != -1) {
-            blogImageFileOutputStream.write(buffer, 0, bytesRead);
-        }
+            logger.debug("blogImagePath = " + blogImagePath);
+            logger.debug("blogImageFile = " + blogImageFile);
 
-        blogImageInputStream.close();
-        blogImageFileOutputStream.flush();
-        blogImageFileOutputStream.close();
+            if(blogImageDirectoryCreated) {
 
-        blogPost.setImagePath(blogImagePath.substring(blogImagePath.indexOf("uploaded")).replace("\\", "/"));
-        logger.debug("blogPost.getImagePath() = " + blogPost.getImagePath());
+                try {
+
+                    InputStream blogImageInputStream = blogImagePart.getInputStream(); // Gets the content of this part as an InputStream
+                    FileOutputStream blogImageFileOutputStream = new FileOutputStream(blogImageFile);
+                    byte[] buffer = new byte[1024 * 8]; // 8KB buffer
+                    int bytesRead;
+                    while((bytesRead = blogImageInputStream.read(buffer)) != -1) {
+                        blogImageFileOutputStream.write(buffer, 0, bytesRead);
+                    }
+
+                    blogImageInputStream.close();
+                    blogImageFileOutputStream.flush();
+                    blogImageFileOutputStream.close();
+
+                    blogPost.setImagePath(blogImagePath.substring(blogImagePath.indexOf("uploaded") - 1).replace("\\", "/"));
+                    logger.debug("blogPost.getImagePath() = " + blogPost.getImagePath());
+
+                } catch(IOException e) {
+                    logException(e);
+                }
+
+            } // if(blogImageDirectoryCreated) {
+
+        } // if(blogImagePart != null) {
 
         try {
 
@@ -247,40 +266,68 @@ public class EditPostServlet extends BlogPostServlet {
                 BlogPostDatabaseManager.updateBlogPost(blogPost, getConnectionPool());
             } else {
                 BlogPostDatabaseManager.insertBlogPost(blogPost, getConnectionPool());
+                blogPostId = blogPost.getId();
             }
 
-            try {
+            logger.debug("blogPostId = "+ blogPostId);
 
+            request.setAttribute("blogPostId", blogPostId);
+
+            if(blogCategoryIds != null) {
+
+                //Map<Integer, String> blogCategoriesMap = (Map<Integer, String>) getServletContext().getAttribute("blogCategoriesMap");
+                //if(blogCategoriesMap == null) {
+                //    blogCategoriesMap = BlogCategoriesDatabaseManager.selectblogCategories(getConnectionPool());
+                //    getServletContext().setAttribute("blogCategoriesMap", blogCategoriesMap);
+                //}
+
+                StringBuilder insertBlogPostCategoriesSqlBuilder = new StringBuilder();
+                insertBlogPostCategoriesSqlBuilder.append("INSERT INTO blogPost_blogCategory (blogPostId, blogCategoryId) VALUES ");
+
+                int x = 0;
+                for(String blogCategoryId: blogCategoryIds) {
+                    if(x++ > 0) insertBlogPostCategoriesSqlBuilder.append(", ");
+                    insertBlogPostCategoriesSqlBuilder.append("(").append(blogPostId).append(", ").append(blogCategoryId).append(")");
+                }
+
+                String insertBlogPostCategoriesSql = insertBlogPostCategoriesSqlBuilder.toString();
+                logger.debug("insertBlogPostCategoriesSql = " + insertBlogPostCategoriesSql);
+
+                try {
+                    BlogCategoryDatabaseManager.insertBlogPostCategories(insertBlogPostCategoriesSql, getConnectionPool());
+                } catch(java.sql.SQLException e) {
+                    StringWriter stringWriter = new StringWriter();
+                    PrintWriter printWriter = new PrintWriter(stringWriter);
+                    e.printStackTrace(printWriter);
+                    logger.debug(stringWriter.toString());
+                } catch(Exception e) {
+                    StringWriter stringWriter = new StringWriter();
+                    PrintWriter printWriter = new PrintWriter(stringWriter);
+                    e.printStackTrace(printWriter);
+                    logger.debug(stringWriter.toString());
+                }
+
+            }
+
+            /*
+            try {
                 List<Integer> blogCategoryIdList = BlogCategoryDatabaseManager.insertBlogPostCategory(blogPost.getId(), blogCategoryId, getConnectionPool());
                 logger.debug("blogCategoryIdList = "+blogCategoryIdList);
                 request.setAttribute("blogCategoryIdList", blogCategoryIdList);
-
             } catch(java.sql.SQLException e) {
-                
                 StringWriter stringWriter = new StringWriter();
                 PrintWriter printWriter = new PrintWriter(stringWriter);
                 e.printStackTrace(printWriter);
                 logger.debug(stringWriter.toString());
-
             } catch(Exception e) {
-
                 StringWriter stringWriter = new StringWriter();
                 PrintWriter printWriter = new PrintWriter(stringWriter);
                 e.printStackTrace(printWriter);
                 logger.debug(stringWriter.toString());
             }
-
-
-            //include(request, response, "/view/email-sent.jsp");
-            //javax.servlet.RequestDispatcher requestDispatcher = this.config.getServletContext().getRequestDispatcher("/import-contacts");
-            //requestDispatcher.forward(request, response);
-            /*
-            getServletContext().getRequestDispatcher(
-                new StringBuilder().append("/post/").append(blogPost.getId()).toString()
-            ).forward(request, response);
             */
-            super.blogPostRequest(request, response, blogPost.getId());
 
+            super.blogPostRequest(request, response, blogPost.getId());
             return;
 
         } catch(java.sql.SQLException e) {
@@ -298,7 +345,6 @@ public class EditPostServlet extends BlogPostServlet {
             logger.error(stringWriter.toString());
         }
 
-        //writeOut(response, ZERO);
         response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
     } // doPost()
@@ -356,7 +402,6 @@ public class EditPostServlet extends BlogPostServlet {
             logger.error(stringWriter.toString());
         }
 
-        //writeOut(response, ZERO);
         includeUtf8(request, response, "/view/edit-post.jsp");
     }
 

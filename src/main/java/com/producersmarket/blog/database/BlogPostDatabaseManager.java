@@ -35,14 +35,10 @@ public class BlogPostDatabaseManager {
     private static final String className = BlogPostDatabaseManager.class.getSimpleName();
 
     public static List<BlogPost> selectBlogPosts(Object connectionPoolObject) throws SQLException, Exception {
-        logger.debug("selectBlogPosts("+connectionPoolObject+")");
-
         return selectBlogPosts((ConnectionPool) connectionPoolObject);
     }
 
     public static List<BlogPost> selectBlogPosts(ConnectionPool connectionPool) throws SQLException, Exception {
-        logger.debug("selectBlogPosts("+connectionPool+")");
-
         return selectBlogPosts(new ConnectionManager(connectionPool));
     }
 
@@ -63,6 +59,7 @@ public class BlogPostDatabaseManager {
 
                     blogPost = new BlogPost();
 
+                    /*
                     //populateBlogPost(relatedBlogPost, resultSet);
                     blogPost.setId               (resultSet.getInt(1));
                     blogPost.setHyphenatedName   (resultSet.getString(2));
@@ -82,6 +79,8 @@ public class BlogPostDatabaseManager {
                     BlogCategoryDatabaseManager.selectBlogPostCategories(blogPost, connectionManager);
 
                     //selectRelatedBlogPosts(blogPost, connectionManager);
+                    */
+                    populateBlogPost(blogPost, resultSet, connectionManager);
 
                     blogPostList.add(blogPost);
 
@@ -106,14 +105,10 @@ public class BlogPostDatabaseManager {
     }
 
     public static List<BlogPost> selectAllBlogPosts(Object connectionPoolObject) throws SQLException, Exception {
-        logger.debug("selectAllBlogPosts("+connectionPoolObject+")");
-
         return selectAllBlogPosts((ConnectionPool) connectionPoolObject);
     }
 
     public static List<BlogPost> selectAllBlogPosts(ConnectionPool connectionPool) throws SQLException, Exception {
-        logger.debug("selectAllBlogPosts("+connectionPool+")");
-
         return selectAllBlogPosts(new ConnectionManager(connectionPool));
     }
 
@@ -134,7 +129,7 @@ public class BlogPostDatabaseManager {
 
                     blogPost = new BlogPost();
 
-                    //populateBlogPost(relatedBlogPost, resultSet);
+                    /*
                     blogPost.setId               (resultSet.getInt(1));
                     blogPost.setHyphenatedName   (resultSet.getString(2));
                     blogPost.setTitle            (resultSet.getString(3));
@@ -153,6 +148,8 @@ public class BlogPostDatabaseManager {
                     BlogCategoryDatabaseManager.selectBlogPostCategories(blogPost, connectionManager);
 
                     //selectRelatedBlogPosts(blogPost, connectionManager);
+                    */
+                    populateBlogPost(blogPost, resultSet, connectionManager);
 
                     blogPostList.add(blogPost);
 
@@ -195,7 +192,7 @@ public class BlogPostDatabaseManager {
 
                     blogPost = new BlogPost();
 
-                    //populateBlogPost(relatedBlogPost, resultSet);
+                    /*
                     blogPost.setId               (resultSet.getInt(1));
                     blogPost.setHyphenatedName   (resultSet.getString(2));
                     blogPost.setTitle            (resultSet.getString(3));
@@ -214,6 +211,8 @@ public class BlogPostDatabaseManager {
                     BlogCategoryDatabaseManager.selectBlogPostCategories(blogPost, connectionManager);
 
                     //selectRelatedBlogPosts(blogPost, connectionManager);
+                    */
+                    populateBlogPost(blogPost, resultSet, connectionManager);
 
                     blogPostList.add(blogPost);
 
@@ -238,33 +237,26 @@ public class BlogPostDatabaseManager {
     }
 
     public static void updateBlogPost(BlogPost blogPost, Object connectionPoolObject) throws SQLException, Exception {
-        logger.debug("updateBlogPost("+blogPost+", "+connectionPoolObject+")");
-
         updateBlogPost(blogPost, (ConnectionPool) connectionPoolObject);
     }
 
     public static void updateBlogPost(BlogPost blogPost, ConnectionPool connectionPool) throws SQLException, Exception {
-        logger.debug("updateBlogPost("+blogPost+", "+connectionPool+")");
-
         updateBlogPost(blogPost, new ConnectionManager(connectionPool));
     }
 
     public static void updateBlogPost(BlogPost blogPost, ConnectionManager connectionManager) throws SQLException, Exception {
         logger.debug("updateBlogPost("+blogPost+", "+connectionManager+")");
 
-        String sqlName = "updateBlogPost";
-
         try {
-
-            PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
+            PreparedStatement preparedStatement = connectionManager.loadStatement("updateBlogPost");
             preparedStatement.setString(1, blogPost.getTitle());
             preparedStatement.setString(2, blogPost.getSubtitle());
             preparedStatement.setString(3, blogPost.getBody());
             preparedStatement.setString(4, blogPost.getHyphenatedName());
-            //preparedStatement.setString(2, blogPost.getSubtitle());
-            //preparedStatement.setString(3, blogPost.getMetaDescription());
             preparedStatement.setInt(5, blogPost.getId());
             preparedStatement.executeUpdate();
+
+            if(blogPost.getImagePath() != null) insertBlogPostImage(blogPost.getId(), blogPost.getImagePath(), connectionManager);
 
         } finally {
             connectionManager.commit();
@@ -273,41 +265,27 @@ public class BlogPostDatabaseManager {
 
     public static void updateBlogPost(BlogPost blogPost) throws SQLException, Exception {
 
-        String sqlName = "updateBlogPost";
-        ConnectionManager connectionManager = new ConnectionManager(className, sqlName);
+        String sqlStatement = "updateBlogPost";
+        ConnectionManager connectionManager = new ConnectionManager(className, sqlStatement);
 
         try {
-
-            //PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
-
-            //String sql = "UPDATE blog_post SET title = ?, subtitle = ?, body = ?, hyphenated_name = ? WHERE id = ?";
-            //PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
-            PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
-
+            PreparedStatement preparedStatement = connectionManager.loadStatement(sqlStatement);
             preparedStatement.setString(1, blogPost.getTitle());
             preparedStatement.setString(2, blogPost.getSubtitle());
             preparedStatement.setString(3, blogPost.getBody());
             preparedStatement.setString(4, blogPost.getHyphenatedName());
-            //preparedStatement.setString(2, blogPost.getSubtitle());
-            //preparedStatement.setString(3, blogPost.getMetaDescription());
             preparedStatement.setInt(5, blogPost.getId());
-
             preparedStatement.executeUpdate();
-
         } finally {
             connectionManager.commit();
         }
     }
 
     public static void deleteBlogPost(int blogPostId, Object connectionPoolObject) throws SQLException, Exception {
-        logger.debug("deleteBlogPost("+blogPostId+", "+connectionPoolObject+")");
-
         deleteBlogPost(blogPostId, (ConnectionPool) connectionPoolObject);
     }
 
     public static void deleteBlogPost(int blogPostId, ConnectionPool connectionPool) throws SQLException, Exception {
-        logger.debug("deleteBlogPost("+blogPostId+", "+connectionPool+")");
-
         deleteBlogPost(blogPostId, new ConnectionManager(connectionPool));
     }
 
@@ -329,98 +307,70 @@ public class BlogPostDatabaseManager {
     }
 
     public static void updateBlogPostEnabled(int blogPostId, Object connectionPoolObject) throws SQLException, Exception {
-        logger.debug("updateBlogPostEnabled("+blogPostId+", "+connectionPoolObject+")");
-
         updateBlogPostEnabled(blogPostId, (ConnectionPool) connectionPoolObject);
     }
 
     public static void updateBlogPostEnabled(int blogPostId, ConnectionPool connectionPool) throws SQLException, Exception {
-        logger.debug("updateBlogPostEnabled("+blogPostId+", "+connectionPool+")");
-
         updateBlogPostEnabled(blogPostId, new ConnectionManager(connectionPool));
     }
 
     public static void updateBlogPostEnabled(int blogPostId, ConnectionManager connectionManager) throws SQLException, Exception {
 
-        String sqlName = "updateBlogPostEnabled";
-
         try {
-
-            PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
-
+            PreparedStatement preparedStatement = connectionManager.loadStatement("updateBlogPostEnabled");
             preparedStatement.setInt(1, blogPostId);
             preparedStatement.executeUpdate();
-
         } finally {
             connectionManager.commit();
         }
     }
 
     public static void updateBlogPostDisabled(int blogPostId, Object connectionPoolObject) throws SQLException, Exception {
-        logger.debug("updateBlogPostDisabled("+blogPostId+", "+connectionPoolObject+")");
-
         updateBlogPostDisabled(blogPostId, (ConnectionPool) connectionPoolObject);
     }
 
     public static void updateBlogPostDisabled(int blogPostId, ConnectionPool connectionPool) throws SQLException, Exception {
-        logger.debug("updateBlogPostDisabled("+blogPostId+", "+connectionPool+")");
-
         updateBlogPostDisabled(blogPostId, new ConnectionManager(connectionPool));
     }
 
     public static void updateBlogPostDisabled(int blogPostId, ConnectionManager connectionManager) throws SQLException, Exception {
         logger.debug("updateBlogPostDisabled("+blogPostId+", "+connectionManager+")");
 
-        String sqlName = "updateBlogPostDisabled";
-
         try {
-
-            PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
+            PreparedStatement preparedStatement = connectionManager.loadStatement("updateBlogPostDisabled");
             preparedStatement.setInt(1, blogPostId);
             preparedStatement.executeUpdate();
-
         } finally {
             connectionManager.commit();
         }
     }
 
     public static void insertBlogPost(BlogPost blogPost, Object connectionPoolObject) throws SQLException, Exception {
-        logger.debug("insertBlogPost("+blogPost+", "+connectionPoolObject+")");
-
         insertBlogPost(blogPost, (ConnectionPool) connectionPoolObject);
     }
 
     public static void insertBlogPost(BlogPost blogPost, ConnectionPool connectionPool) throws SQLException, Exception {
-        logger.debug("insertBlogPost("+blogPost+", "+connectionPool+")");
-
         insertBlogPost(blogPost, new ConnectionManager(connectionPool));
     }
 
     public static void insertBlogPost(BlogPost blogPost, ConnectionManager connectionManager) throws SQLException, Exception {
 
-        String sqlName = "insertBlogPost";
-
         try {
 
-            PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement preparedStatement = connectionManager.loadStatement("insertBlogPost", Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, blogPost.getHyphenatedName());
             preparedStatement.setString(2, blogPost.getTitle());
             preparedStatement.setString(3, blogPost.getSubtitle());
             preparedStatement.setString(4, blogPost.getBody());
             preparedStatement.setInt(5, blogPost.getUserId());
             preparedStatement.setInt(6, blogPost.getUserId());
-            //preparedStatement.setString(2, blogPost.getSubtitle());
-            //preparedStatement.setString(3, blogPost.getMetaDescription());
-            //preparedStatement.setString(5, blogPost.getHyphenatedName());
-
             preparedStatement.executeUpdate();
 
             ResultSet resultSet = preparedStatement.getGeneratedKeys();
             if(resultSet.next()) {
-
                 blogPost.setId(resultSet.getInt(1));
-
                 insertBlogPostAuthor(blogPost.getId(), blogPost.getUserId(), connectionManager);
+                if(blogPost.getImagePath() != null) insertBlogPostImage(blogPost.getId(), blogPost.getImagePath(), connectionManager);
             }
 
         } finally {
@@ -435,27 +385,18 @@ public class BlogPostDatabaseManager {
 
         try {
 
-            //String sql = "INSERT INTO blog_post (hyphenated_name, title, subtitle, body, updated_by, created_by, date_created) VALUES (?, ?, ?, ?, ?, ?, NOW())";
-            //PreparedStatement preparedStatement = connectionManager.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName, Statement.RETURN_GENERATED_KEYS);
-
             preparedStatement.setString(1, blogPost.getHyphenatedName());
             preparedStatement.setString(2, blogPost.getTitle());
             preparedStatement.setString(3, blogPost.getSubtitle());
             preparedStatement.setString(4, blogPost.getBody());
             preparedStatement.setInt(5, blogPost.getUserId());
             preparedStatement.setInt(6, blogPost.getUserId());
-            //preparedStatement.setString(2, blogPost.getSubtitle());
-            //preparedStatement.setString(3, blogPost.getMetaDescription());
-            //preparedStatement.setString(5, blogPost.getHyphenatedName());
-
             preparedStatement.executeUpdate();
 
             ResultSet resultSet = preparedStatement.getGeneratedKeys();
             if(resultSet.next()) {
-
                 blogPost.setId(resultSet.getInt(1));
-
                 insertBlogPostAuthor(blogPost.getId(), blogPost.getUserId(), connectionManager);
             }
 
@@ -467,21 +408,13 @@ public class BlogPostDatabaseManager {
     public static void insertBlogPostAuthor(int blogPostId, int userId) throws SQLException, Exception {
         logger.debug("insertBlogPostAuthor("+blogPostId+", "+userId+")");
 
-        String sqlName = "insertBlogPostAuthor";
-        ConnectionManager connectionManager = new ConnectionManager(className, sqlName);
+        String sqlStatement = "insertBlogPostAuthor";
+        ConnectionManager connectionManager = new ConnectionManager(className, sqlStatement);
 
         try {
-
-            //PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
-
-            //String sql = "INSERT INTO blog_post_has_author (blog_post_id, user_id) VALUES (?, ?)";
-            //PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
-            PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
-
+            PreparedStatement preparedStatement = connectionManager.loadStatement(sqlStatement);
             preparedStatement.setInt(1, blogPostId);
             preparedStatement.setInt(2, userId);
-            preparedStatement.executeUpdate();
-
         } finally {
             connectionManager.commit();
         }
@@ -490,15 +423,24 @@ public class BlogPostDatabaseManager {
     public static void insertBlogPostAuthor(int blogPostId, int userId, ConnectionManager connectionManager) throws SQLException, Exception {
         logger.debug("insertBlogPostAuthor("+blogPostId+", "+userId+", connectionManager)");
 
-        String sqlName = "insertBlogPostAuthor";
-
         try {
-
-            PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
+            PreparedStatement preparedStatement = connectionManager.loadStatement("insertBlogPostAuthor");
             preparedStatement.setInt(1, blogPostId);
             preparedStatement.setInt(2, userId);
             preparedStatement.executeUpdate();
+        } finally {
+            connectionManager.commit();
+        }
+    }
 
+    public static void insertBlogPostImage(int blogPostId, String imageUrl, ConnectionManager connectionManager) throws SQLException, Exception {
+        logger.debug("insertBlogPostImage("+blogPostId+", "+imageUrl+", connectionManager)");
+
+        try {
+            PreparedStatement preparedStatement = connectionManager.loadStatement("insertBlogPostImage");
+            preparedStatement.setInt(1, blogPostId);
+            preparedStatement.setString(2, imageUrl);
+            preparedStatement.executeUpdate();
         } finally {
             connectionManager.commit();
         }
@@ -507,11 +449,7 @@ public class BlogPostDatabaseManager {
     public static void populateBlogPost(
         BlogPost blogPost
         , ResultSet resultSet
-        //, ConnectionManager connectionManager
     ) throws SQLException, Exception {
-
-        // 'id', 'hyphenated_name', 'title', 'subtitle', 'body', 'date_published', 'datetime_published', 'enabled', 'priority', 'updated_by', 'created_by', 'date_updated', 'date_created'
-        //SELECT id, hyphenated_name, title, subtitle, LENGTH(body) FROM blog_post;
 
         blogPost.setId               (resultSet.getInt(1));
         blogPost.setHyphenatedName   (resultSet.getString(2));
@@ -523,29 +461,95 @@ public class BlogPostDatabaseManager {
         blogPost.setDatetimePublished(resultSet.getDate(8));
         blogPost.setIsDisabled       (!resultSet.getBoolean(9));
         blogPost.setPriority         (resultSet.getInt(10));
+
         //blogPost.setUpdatedBy        (resultSet.getInt(10));
         //blogPost.setCreatedBy        (resultSet.getInt(11));
         //blogPost.setDateUpdated      (resultSet.getTimestamp(12));
         //blogPost.setDateCreated      (resultSet.getTimestamp(13));
+    }
 
-        //Date date = resultSet.getDate(8);
-        //long millis = date.getTime();
-        //history.setMillis(millis);
+    public static void populateBlogPost(
+        BlogPost blogPost
+        , ResultSet resultSet
+        , ConnectionManager connectionManager
+    ) throws SQLException, Exception {
+
+        populateBlogPost(blogPost, resultSet);
 
         //List<BlogPost> subBlogPostList = BlogPostsManager.selectBlogPostsByBlogPostId(blogPost.getId());
         //List<BlogPost> subBlogPostList = BlogPostsManager.selectBlogPostsByBlogPostId(blogPost.getId(), connectionManager);
         //blogPost.setBlogPostList(subBlogPostList);
+
+        selectBlogPostImages(blogPost, connectionManager);
+        selectBlogPostAuthors(blogPost, connectionManager);
+        selectRelatedBlogPosts(blogPost, connectionManager);
+        selectKeywords(blogPost, connectionManager);
+        BlogCategoryDatabaseManager.selectBlogPostCategoryIds(blogPost, connectionManager);
+    }
+
+/*
+select * from blogPostImage where blogPostId = 119;
++----+------------+--------------------------------------+
+| id | blogPostId | imagePath                            |
++----+------------+--------------------------------------+
+| 26 |        119 | uploaded/images/blog/test1/test1.png |
++----+------------+--------------------------------------+
+1 row in set (0.00 sec)
+*/
+    public static void selectBlogPostImages(BlogPost blogPost, ConnectionManager connectionManager) throws SQLException, Exception {
+        logger.debug("selectBlogPostImages(blogPost, connectionManager)");
+
+        try {
+
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogPostImages");
+            preparedStatement.setInt(1, blogPost.getId());
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if(resultSet.next()) {
+
+                blogPost.setImagePath(resultSet.getString(3));
+
+                /*
+                List<User> userList = null;
+                User user = null;
+
+                do {
+
+                    boolean showAuthor = resultSet.getBoolean("showAuthor");
+
+                    if(showAuthor) {
+
+                        if(userList == null) userList = new ArrayList<User>();
+
+                        user = new User();
+                        user.setId                 (resultSet.getInt   (1));
+                        user.setName               (resultSet.getString(2));
+                        user.setHyphenatedName     (resultSet.getString(4));
+                        userList.add(user);
+                    }
+
+                } while(resultSet.next());
+
+                if(userList != null) logger.debug("userList.size() = "+userList.size());
+
+                blogPost.setAuthorList(userList);
+                */
+
+            } // if(resultSet.next()) {
+
+        } catch(Exception e) {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            e.printStackTrace(printWriter);
+            logger.error(stringWriter.toString());
+        }
     }
 
     public static BlogPost selectBlogPostByHyphenatedName(String blogPostName, Object connectionPoolObject) throws SQLException, Exception {
-        logger.debug("selectBlogPostByHyphenatedName("+blogPostName+", "+connectionPoolObject+")");
-
         return selectBlogPostByHyphenatedName(blogPostName, (ConnectionPool) connectionPoolObject);
     }
 
     public static BlogPost selectBlogPostByHyphenatedName(String blogPostName, ConnectionPool connectionPool) throws SQLException, Exception {
-        logger.debug("selectBlogPostByHyphenatedName("+blogPostName+", "+connectionPool+")");
-
         return selectBlogPostByHyphenatedName(blogPostName, new ConnectionManager(connectionPool));
     }
 
@@ -564,29 +568,14 @@ public class BlogPostDatabaseManager {
 
                 blogPost = new BlogPost();
 
-                populateBlogPost(blogPost, resultSet);
-                //populateBlogPost(blogPost, resultSet, connectionManager);
-
-                selectBlogPostAuthors(blogPost, connectionManager);
-
-                selectRelatedBlogPosts(blogPost, connectionManager);
-
-                selectKeywords(blogPost, connectionManager);
+                //populateBlogPost(blogPost, resultSet);
+                //selectBlogPostAuthors(blogPost, connectionManager);
+                //selectRelatedBlogPosts(blogPost, connectionManager);
+                //selectKeywords(blogPost, connectionManager);
+                populateBlogPost(blogPost, resultSet, connectionManager);
 
                 return blogPost;
             }
-
-            /*
-            int userId = blogPost.getId();
-            logger.debug("userId = "+userId);
-
-            if(userId > 0) {
-                User author = UserDatabaseManager.selectUserById(userId);
-                blogPost.setAuthor(author);
-            }
-            */
-
-            //return blogPost;
 
         } catch(Exception e) {
             StringWriter stringWriter = new StringWriter();
@@ -609,37 +598,14 @@ public class BlogPostDatabaseManager {
 
             PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogPostByHyphenatedName");
             preparedStatement.setString(1, blogPostName);
-
             ResultSet resultSet = preparedStatement.executeQuery();
             BlogPost blogPost = null;
 
             if(resultSet.next()) {
-
                 blogPost = new BlogPost();
-
-                populateBlogPost(blogPost, resultSet);
-                //populateBlogPost(blogPost, resultSet, connectionManager);
-
-                selectBlogPostAuthors(blogPost, connectionManager);
-
-                selectRelatedBlogPosts(blogPost, connectionManager);
-
-                selectKeywords(blogPost, connectionManager);
-
+                populateBlogPost(blogPost, resultSet, connectionManager);
                 return blogPost;
             }
-
-            /*
-            int userId = blogPost.getId();
-            logger.debug("userId = "+userId);
-
-            if(userId > 0) {
-                User author = UserDatabaseManager.selectUserById(userId);
-                blogPost.setAuthor(author);
-            }
-            */
-
-            //return blogPost;
 
         } catch(Exception e) {
             StringWriter stringWriter = new StringWriter();
@@ -658,42 +624,23 @@ public class BlogPostDatabaseManager {
 
         try {
 
-            /*
-            String sql = new StringBuilder()
-                .append("SELECT keyword")
-                .append(" FROM blog_post_has_keyword")
-                .append(" WHERE blog_post_id = ?")
-                .toString();
-            logger.debug(sql);
-
-            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
-            */
             PreparedStatement preparedStatement = connectionManager.loadStatement("selectKeywords");
             preparedStatement.setInt(1, blogPost.getId());
-
             ResultSet resultSet = preparedStatement.executeQuery();
+
             if(resultSet.next()) {
-
                 List<String> keywordList = new ArrayList<String>();
-
                 do {
-
                     keywordList.add(resultSet.getString(1));
-
                 } while(resultSet.next());
-
                 blogPost.setKeywordList(keywordList);
-                //return keywordList;
             }
-
         } catch(Exception e) {
             StringWriter stringWriter = new StringWriter();
             PrintWriter printWriter = new PrintWriter(stringWriter);
             e.printStackTrace(printWriter);
             logger.error(stringWriter.toString());
         }
-
-        //return null;
     }
 
     /*
@@ -704,20 +651,6 @@ public class BlogPostDatabaseManager {
 
         try {
 
-            /*
-            String sqlFields = "bp.id, bp.hyphenated_name, bp.title, bp.subtitle, bp.meta_description, bp.body, bp.date_published, bp.datetime_published, bp.enabled, bp.priority, bphrbp.title, bphrbp.image_path";
-
-            String sql = new StringBuilder()
-                .append("SELECT ").append(sqlFields)
-                .append(" FROM blog_post bp, blog_post_has_related_blog_posts bphrbp")
-                .append(" WHERE bphrbp.blog_post_id = ?")
-                .append(" AND bphrbp.related_id = bp.id")
-                .toString();
-
-            logger.debug(sql);
-
-            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
-            */
             PreparedStatement preparedStatement = connectionManager.loadStatement("selectRelatedBlogPosts");
             preparedStatement.setInt(1, blogPost.getId());
 
@@ -748,69 +681,6 @@ public class BlogPostDatabaseManager {
                     String relatedBlogPostImagePath = resultSet.getString("rp.imagepath");
                     if(relatedBlogPostImagePath != null) relatedBlogPost.setImagePath(relatedBlogPostImagePath);
 
-                    /*
-                    Parser parser = Parser.builder().build();
-                    Node document = parser.parse(relatedBlogPost.getBody());
-                    //HtmlRenderer renderer = HtmlRenderer.builder().build();
-                    HtmlRenderer renderer = HtmlRenderer.builder()
-
-                        .nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-                            public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                                return new SidebarNodeRenderer(htmlNodeRendererContext);
-                            }
-                        }
-
-                        //.nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-                        //    // Skip over images in the sidebar blog post HTML.
-                        //    public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                        //        //return new ImageNodeRenderer(htmlNodeRendererContext);
-                        //        //return new ImageNodeRenderer(htmlNodeRendererContext) {
-                        //        return new org.commonmark.renderer.NodeRenderer() {
-                        //            //public void run() { doStuffWith(someData); }
-                        //            @Override public void render(Node node) {
-                        //                //logger.debug("render("+node+")");
-                        //            }
-                        //            @Override public Set<Class<? extends Node>> getNodeTypes() {
-                        //                //logger.debug("getNodeTypes()");
-                        //                return Collections.<Class<? extends Node>>singleton(org.commonmark.node.Image.class); // Return the node types we want to use this renderer for.
-                        //            }
-                        //        };
-                        //    }
-
-                        //}).nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-                        //    public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                        //        return new LinkNodeRenderer(htmlNodeRendererContext);
-                        //    }
-                        //}
-
-                        //}).nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-                        //    public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                        //        //return new ImageNodeRenderer(htmlNodeRendererContext);
-                        //        //return new ImageNodeRenderer(htmlNodeRendererContext) {
-                        //        return new org.commonmark.renderer.NodeRenderer() {
-                        //            //public void run() { doStuffWith(someData); }
-                        //            @Override public void render(Node node) {
-                        //                //logger.debug("render("+node+")");
-                        //                this.html.text(node.toString());
-                        //            }
-                        //            @Override public Set<Class<? extends Node>> getNodeTypes() {
-                        //                //logger.debug("getNodeTypes()");
-                        //                return Collections.<Class<? extends Node>>singleton(org.commonmark.node.Link.class); // Return the node types we want to use this renderer for.
-                        //            }
-                        //        };
-                        //    }
-                        //}
-
-                        ).build();
-
-                    String bodyHtml = renderer.render(document);
-
-                    logger.debug("relatedBlogPost.getBody().length() = "+relatedBlogPost.getBody().length());
-                    logger.debug("bodyHtml.length()                  = "+bodyHtml.length());
-
-                    relatedBlogPost.setBody(bodyHtml);
-                    */
-
                     blogPostList.add(relatedBlogPost);
 
                 } while(resultSet.next());
@@ -832,27 +702,10 @@ public class BlogPostDatabaseManager {
     public static List<BlogPost> selectBlogPostsByProducerId(int producerId) throws SQLException, Exception {
         logger.debug("selectBlogPostsByProducerId("+producerId+", connectionManager)");
 
-        //ConnectionManager connectionManager = new ConnectionManager(className, com.producersmarket.servlet.InitServlet.connectionPool);
-        //ConnectionManager connectionManager = new ConnectionManager();
         ConnectionManager connectionManager = new ConnectionManager(className);
 
         try {
 
-            /*
-            String sqlFields = "bp.id, bp.hyphenated_name, bp.title, bp.subtitle, bp.meta_description, bp.body, bp.date_published, bp.datetime_published, bp.enabled, bp.priority, phbp.title, phbp.image_path";
-
-            String sql = new StringBuilder()
-                .append("SELECT ").append(sqlFields)
-                //.append(" FROM blog_post bp, blog_post_has_related_blog_posts bphrbp")
-                .append(" FROM blog_post bp, producer_has_blog_post phbp")
-                .append(" WHERE phbp.user_id = ?")
-                .append(" AND phbp.blog_post_id = bp.id")
-                .toString();
-
-            logger.debug(sql);
-
-            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
-            */
             PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogPostsByProducerId");
 
             preparedStatement.setInt(1, producerId);
@@ -867,7 +720,6 @@ public class BlogPostDatabaseManager {
 
                     blogPost = new BlogPost();
 
-                    //populateBlogPost(relatedBlogPost, resultSet);
                     blogPost.setId               (resultSet.getInt(1));
                     blogPost.setHyphenatedName   (resultSet.getString(2));
                     blogPost.setTitle            (resultSet.getString(3));
@@ -892,68 +744,7 @@ public class BlogPostDatabaseManager {
                     String blogPostImagePath = resultSet.getString("pp.imagepath");
                     if(blogPostImagePath != null) blogPost.setImagePath(blogPostImagePath);
 
-                    /*
-                    Parser parser = Parser.builder().build();
-                    Node document = parser.parse(blogPost.getBody());
-                    //HtmlRenderer renderer = HtmlRenderer.builder().build();
-                    HtmlRenderer renderer = HtmlRenderer.builder()
-
-                        .nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-                            public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                                return new SidebarNodeRenderer(htmlNodeRendererContext);
-                            }
-                        }
-
-                        //.nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-                        //    // Skip over images in the sidebar.
-                        //    public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                        //        //return new ImageNodeRenderer(htmlNodeRendererContext);
-                        //        //return new ImageNodeRenderer(htmlNodeRendererContext) {
-                        //        return new org.commonmark.renderer.NodeRenderer() {
-                        //            //public void run() { doStuffWith(someData); }
-                        //            @Override public void render(Node node) {
-                        //                //logger.debug("render("+node+")");
-                        //            }
-                        //            @Override public Set<Class<? extends Node>> getNodeTypes() {
-                        //                //logger.debug("getNodeTypes()");
-                        //                return Collections.<Class<? extends Node>>singleton(org.commonmark.node.Image.class); // Return the node types we want to use this renderer for.
-                        //            }
-                        //        };
-                        //    }
-                        //}).nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-                        //
-                        //    public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                        //        return new LinkNodeRenderer(htmlNodeRendererContext);
-                        //    }
-                        //}
-
-                        //}).nodeRendererFactory(new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-                        //    public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                        //        //return new ImageNodeRenderer(htmlNodeRendererContext);
-                        //        //return new ImageNodeRenderer(htmlNodeRendererContext) {
-                        //        return new org.commonmark.renderer.NodeRenderer() {
-                        //            //public void run() { doStuffWith(someData); }
-                        //            @Override public void render(Node node) {
-                        //                //logger.debug("render("+node+")");
-                        //                this.html.text(node.toString());
-                        //            }
-                        //            @Override public Set<Class<? extends Node>> getNodeTypes() {
-                        //                //logger.debug("getNodeTypes()");
-                        //                return Collections.<Class<? extends Node>>singleton(org.commonmark.node.Link.class); // Return the node types we want to use this renderer for.
-                        //            }
-                        //        };
-                        //    }
-                        //}
-
-                        ).build();
-
-                    String bodyHtml = renderer.render(document);
-
-                    logger.debug("blogPost.getBody().length() = "+blogPost.getBody().length());
-                    logger.debug("bodyHtml.length()                  = "+bodyHtml.length());
-
-                    blogPost.setBody(bodyHtml);
-                    */
+                    //populateBlogPost(blogPost, resultSet, connectionManager);
 
                     blogPostList.add(blogPost);
 
@@ -977,57 +768,6 @@ public class BlogPostDatabaseManager {
         return null;
     }
 
-    /*
-    static class LinkNodeRenderer implements org.commonmark.renderer.NodeRenderer {
-
-        private final org.commonmark.renderer.html.HtmlWriter htmlWriter;
-
-        LinkNodeRenderer(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-            //logger.debug("("+htmlNodeRendererContext+")");
-
-            this.htmlWriter = htmlNodeRendererContext.getWriter();
-        }
-
-        @Override
-        public Set<Class<? extends Node>> getNodeTypes() {
-            //logger.debug("getNodeTypes()");
-
-            // Return the node types we want to use this renderer for.
-            return Collections.<Class<? extends Node>>singleton(org.commonmark.node.Link.class);
-        }
-
-        @Override
-        public void render(Node node) {
-            //logger.debug("render("+node+")");
-
-            // We only handle one type as per getNodeTypes, so we can just cast it here.
-            org.commonmark.node.Link linkNode = (org.commonmark.node.Link)node;
-
-            //logger.debug("linkNode.Destination() = "+linkNode.getDestination());
-            //logger.debug("linkNode.getTitle() = "+linkNode.getTitle());
-            //logger.debug("linkNode.getFirstChild() = "+linkNode.getFirstChild());
-
-            //org.commonmark.node.Node textNode = node.getFirstChild();
-            //org.commonmark.node.Text textNode = (org.commonmark.node.Text)node.getFirstChild(); // May be Image or Text
-            org.commonmark.node.Node firstChildNode = node.getFirstChild(); // May be Image or Text
-
-            if(firstChildNode instanceof org.commonmark.node.Image) {
-
-            } else if(firstChildNode instanceof org.commonmark.node.Text) {
-
-                String literal = ((org.commonmark.node.Text)firstChildNode).getLiteral();
-                //logger.debug("literal = "+literal);
-
-                //this.html.tag("figure");
-                if(literal != null) this.htmlWriter.text(literal);
-        
-            }
-
-        }
-
-    }
-    */
-
     public static List<BlogPost> selectBlogPostsByUserId(int userId) throws SQLException, Exception {
         logger.debug("selectBlogPostsByUserId("+userId+")");
 
@@ -1035,20 +775,6 @@ public class BlogPostDatabaseManager {
 
         try {
 
-            /*
-            String sqlFields = "bp.id, hyphenated_name, title, subtitle, meta_description, body, date_published, datetime_published, enabled, priority";
-
-            String sql = new StringBuilder()
-                .append("SELECT ").append(sqlFields)
-                .append(" FROM blog_post bp, blog_post_has_author bpha")
-                .append(" WHERE user_id = ?")
-                .append(" AND bp.id = bpha.blog_post_id")
-                .toString();
-
-            logger.debug(sql);
-
-            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
-            */
             PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogPostsByUserId");
             preparedStatement.setInt(1, userId);
 
@@ -1062,7 +788,7 @@ public class BlogPostDatabaseManager {
 
                     blogPost = new BlogPost();
 
-                    //populateBlogPost(relatedBlogPost, resultSet);
+                    /*
                     blogPost.setId               (resultSet.getInt(1));
                     blogPost.setHyphenatedName   (resultSet.getString(2));
                     blogPost.setTitle            (resultSet.getString(3));
@@ -1081,6 +807,8 @@ public class BlogPostDatabaseManager {
                     BlogCategoryDatabaseManager.selectBlogPostCategories(blogPost, connectionManager);
 
                     //selectRelatedBlogPosts(blogPost, connectionManager);
+                    */
+                    populateBlogPost(blogPost, resultSet, connectionManager);
 
                     blogPostList.add(blogPost);
 
@@ -1105,14 +833,10 @@ public class BlogPostDatabaseManager {
     }
 
     public static List<BlogPost> selectBlogPostsByUserId(int userId, Object connectionPoolObject) throws SQLException, Exception {
-        logger.debug("selectBlogPostsByUserId("+userId+", "+connectionPoolObject+")");
-
         return selectBlogPostsByUserId(userId, (ConnectionPool) connectionPoolObject);
     }
 
     public static List<BlogPost> selectBlogPostsByUserId(int userId, ConnectionPool connectionPool) throws SQLException, Exception {
-        logger.debug("selectBlogPostsByUserId("+userId+", "+connectionPool+")");
-
         return selectBlogPostsByUserId(userId, new ConnectionManager(connectionPool));
     }
 
@@ -1135,7 +859,7 @@ public class BlogPostDatabaseManager {
 
                     blogPost = new BlogPost();
 
-                    //populateBlogPost(relatedBlogPost, resultSet);
+                    /*
                     blogPost.setId               (resultSet.getInt(1));
                     blogPost.setHyphenatedName   (resultSet.getString(2));
                     blogPost.setTitle            (resultSet.getString(3));
@@ -1154,6 +878,8 @@ public class BlogPostDatabaseManager {
                     BlogCategoryDatabaseManager.selectBlogPostCategories(blogPost, connectionManager);
 
                     //selectRelatedBlogPosts(blogPost, connectionManager);
+                    */
+                    populateBlogPost(blogPost, resultSet, connectionManager);
 
                     blogPostList.add(blogPost);
 
@@ -1179,14 +905,10 @@ public class BlogPostDatabaseManager {
 
 
     public static List<BlogPost> selectBlogPostsByCategoryName(String categoryName, Object connectionPoolObject) throws SQLException, Exception {
-        logger.debug("selectBlogPostsByCategoryName("+categoryName+", connectionPoolObject)");
-
         return selectBlogPostsByCategoryName(categoryName, (ConnectionPool) connectionPoolObject);
     }
 
     public static List<BlogPost> selectBlogPostsByCategoryName(String categoryName, ConnectionPool connectionPool) throws SQLException, Exception {
-        logger.debug("selectBlogPostsByCategoryName("+categoryName+", "+connectionPool+")");
-
         return selectBlogPostsByCategoryName(categoryName, new ConnectionManager(connectionPool));
     }
 
@@ -1197,7 +919,6 @@ public class BlogPostDatabaseManager {
 
             PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogPostsByCategoryName");
             preparedStatement.setString(1, categoryName);
-
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if(resultSet.next()) {
@@ -1209,7 +930,7 @@ public class BlogPostDatabaseManager {
 
                     blogPost = new BlogPost();
 
-                    //populateBlogPost(relatedBlogPost, resultSet);
+                    /*
                     blogPost.setId               (resultSet.getInt(1));
                     blogPost.setHyphenatedName   (resultSet.getString(2));
                     blogPost.setTitle            (resultSet.getString(3));
@@ -1227,6 +948,8 @@ public class BlogPostDatabaseManager {
                     BlogCategoryDatabaseManager.selectBlogPostCategories(blogPost, connectionManager);
 
                     //selectRelatedBlogPosts(blogPost, connectionManager);
+                    */
+                    populateBlogPost(blogPost, resultSet, connectionManager);
 
                     blogPostList.add(blogPost);
 
@@ -1310,7 +1033,7 @@ public class BlogPostDatabaseManager {
 
                     blogPost = new BlogPost();
 
-                    //populateBlogPost(relatedBlogPost, resultSet);
+                    /*
                     blogPost.setId               (resultSet.getInt(1));
                     blogPost.setHyphenatedName   (resultSet.getString(2));
                     blogPost.setTitle            (resultSet.getString(3));
@@ -1325,28 +1048,8 @@ public class BlogPostDatabaseManager {
                     selectBlogPostAuthors(blogPost, connectionManager);
 
                     selectRelatedBlogPosts(blogPost, connectionManager);
-
-                    /*
-                    Parser parser = Parser.builder().build();
-                    Node document = parser.parse(blogPost.getBody());
-                    //HtmlRenderer renderer = HtmlRenderer.builder().build();
-                    HtmlRenderer renderer = HtmlRenderer.builder().nodeRendererFactory(
-                        new org.commonmark.renderer.html.HtmlNodeRendererFactory() {
-                            public org.commonmark.renderer.NodeRenderer create(org.commonmark.renderer.html.HtmlNodeRendererContext htmlNodeRendererContext) {
-                                return new BlogImageNodeRenderer(htmlNodeRendererContext);
-                            }
-                        }
-                    ).build();
-
-                    String bodyHtml = renderer.render(document);
-
-                    //logger.debug("blogPost.getBody() = "+blogPost.getBody());
-                    //logger.debug("bodyHtml           = "+bodyHtml);
-                    //logger.debug("blogPost.getBody().length() = "+blogPost.getBody().length());
-                    //logger.debug("bodyHtml.length()           = "+bodyHtml.length());
-
-                    blogPost.setBody(bodyHtml);
                     */
+                    populateBlogPost(blogPost, resultSet, connectionManager);
 
                     blogPostList.add(blogPost);
 
@@ -1384,15 +1087,14 @@ public class BlogPostDatabaseManager {
             if(resultSet.next()) {
 
                 BlogPost blogPost = new BlogPost();
-                
+
+                /*                
                 populateBlogPost(blogPost, resultSet);
-                //populateBlogPost(blogPost, resultSet, connectionManager);
-
                 selectBlogPostAuthors(blogPost, connectionManager);
-
                 selectRelatedBlogPosts(blogPost, connectionManager);
-
                 selectKeywords(blogPost, connectionManager);
+                */
+                populateBlogPost(blogPost, resultSet, connectionManager);
 
                 return blogPost;
             }
@@ -1410,14 +1112,10 @@ public class BlogPostDatabaseManager {
     }
 
     public static BlogPost selectBlogPost(int blogPostId, Object connectionPoolObject) throws SQLException, Exception {
-        logger.debug("selectBlogPost("+blogPostId+", "+connectionPoolObject+")");
-
         return selectBlogPost(blogPostId, (ConnectionPool) connectionPoolObject);
     }
 
     public static BlogPost selectBlogPost(int blogPostId, ConnectionPool connectionPool) throws SQLException, Exception {
-        logger.debug("selectBlogPost("+blogPostId+", "+connectionPool+")");
-
         return selectBlogPost(blogPostId, new ConnectionManager(connectionPool));
     }
 
@@ -1428,21 +1126,20 @@ public class BlogPostDatabaseManager {
 
             PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogPost");
             preparedStatement.setInt(1, blogPostId);
-
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if(resultSet.next()) {
 
                 BlogPost blogPost = new BlogPost();
                 
+                /*
                 populateBlogPost(blogPost, resultSet);
-                //populateBlogPost(blogPost, resultSet, connectionManager);
-
                 selectBlogPostAuthors(blogPost, connectionManager);
-
                 selectRelatedBlogPosts(blogPost, connectionManager);
-
                 selectKeywords(blogPost, connectionManager);
+                BlogCategoryDatabaseManager.selectBlogPostCategoryIds(blogPost, connectionManager);
+                */
+                populateBlogPost(blogPost, resultSet, connectionManager);
 
                 return blogPost;
             }
@@ -1480,15 +1177,12 @@ public class BlogPostDatabaseManager {
 
                     if(showAuthor) {
 
-                        if(userList == null) userList = new ArrayList<User>(); // Lazy instantiate the userList
+                        if(userList == null) userList = new ArrayList<User>();
 
                         user = new User();
-
-                        //populateUser(user, resultSet);
                         user.setId                 (resultSet.getInt   (1));
                         user.setName               (resultSet.getString(2));
                         user.setHyphenatedName     (resultSet.getString(4));
-
                         userList.add(user);
                     }
 
