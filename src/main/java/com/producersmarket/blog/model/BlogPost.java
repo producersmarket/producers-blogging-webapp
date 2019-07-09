@@ -38,6 +38,7 @@ public class BlogPost {
     private String body = null;
     private String metaDescription = null;
     private String imagePath = null;
+    private List<String> imageList;
     private String keywords = null;
     private List<String> keywordList = null;
     private int userId = -1;
@@ -334,10 +335,19 @@ public class BlogPost {
     }
 
     public String getImagePath() {
-        return imagePath;
+        if(this.imagePath != null) return imagePath;
+        if(this.imageList != null) return this.imageList.get(0);
+        return null;
     }
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public void setImageList(List<String> imageList) {
+        this.imageList = imageList;
+    }
+    public List<String> getImageList() {
+        return this.imageList;
     }
 
     public void setKeywords(String keywords) {

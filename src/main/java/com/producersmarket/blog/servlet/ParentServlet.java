@@ -3,6 +3,10 @@ package com.producersmarket.blog.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -36,7 +40,7 @@ public class ParentServlet extends InitServlet {
      * Executor to process asynchronous http requests.
      */
     //public static java.util.concurrent.Executor executor = null;
-    private java.util.concurrent.Executor executor = null;
+    private Executor executor = null;
 	
     public String doubleQuotes(String string) {
         return new StringBuilder().append(DOUBLE_QUOTE).append(string).append(DOUBLE_QUOTE).toString();
@@ -52,12 +56,12 @@ public class ParentServlet extends InitServlet {
 
         this.servletContext = config.getServletContext();
 
-        this.executor = new java.util.concurrent.ThreadPoolExecutor(
+        this.executor = new ThreadPoolExecutor(
             10
           , 10
           , 50000L
-          , java.util.concurrent.TimeUnit.MILLISECONDS
-          , new java.util.concurrent.LinkedBlockingQueue<Runnable>(100)
+          , TimeUnit.MILLISECONDS
+          , new LinkedBlockingQueue<Runnable>(100)
         );
         //servletContext.setAttribute("executor", executor);
 
@@ -214,6 +218,12 @@ public class ParentServlet extends InitServlet {
         logger.debug("execute(runnable)");
 
         this.executor.execute(runnable);
+    }
+
+    protected Executor getExecutor() {
+        logger.debug("getExecutor()");
+
+        return this.executor;
     }
 
 }

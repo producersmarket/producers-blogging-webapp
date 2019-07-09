@@ -8,9 +8,11 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +30,13 @@ import javax.servlet.http.Part;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
+import com.ispaces.dbcp.ConnectionManager;
+import com.ispaces.dbcp.ConnectionPool;
+
 import com.producersmarket.blog.database.BlogCategoryDatabaseManager;
 import com.producersmarket.blog.database.BlogPostDatabaseManager;
 import com.producersmarket.blog.markdown.BlogImageNodeRenderer;
+import com.producersmarket.blog.database.DatabaseManager;
 import com.producersmarket.blog.model.BlogPost;
 import com.producersmarket.model.User;
 //import com.producersmarket.blog.servlet.ParentServlet;
@@ -104,95 +110,28 @@ public class EditPostServlet extends BlogPostServlet {
         return fileName.substring(fileName.indexOf(".") + 1);
     }
 
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        logger.debug("doPost(request, response)");
+    public BlogPost parsePost(HttpServletRequest request) {
 
         BlogPost blogPost = new BlogPost();
-
         String hyphenatedName = request.getParameter("hyphenatedName");
         String title = request.getParameter("title");
         String subtitle = request.getParameter("subtitle");
         String body = request.getParameter("body");
-
-        /*
-        String blogCategoryIdString = request.getParameter("blogCategoryId");
-        int blogCategoryId = -1;
-        try {
-            blogCategoryId = Integer.parseInt(blogCategoryIdString);
-        } catch(NumberFormatException e) {}
-
-        logger.debug("blogCategoryId = " + blogCategoryId);
-        */
-        // blog categories
-        String[] blogCategoryIds = request.getParameterValues("blogCategories");
-        logger.debug("blogCategoryIds = " + blogCategoryIds);
-        if(blogCategoryIds != null) logger.debug("blogCategoryIds.length = " + blogCategoryIds.length);
 
         logger.debug("hyphenatedName = "+hyphenatedName);
         logger.debug("title = "+title);
         logger.debug("subtitle = "+subtitle);
         //logger.debug("body = "+body);
 
-        blogPost.setSubtitle(subtitle);
-        blogPost.setTitle(title);
-        blogPost.setBody(body);
+        blogPost.setHyphenatedName(hyphenatedName);
+        blogPost.setSubtitle( subtitle );
+        blogPost.setTitle( title );
+        blogPost.setBody( body );
 
-        if(
-               EMPTY.equals(title)
-            && EMPTY.equals(body)
-        ) {
+        return blogPost;
+    }
 
-            includeUtf8(request, response, "/view/edit-post.jsp");
-
-            return;
-        }
-
-        // get the userId from the request
-        /*    
-        String userIdString = request.getParameter("userId");
-        logger.debug("userIdString = "+userIdString);
-        int userId = -1;
-        try {
-            userId = Integer.parseInt(userIdString);
-            blogPost.setUserId(userId);
-        } catch(NumberFormatException e) {
-        }
-        logger.debug("userId = "+userId);
-        */
-
-        // or get the userId from the session, better
-        HttpSession httpSession = request.getSession(false);
-        Object userIdObject = null;
-        int userId = -1;
-
-        if(
-          httpSession != null
-          && (userIdObject = httpSession.getAttribute("userId")) != null
-        ) {
-
-            userId = ( (Integer) userIdObject ).intValue();
-
-            logger.debug("httpSession.getId() = "+ httpSession.getId());
-            logger.debug("userIdObject = "+ userIdObject);
-            logger.debug("userId = "+ userId);
-
-            blogPost.setUserId( userId );
-        }
-
-        String blogPostIdString = request.getParameter("blogPostId");
-        logger.debug("blogPostIdString = "+ blogPostIdString);
-        int blogPostId = -1;
-        try {
-            blogPostId = Integer.parseInt(blogPostIdString);
-            blogPost.setId(blogPostId);
-            blogPost.setHyphenatedName(hyphenatedName);
-        } catch(NumberFormatException e) {
-            // No blog post ID, must be a new post
-            blogPost.createHyphenatedName();
-            hyphenatedName = blogPost.getHyphenatedName();
-        }
-        logger.debug("blogPostId = "+blogPostId);
-        logger.debug("hyphenatedName = "+ hyphenatedName);
+    public void parseImage(HttpServletRequest request, BlogPost blogPost) throws IOException, ServletException {
 
         // multipart upload
         Part blogImagePart = request.getPart("blogImage"); // javax.servlet.http.Part @since 3.0
@@ -207,189 +146,272 @@ public class EditPostServlet extends BlogPostServlet {
             logger.debug("blogImagePartFileName   = " + blogImagePartFileName);
             logger.debug("blogImageFileNameSuffix = " + blogImageFileNameSuffix);
 
-            String systemDrive = System.getenv("SystemDrive"); // Windows only
-            logger.debug("systemDrive = " + systemDrive);
+            if(blogImagePart.getSize() > 0) {
 
-            // logo image
-            StringBuilder blogImagePathBuilder = new StringBuilder();
-            if(systemDrive != null) blogImagePathBuilder.append(systemDrive);
-            blogImagePathBuilder
-                .append(File.separator).append("var")
-                .append(File.separator).append("web")
-                .append(File.separator).append("uploaded")
-                .append(File.separator).append("images")
-                .append(File.separator).append("blog")
-                .append(File.separator).append(hyphenatedName);
+                String systemDrive = System.getenv("SystemDrive"); // Windows only
+                logger.debug("systemDrive = " + systemDrive);
 
-            boolean blogImageDirectoryCreated =  new File(blogImagePathBuilder.toString()).mkdirs();
-            logger.debug("blogImageDirectoryCreated = " + blogImageDirectoryCreated);
+                // logo image
+                StringBuilder blogImagePathBuilder = new StringBuilder();
+                if(systemDrive != null) blogImagePathBuilder.append(systemDrive);
+                blogImagePathBuilder
+                    .append(File.separator).append("var")
+                    .append(File.separator).append("web")
+                    .append(File.separator).append("uploaded")
+                    .append(File.separator).append("images")
+                    .append(File.separator).append("blog")
+                    .append(File.separator).append(blogPost.getHyphenatedName());
 
-            blogImagePathBuilder.append(File.separator).append(hyphenatedName);
-            blogImagePathBuilder.append(".").append(blogImageFileNameSuffix);
+                File blogImageDirectory = new File(blogImagePathBuilder.toString());
+                logger.debug("blogImageDirectory.exists() = "+ blogImageDirectory.exists());
+                if(!blogImageDirectory.exists()) {
+                    boolean blogImageDirectoryCreated =  blogImageDirectory.mkdirs();
+                    logger.debug("blogImageDirectoryCreated = " + blogImageDirectoryCreated);
+                }
 
-            String blogImagePath = blogImagePathBuilder.toString();
-            File blogImageFile = new File(blogImagePath);
+                // yyyy-MM-dd HH:mm:ss  (2009-12-31 23:59:59)
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat( "yyyyMMdd-HHmmss" );
+                String dateString = simpleDateFormat.format( new Date() );
 
-            logger.debug("blogImagePath = " + blogImagePath);
-            logger.debug("blogImageFile = " + blogImageFile);
+                blogImagePathBuilder
+                    .append(File.separator)
+                    .append(blogPost.getHyphenatedName())
+                    .append("-").append(dateString)
+                    .append(".")
+                    .append(blogImageFileNameSuffix);
 
-            if(blogImageDirectoryCreated) {
+                String blogImagePath = blogImagePathBuilder.toString();
+                File blogImageFile = new File(blogImagePath);
 
-                try {
+                logger.debug("blogImagePath = " + blogImagePath);
+                logger.debug("blogImageFile = " + blogImageFile);
+                logger.debug("blogImageDirectory.exists() = "+ blogImageDirectory.exists());
 
-                    InputStream blogImageInputStream = blogImagePart.getInputStream(); // Gets the content of this part as an InputStream
-                    FileOutputStream blogImageFileOutputStream = new FileOutputStream(blogImageFile);
-                    byte[] buffer = new byte[1024 * 8]; // 8KB buffer
-                    int bytesRead;
-                    while((bytesRead = blogImageInputStream.read(buffer)) != -1) {
-                        blogImageFileOutputStream.write(buffer, 0, bytesRead);
+                if(blogImageDirectory.exists()) {
+
+                    try {
+
+                        InputStream blogImageInputStream = blogImagePart.getInputStream(); // Gets the content of this part as an InputStream
+                        FileOutputStream blogImageFileOutputStream = new FileOutputStream(blogImageFile);
+                        byte[] buffer = new byte[1024 * 8]; // 8KB buffer
+                        int bytesRead;
+                        while((bytesRead = blogImageInputStream.read(buffer)) != -1) {
+                            blogImageFileOutputStream.write(buffer, 0, bytesRead);
+                        }
+
+                        blogImageInputStream.close();
+                        blogImageFileOutputStream.flush();
+                        blogImageFileOutputStream.close();
+
+                        blogPost.setImagePath(blogImagePath.substring(blogImagePath.indexOf("uploaded") - 1).replace("\\", "/"));
+                        logger.debug("blogPost.getImagePath() = " + blogPost.getImagePath());
+
+                    } catch(IOException e) {
+                        logException(e);
                     }
 
-                    blogImageInputStream.close();
-                    blogImageFileOutputStream.flush();
-                    blogImageFileOutputStream.close();
+                } // if(blogImageDirectory.exists())
 
-                    blogPost.setImagePath(blogImagePath.substring(blogImagePath.indexOf("uploaded") - 1).replace("\\", "/"));
-                    logger.debug("blogPost.getImagePath() = " + blogPost.getImagePath());
+            } // if(blogImagePart.getSize() > 0)
 
-                } catch(IOException e) {
-                    logException(e);
+        } // if(blogImagePart != null)
+    }
+
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        logger.debug("doPost(request, response)");
+
+        int userId = -1;
+        Integer userIdInteger = null;
+        List<Integer> groupIdList = null;
+        HttpSession httpSession = request.getSession (false);
+
+        if (
+            httpSession != null
+            && (userIdInteger = (Integer) httpSession.getAttribute("userId")) != null
+        ) {
+
+            logger.debug("userIdInteger = "+userIdInteger);
+            userId = userIdInteger.intValue();
+            logger.debug("userId = "+ userId);
+            groupIdList = (List<Integer>)httpSession.getAttribute("groupIdList");
+            logger.debug("groupIdList = "+groupIdList);
+
+            if( groupIdList != null && groupIdList.contains(2) ) {
+
+                BlogPost blogPost = parsePost( request );
+                blogPost.setUserId( userId );
+
+                if (
+                       EMPTY.equals( blogPost.getTitle() )
+                    && EMPTY.equals( blogPost.getBody() )
+                ) {
+                    includeUtf8( request, response, "/view/edit-post.jsp" );
+                    return;
                 }
 
-            } // if(blogImageDirectoryCreated) {
-
-        } // if(blogImagePart != null) {
-
-        try {
-
-            if(blogPost.getId() > 0) {
-                BlogPostDatabaseManager.updateBlogPost(blogPost, getConnectionPool());
-            } else {
-                BlogPostDatabaseManager.insertBlogPost(blogPost, getConnectionPool());
-                blogPostId = blogPost.getId();
-            }
-
-            logger.debug("blogPostId = "+ blogPostId);
-
-            request.setAttribute("blogPostId", blogPostId);
-
-            if(blogCategoryIds != null) {
-
-                //Map<Integer, String> blogCategoriesMap = (Map<Integer, String>) getServletContext().getAttribute("blogCategoriesMap");
-                //if(blogCategoriesMap == null) {
-                //    blogCategoriesMap = BlogCategoriesDatabaseManager.selectblogCategories(getConnectionPool());
-                //    getServletContext().setAttribute("blogCategoriesMap", blogCategoriesMap);
-                //}
-
-                StringBuilder insertBlogPostCategoriesSqlBuilder = new StringBuilder();
-                insertBlogPostCategoriesSqlBuilder.append("INSERT INTO blogPost_blogCategory (blogPostId, blogCategoryId) VALUES ");
-
-                int x = 0;
-                for(String blogCategoryId: blogCategoryIds) {
-                    if(x++ > 0) insertBlogPostCategoriesSqlBuilder.append(", ");
-                    insertBlogPostCategoriesSqlBuilder.append("(").append(blogPostId).append(", ").append(blogCategoryId).append(")");
-                }
-
-                String insertBlogPostCategoriesSql = insertBlogPostCategoriesSqlBuilder.toString();
-                logger.debug("insertBlogPostCategoriesSql = " + insertBlogPostCategoriesSql);
-
+                String blogPostIdString = request.getParameter( "blogPostId" );
+                logger.debug("blogPostIdString = "+ blogPostIdString);
+                int blogPostId = -1;
                 try {
-                    BlogCategoryDatabaseManager.insertBlogPostCategories(insertBlogPostCategoriesSql, getConnectionPool());
-                } catch(java.sql.SQLException e) {
-                    StringWriter stringWriter = new StringWriter();
-                    PrintWriter printWriter = new PrintWriter(stringWriter);
-                    e.printStackTrace(printWriter);
-                    logger.debug(stringWriter.toString());
-                } catch(Exception e) {
-                    StringWriter stringWriter = new StringWriter();
-                    PrintWriter printWriter = new PrintWriter(stringWriter);
-                    e.printStackTrace(printWriter);
-                    logger.debug(stringWriter.toString());
+                    blogPostId = Integer.parseInt(blogPostIdString);
+                    blogPost.setId(blogPostId);
+                } catch(NumberFormatException e) {
+                    // No blog post ID, must be a new post
+                    blogPost.createHyphenatedName();
+                    //hyphenatedName = blogPost.getHyphenatedName();
                 }
+                logger.debug("blogPostId = "+blogPostId);
+                //logger.debug("hyphenatedName = "+ hyphenatedName);
 
-            }
-
-            /*
-            try {
-                List<Integer> blogCategoryIdList = BlogCategoryDatabaseManager.insertBlogPostCategory(blogPost.getId(), blogCategoryId, getConnectionPool());
-                logger.debug("blogCategoryIdList = "+blogCategoryIdList);
-                request.setAttribute("blogCategoryIdList", blogCategoryIdList);
-            } catch(java.sql.SQLException e) {
-                StringWriter stringWriter = new StringWriter();
-                PrintWriter printWriter = new PrintWriter(stringWriter);
-                e.printStackTrace(printWriter);
-                logger.debug(stringWriter.toString());
-            } catch(Exception e) {
-                StringWriter stringWriter = new StringWriter();
-                PrintWriter printWriter = new PrintWriter(stringWriter);
-                e.printStackTrace(printWriter);
-                logger.debug(stringWriter.toString());
-            }
-            */
-
-            super.blogPostRequest(request, response, blogPost.getId());
-            return;
-
-        } catch(java.sql.SQLException e) {
-
-            StringWriter stringWriter = new StringWriter();
-            PrintWriter printWriter = new PrintWriter(stringWriter);
-            e.printStackTrace(printWriter);
-            logger.error(stringWriter.toString());
-
-        } catch(Exception exception) {
-
-            StringWriter stringWriter = new StringWriter();
-            PrintWriter printWriter = new PrintWriter(stringWriter);
-            exception.printStackTrace(printWriter);
-            logger.error(stringWriter.toString());
-        }
-
-        response.sendError(HttpServletResponse.SC_NOT_FOUND);
-
-    } // doPost()
-
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        logger.debug("doGet(request, response)");
-
-        try {
-
-            String blogToken = null;
-            String pathInfo = request.getPathInfo();
-            int blogPostId = -1;
-            logger.debug("pathInfo = "+pathInfo);
-
-            if(pathInfo != null) {
-                blogToken = pathInfo.substring(1, pathInfo.length());
-            } else {
-                blogToken = request.getParameter("postId");
-            }
-            logger.debug("blogToken = "+blogToken);
-
-            Map<Integer, String> blogCategoryMap = (Map<Integer, String>) getServletContext().getAttribute("blogCategoryMap");
-            if(blogCategoryMap == null) {
-                blogCategoryMap = BlogCategoryDatabaseManager.selectBlogCategories(getConnectionPool());
-                getServletContext().setAttribute("blogCategoryMap", blogCategoryMap);
-            }
-
-            if(blogToken != null && blogToken.length() > 0) {
+                parseImage( request, blogPost );
 
                 try {
 
-                    blogPostId = Integer.parseInt(blogToken);
-                    logger.debug("blogPostId = "+blogPostId);
+                    if(blogPost.getId() > 0) {
+                        BlogPostDatabaseManager.updateBlogPost(blogPost, getConnectionPool());
+                    } else {
+                        BlogPostDatabaseManager.insertBlogPost(blogPost, getConnectionPool());
+                        blogPostId = blogPost.getId();
+                    }
 
-                    this.executor.execute(new BlogPostIdRequest(request.startAsync(), blogPostId));
+                    logger.debug("blogPostId = "+ blogPostId);
+                    request.setAttribute("blogPostId", blogPostId);
+
+                    String[] blogCategoryIds = request.getParameterValues("blogCategories");
+                    logger.debug("blogCategoryIds = " + blogCategoryIds);
+                    
+                    if(blogCategoryIds != null) {
+
+                        logger.debug("blogCategoryIds.length = " + blogCategoryIds.length);
+    
+                        ConnectionManager connectionManager = new ConnectionManager( (ConnectionPool) getConnectionPool() );
+
+                        //try {
+
+                            //try {
+                                DatabaseManager.executeUpdate("DELETE FROM blogPost_blogCategory WHERE blogPostId = ?", blogPostId, connectionManager);
+                            //} catch(java.sql.SQLException e) {
+                            //    logException(e);
+                            //} catch(Exception e) {
+                            //    logException(e);
+                            //}
+
+                            StringBuilder insertBlogPostCategoriesSqlBuilder = new StringBuilder();
+                            insertBlogPostCategoriesSqlBuilder.append("INSERT INTO blogPost_blogCategory (blogPostId, blogCategoryId) VALUES ");
+                            int x = 0;
+                            for(String blogCategoryId: blogCategoryIds) {
+                                if(x++ > 0) insertBlogPostCategoriesSqlBuilder.append(", ");
+                                insertBlogPostCategoriesSqlBuilder.append("(").append(blogPostId).append(", ").append(blogCategoryId).append(")");
+                            }
+                            String insertBlogPostCategoriesSql = insertBlogPostCategoriesSqlBuilder.toString();
+                            logger.debug("insertBlogPostCategoriesSql = " + insertBlogPostCategoriesSql);
+
+                            //try {
+                                BlogCategoryDatabaseManager.insertBlogPostCategories(insertBlogPostCategoriesSql, connectionManager);
+                            //} catch(java.sql.SQLException e) {
+                            //    logException(e);
+                            //} catch(Exception e) {
+                            //    logException(e);
+                            //}
+
+                        //} catch(java.sql.SQLException e) {
+                        //    logException(e);
+                        //} catch(Exception e) {
+                        //    logException(e);
+                        //} finally {
+                        //    connectionManager.commit();
+                        //}
+
+                    } // if(blogCategoryIds != null)
+
+                    super.blogPostRequest(request, response, blogPost.getId());
                     return;
 
-                } catch(NumberFormatException e) {
+                } catch(java.sql.SQLException e) {
 
                     StringWriter stringWriter = new StringWriter();
                     PrintWriter printWriter = new PrintWriter(stringWriter);
                     e.printStackTrace(printWriter);
                     logger.error(stringWriter.toString());
 
+                } catch(Exception exception) {
+
+                    StringWriter stringWriter = new StringWriter();
+                    PrintWriter printWriter = new PrintWriter(stringWriter);
+                    exception.printStackTrace(printWriter);
+                    logger.error(stringWriter.toString());
                 }
+
+            } // if( groupIdList != null ) {
+
+        } // if (httpSession != null)
+
+        response.sendError(HttpServletResponse.SC_NOT_FOUND);
+
+    } // doPost()
+
+    public void doGet( HttpServletRequest request, HttpServletResponse response ) throws IOException, ServletException {
+        logger.debug("doGet(request, response)");
+
+        try {
+
+            int userId = -1;
+            Integer userIdInteger = null;
+            List<Integer> groupIdList = null;
+            HttpSession httpSession = request.getSession (false);
+
+            if(
+                httpSession != null
+                && (userIdInteger = (Integer) httpSession.getAttribute("userId")) != null
+            ) {
+
+                logger.debug("userIdInteger = " + userIdInteger);
+                userId = userIdInteger.intValue();
+                groupIdList = (List<Integer>) httpSession.getAttribute("groupIdList");
+                logger.debug("groupIdList = " + groupIdList);
+
+                if( groupIdList != null && groupIdList.contains(2) ) {
+
+                    String blogToken = null;
+                    String pathInfo = request.getPathInfo();
+                    int blogPostId = -1;
+                    logger.debug("pathInfo = "+pathInfo);
+
+                    if( pathInfo != null ) {
+                        blogToken = pathInfo.substring(1, pathInfo.length());
+                    } else {
+                        blogToken = request.getParameter("postId");
+                    }
+                    logger.debug("blogToken = "+blogToken);
+
+                    Map<Integer, String> blogCategoryMap = (Map<Integer, String>) getServletContext().getAttribute("blogCategoryMap");
+                    if(blogCategoryMap == null) {
+                        blogCategoryMap = BlogCategoryDatabaseManager.selectBlogCategories(getConnectionPool());
+                        getServletContext().setAttribute("blogCategoryMap", blogCategoryMap);
+                    }
+
+                    if(blogToken != null && blogToken.length() > 0) {
+
+                        try {
+
+                            blogPostId = Integer.parseInt(blogToken);
+                            logger.debug("blogPostId = "+blogPostId);
+
+                            this.executor.execute(new BlogPostIdRequest(request.startAsync(), blogPostId));
+                            return;
+
+                        } catch(NumberFormatException e) {
+
+                            StringWriter stringWriter = new StringWriter();
+                            PrintWriter printWriter = new PrintWriter(stringWriter);
+                            e.printStackTrace(printWriter);
+                            logger.error(stringWriter.toString());
+
+                        }
+                    }
+                
+                }
+
             }
 
         } catch(Exception e) {
@@ -418,15 +440,14 @@ public class EditPostServlet extends BlogPostServlet {
             BlogPost blogPost = BlogPostDatabaseManager.selectBlogPost(blogPostId, getConnectionPool());
 
             if(blogPost != null) {
-
                 logger.debug("blogPost.getId() = "+blogPost.getId());
 
-                request.setAttribute("blogPost", blogPost);
-
-                //List<Integer> blogCategoryIdList = BlogCategoryDatabaseManager.selectBlogCategoryIdList(blogPost.getId(), getConnectionPool());
                 BlogCategoryDatabaseManager.selectBlogPostCategoryIds(blogPost, getConnectionPool());
                 List<Integer> blogCategoryIdList = blogPost.getBlogCategoryIdList();
                 logger.debug("blogCategoryIdList = "+ blogCategoryIdList);
+
+                // To do: just add the blogPost to the request, it already contains the blogCategoryIdList
+                request.setAttribute("blogPost", blogPost);
                 request.setAttribute("blogCategoryIdList", blogCategoryIdList);
 
                 includeUtf8(request, response, "/view/edit-post.jsp");

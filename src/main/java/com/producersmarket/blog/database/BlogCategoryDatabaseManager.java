@@ -275,8 +275,6 @@ public class BlogCategoryDatabaseManager {
 
         try {
 
-            //String sql = "SELECT id, category FROM blog_category ORDER BY priority";
-            //PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
             PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogCategoryMapOrderByPriority");
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -317,26 +315,20 @@ public class BlogCategoryDatabaseManager {
 
         try {
 
-            //String sql = "SELECT image_path FROM blog_category_has_image WHERE blog_category_id = ?";
             BlogCategory blogCategory = null;
             Iterator<BlogCategory> blogCategoryIterator = blogCategoryList.iterator();
 
             while(blogCategoryIterator.hasNext()) {
 
                 blogCategory = blogCategoryIterator.next();
-
-                //PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
                 PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogCategoryImages");
                 preparedStatement.setInt(1, blogCategory.getId());
                 ResultSet resultSet = preparedStatement.executeQuery();
 
                 if(resultSet.next()) {
-
                     blogCategory.setImagePath(resultSet.getString(1));
-
                     logger.debug("blogCategory.getImagePath() = "+blogCategory.getImagePath());
                 }
-
             }
 
         } catch(Exception e) {
@@ -376,6 +368,8 @@ public class BlogCategoryDatabaseManager {
             PrintWriter printWriter = new PrintWriter(stringWriter);
             e.printStackTrace(printWriter);
             logger.error(stringWriter.toString());
+        } finally {
+            connectionManager.commit();
         }
     }
 
@@ -399,6 +393,8 @@ public class BlogCategoryDatabaseManager {
             PrintWriter printWriter = new PrintWriter(stringWriter);
             e.printStackTrace(printWriter);
             logger.error(stringWriter.toString());
+        } finally {
+            connectionManager.commit();
         }
     }
 

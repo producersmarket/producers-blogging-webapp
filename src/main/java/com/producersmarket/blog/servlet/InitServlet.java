@@ -142,10 +142,8 @@ public class InitServlet extends HttpServlet {
                 stringBuilder.append(server != null ? server : "localhost");
                 if(!EMPTY.equals(port) && !EIGHTY.equals(port)) stringBuilder.append(COLON).append(port);
 
-                //String serverUrl = stringBuilder.toString() + FORWARDSLASH;
                 String serverUrl = stringBuilder.toString();
 
-                //stringBuilder.append(contextPath != null ? contextPath : "/");
                 if(contextPath != null && !contextPath.equals(EMPTY)) {
                     stringBuilder.append(contextPath);
                     if(!contextPath.equals(FORWARDSLASH)) stringBuilder.append("/");
