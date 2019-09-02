@@ -279,11 +279,8 @@ public class EditPostServlet extends BlogPostServlet {
 
                     String[] blogCategoryIds = request.getParameterValues("blogCategories");
                     logger.debug("blogCategoryIds = " + blogCategoryIds);
-                    
                     if(blogCategoryIds != null) {
-
                         logger.debug("blogCategoryIds.length = " + blogCategoryIds.length);
-    
                         ConnectionManager connectionManager = new ConnectionManager( (ConnectionPool) getConnectionPool() );
 
                         //try {
@@ -323,6 +320,51 @@ public class EditPostServlet extends BlogPostServlet {
                         //}
 
                     } // if(blogCategoryIds != null)
+
+                    String[] authorIds = request.getParameterValues("authorIds");
+                    logger.debug("authorIds = " + authorIds);
+                    if(authorIds != null) {
+                        logger.debug("authorIds.length = " + authorIds.length);
+                        ConnectionManager connectionManager = new ConnectionManager( (ConnectionPool) getConnectionPool() );
+
+                        try {
+
+                            //try {
+                                DatabaseManager.executeUpdate("DELETE FROM producersblog.blogPostAuthor WHERE blogPostId = ?", blogPostId, connectionManager);
+                            //} catch(java.sql.SQLException e) {
+                            //    logException(e);
+                            //} catch(Exception e) {
+                            //    logException(e);
+                            //}
+
+                            StringBuilder insertBlogPostAuthorsSqlBuilder = new StringBuilder();
+                            insertBlogPostAuthorsSqlBuilder.append("INSERT INTO producersblog.blogPostAuthor (blogPostId, userId) VALUES ");
+                            int x = 0;
+                            for(String authorId: authorIds) {
+                                if(x++ > 0) insertBlogPostAuthorsSqlBuilder.append(", ");
+                                insertBlogPostAuthorsSqlBuilder.append("(").append(blogPostId).append(", ").append(authorId).append(")");
+                            }
+                            String insertBlogPostAuthorsSql = insertBlogPostAuthorsSqlBuilder.toString();
+                            logger.debug("insertBlogPostAuthorsSql = " + insertBlogPostAuthorsSql);
+
+                            //try {
+                                //authorDatabaseManager.insertBlogPostAuthors(insertBlogPostAuthorsSql, connectionManager);
+                                DatabaseManager.executeUpdate(insertBlogPostAuthorsSql, connectionManager);
+                            //} catch(java.sql.SQLException e) {
+                            //    logException(e);
+                            //} catch(Exception e) {
+                            //    logException(e);
+                            //}
+
+                        } catch(java.sql.SQLException e) {
+                            logException(e);
+                        } catch(Exception e) {
+                            logException(e);
+                        } finally {
+                            connectionManager.commit();
+                        }
+
+                    } // if(authorIds != null)
 
                     super.blogPostRequest(request, response, blogPost.getId());
                     return;

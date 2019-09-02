@@ -55,3 +55,6 @@ ssh-add ~/.ssh/id_rsa
 * 0.0.1.28 - Add insertBlogCategory, selectBlogPostCategoryIds
 * 0.0.1.29 - Add selectBlogCategories(Object connectionPoolObject
 * 0.0.1.30 - Add check for admin or logged in user on edit post 
+* 0.0.1.31 - Remove producers-auth jar 
+* 0.0.1.32 - Add UserManager.selectAllBlogAuthors()
+* 0.0.1.33 - Add author saving to edit post

@@ -29,6 +29,7 @@ public class UserDatabaseManager {
 
     private static final String selectUserByPasswordResetCode = "selectUserByPasswordResetCode";
     private static final String UPDATE_PASSWORD_HASH = "updatePasswordHash";
+    private static final int USER_GROUP_BLOG_AUTHOR = 8;
 
     private static String sqlSelectUserFields = new StringBuilder()
         .append("u.id, u.name, u.business_name, u.hyphenated_name, u.location, u.theme_color")
@@ -210,6 +211,96 @@ public class UserDatabaseManager {
             connectionManager.commit();
         }
 
+        return null;
+    }
+
+    /*
+    public static void selectGroupIdsByUserId(User user, ConnectionManager connectionManager) throws SQLException, Exception {
+
+        PreparedStatement preparedStatement = connectionManager.loadStatement("selectGroupIdsByUserId");
+        preparedStatement.setInt(1, user.getId());
+        ResultSet resultSet = preparedStatement.executeQuery();
+        if(resultSet.next()) {
+            List<Integer> groupIdList = new ArrayList();
+            do {
+                groupIdList.add(resultSet.getInt(1));
+            } while(resultSet.next());
+            user.setGroupIdList(groupIdList);
+        }
+    }
+    */
+
+    public static List<User> selectBlogAuthors(Object connectionPoolObject) throws SQLException, Exception {
+        logger.debug("selectBlogAuthors("+connectionPoolObject+")");
+
+        return selectBlogAuthors(new ConnectionManager((ConnectionPool) connectionPoolObject));
+    }
+
+    public static List<User> selectBlogAuthors(ConnectionManager connectionManager) throws SQLException, Exception {
+        logger.debug("selectBlogAuthors(connectionManager)");
+
+        try {
+
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectUserByGroupId");
+            preparedStatement.setInt(1, 4); /// here add userGroup ID for bloggers
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if(resultSet.next()) {
+                List<User> userList = null;
+                User user = null;
+                if(resultSet.next()) {
+                    userList = new ArrayList<User>();
+                    do {
+                        user = new User ();
+                        user.setId(resultSet.getInt(1));
+                        user.setName(resultSet.getString(2));
+                        user.setHyphenatedName(resultSet.getString(3));
+                        userList.add( user );
+                    } while(resultSet.next());
+                    logger.debug("userList.size() = "+userList.size());
+                }
+                return userList;
+            } // if(resultSet.next()) {
+        } catch(Exception e) {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            e.printStackTrace(printWriter);
+            logger.error(stringWriter.toString());
+        } finally {
+            connectionManager.commit();
+        }
+        return null;
+    }
+
+    public static Map<Integer, String> selectAllBlogAuthors(Object connectionPoolObject) throws SQLException, Exception {
+        logger.debug("selectAllBlogAuthors("+connectionPoolObject+")");
+
+        return selectAllBlogAuthors(new ConnectionManager((ConnectionPool) connectionPoolObject));
+    }
+
+    public static Map<Integer, String> selectAllBlogAuthors(ConnectionManager connectionManager) throws SQLException, Exception {
+        logger.debug("selectAllBlogAuthors(connectionManager)");
+
+        try {
+
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectUserByGroupId");
+            preparedStatement.setInt(1, USER_GROUP_BLOG_AUTHOR); /// here add userGroup ID for bloggers
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if(resultSet.next()) {
+                Map<Integer, String> userMap = new HashMap<Integer, String>();
+                do {
+                    userMap.put( resultSet.getInt(1), resultSet.getString(2) );
+                } while(resultSet.next());
+                logger.debug( "userMap.size() = " + userMap.size() );
+                return userMap;
+            }
+        } catch(Exception e) {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            e.printStackTrace(printWriter);
+            logger.error(stringWriter.toString());
+        } finally {
+            connectionManager.commit();
+        }
         return null;
     }
 
