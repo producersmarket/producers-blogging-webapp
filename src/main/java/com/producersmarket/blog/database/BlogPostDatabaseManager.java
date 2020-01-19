@@ -17,17 +17,8 @@ import org.apache.logging.log4j.LogManager;
 import com.ispaces.dbcp.ConnectionManager;
 import com.ispaces.dbcp.ConnectionPool;
 
-/*
-import com.producersmarket.blog.markdown.BlogImageNodeRenderer;
-import com.producersmarket.blog.markdown.LinkNodeRenderer;
-import com.producersmarket.blog.markdown.SidebarNodeRenderer;
-//import com.producersmarket.database.UserDatabaseManager;
-import org.commonmark.node.Node;
-import org.commonmark.parser.Parser;
-import org.commonmark.renderer.html.HtmlRenderer;
-*/
 import com.producersmarket.blog.model.BlogPost;
-import com.producersmarket.model.User;
+import com.producersmarket.blog.model.User;
 
 public class BlogPostDatabaseManager {
 

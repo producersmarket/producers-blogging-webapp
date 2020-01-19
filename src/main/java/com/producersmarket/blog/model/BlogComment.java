@@ -1,7 +1,7 @@
 package com.producersmarket.blog.model;
 
 import java.util.Date;
-import com.producersmarket.model.User;
+import com.producersmarket.blog.model.User;
 
 public class BlogComment {
 

@@ -36,6 +36,7 @@ List compileList =  [
     , "com.sun.mail:mailapi:1.5.6"
     , "com.sun.mail:smtp:1.5.6"
     , "mysql:mysql-connector-java:8.0.11"
+    , 'io.github.cdimascio:java-dotenv:5.0.1'  // Dotenv for storing and accessing secrets outside of the repository
     , "org.eclipse.jetty:jetty-annotations:9.4.7.v20170914"
     , "org.eclipse.jetty:jetty-server:9.4.7.v20170914"
     , "org.eclipse.jetty:jetty-continuation:9.4.7.v20170914"

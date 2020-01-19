@@ -21,7 +21,7 @@ import com.producersmarket.blog.markdown.SidebarNodeRenderer;
 import com.producersmarket.blog.markdown.TextOnlyNodeRenderer;
 import com.producersmarket.blog.markdown.CustomImagesAndLinksRenderer;
 import com.producersmarket.blog.model.BlogPost;
-import com.producersmarket.model.User;
+import com.producersmarket.blog.model.User;
 
 public class BlogPost {
 

@@ -23,6 +23,8 @@ import com.producersmarket.blog.database.BlogCategoryDatabaseManager;
 import com.producersmarket.blog.model.BlogCategory;
 import com.producersmarket.blog.model.Menuable;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
 @WebServlet(
     name = "InitServlet"
     , urlPatterns = { "/InitServlet" }
@@ -160,22 +162,48 @@ public class InitServlet extends HttpServlet {
                 logger.debug("serverUrl = "+serverUrl);
                 logger.debug("contextUrl = "+contextUrl);
 
-                properties.setProperty("serverUrl", serverUrl);
-                properties.setProperty("contextUrl", contextUrl);
-                servletContext.setAttribute("serverUrl", serverUrl);
-                servletContext.setAttribute("contextUrl", contextUrl);
+                // managing secrets using Dotenv
+                Dotenv dotenv = Dotenv.load();
 
+                String smtpServer = properties.getProperty("smtp.server");
+                String smtpPort = properties.getProperty("smtp.port");
+                String smtpUser = properties.getProperty("smtp.user");
+                String smtpPass = dotenv.get("SMTP_PASS");
+                String emailAddressSupport = properties.getProperty("email.address.support");
+                String producersRequestEmailTo = properties.getProperty("producers.request.email.to");
+                String producersRequestEmailFrom = properties.getProperty("producers.request.email.from");
                 String resetPasswordEmailFrom = properties.getProperty("reset-password.email.from");
+                //String googleSecretKey = properties.getProperty("google.secret.key");
+                String googleSecretKey = dotenv.get("JSP_GOOGLE_SECRET_KEY");
+                //String googleSiteKey = properties.getProperty("google.site.key");
+                String googleSiteKey = dotenv.get("JSP_GOOGLE_SITE_KEY");
+                
+                logger.debug("smtpServer = "+smtpServer);
+                logger.debug("smtpPort = "+smtpPort);
+                logger.debug("smtpUser = "+smtpUser);
+                logger.debug("smtpPass = "+smtpPass);
+                logger.debug("emailAddressSupport = "+emailAddressSupport);
+                logger.debug("producersRequestEmailTo = "+producersRequestEmailTo);
+                logger.debug("producersRequestEmailFrom = "+producersRequestEmailFrom);
                 logger.debug("resetPasswordEmailFrom = "+resetPasswordEmailFrom);
-                servletContext.setAttribute("resetPasswordEmailFrom", resetPasswordEmailFrom);
-
-                String googleSecretKey = properties.getProperty("google.secret.key");
-                String googleSiteKey = properties.getProperty("google.site.key");
-
                 logger.debug("googleSecretKey = "+googleSecretKey);
                 logger.debug("googleSiteKey = "+googleSiteKey);
 
+                properties.setProperty("serverUrl", serverUrl);
+                properties.setProperty("contextUrl", contextUrl);
+                
+                servletContext.setAttribute("serverUrl", serverUrl);
+                servletContext.setAttribute("contextUrl", contextUrl);
+                servletContext.setAttribute("smtpServer", smtpServer);
+                servletContext.setAttribute("smtpPort", smtpPort);
+                servletContext.setAttribute("smtpUser", smtpUser);
+                servletContext.setAttribute("smtpPass", smtpPass);
+                servletContext.setAttribute("emailAddressSupport", emailAddressSupport);
+                servletContext.setAttribute("producersRequestEmailTo", producersRequestEmailTo);
+                servletContext.setAttribute("producersRequestEmailFrom", producersRequestEmailFrom);
+                servletContext.setAttribute("resetPasswordEmailFrom", resetPasswordEmailFrom);
                 servletContext.setAttribute("googleSecretKey", googleSecretKey);
+                servletContext.setAttribute("googleSiteKey", googleSiteKey);
                 servletContext.setAttribute("googleSiteKey", googleSiteKey);
 
                 /*

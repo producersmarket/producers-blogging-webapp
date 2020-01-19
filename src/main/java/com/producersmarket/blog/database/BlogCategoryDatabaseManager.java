@@ -20,7 +20,7 @@ import com.ispaces.dbcp.ConnectionPool;
 import com.producersmarket.blog.model.BlogPost;
 import com.producersmarket.blog.model.BlogCategory;
 import com.producersmarket.blog.model.Menuable;
-import com.producersmarket.model.User;
+import com.producersmarket.blog.model.User;
 
 public class BlogCategoryDatabaseManager {
 

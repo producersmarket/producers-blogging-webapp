@@ -21,6 +21,7 @@ import com.ispaces.dbcp.ConnectionPool;
 //import com.producersmarket.model.BlogPost;
 //import com.producersmarket.model.User;
 import com.producersmarket.blog.model.User;
+import com.producersmarket.blog.model.UserPassword;
 
 public class UserDatabaseManager {
 
@@ -35,6 +36,32 @@ public class UserDatabaseManager {
         .append("u.id, u.name, u.business_name, u.hyphenated_name, u.location, u.theme_color")
         .append(", uhi.background_image, uhi.logo_image, uhi.promo_video")
         .toString();
+
+    public static UserPassword selectUserPasswordByEmail(String email, Object connectionPoolObject) throws SQLException, Exception {
+        return selectUserPasswordByEmail (email, (ConnectionPool) connectionPoolObject);
+    }
+
+    public static UserPassword selectUserPasswordByEmail(String email, ConnectionPool connectionPool) throws SQLException, Exception {
+        return selectUserPasswordByEmail (email, new ConnectionManager(connectionPool));
+    }
+
+    public static UserPassword selectUserPasswordByEmail(String email, ConnectionManager connectionManager) throws SQLException, Exception {
+        logger.debug("selectUserPasswordByEmail("+email+", "+connectionManager+")");
+        try {
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectIdAndPasswordHashByEmail");
+            preparedStatement.setString(1, email);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if(resultSet.next()) {
+                UserPassword userPassword = new UserPassword();
+                userPassword.setId(resultSet.getInt(1));
+                userPassword.setPasswordHash(resultSet.getString(2));
+                return userPassword;
+            }
+        } finally {
+            connectionManager.commit();
+        }
+        return null;
+    }
 
     /*
     public static void updatePassword(int userId, String password) throws SQLException, Exception {

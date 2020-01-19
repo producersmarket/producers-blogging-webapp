@@ -18,7 +18,6 @@ import com.producersmarket.blog.database.BlogPostDatabaseManager;
 import com.producersmarket.blog.database.UserDatabaseManager;
 import com.producersmarket.blog.model.BlogPost;
 import com.producersmarket.blog.model.User;
-//import com.producersmarket.model.User;
 
 public class UserServlet extends ParentServlet {
 
