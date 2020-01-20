@@ -37,6 +37,49 @@ public class UserDatabaseManager {
         .append(", uhi.background_image, uhi.logo_image, uhi.promo_video")
         .toString();
 
+    public static User selectUserByActivationCode(String resetToken, Object connectionPoolObject) throws SQLException, Exception {
+        return selectUserByActivationCode( resetToken, (ConnectionPool) connectionPoolObject);
+    }
+
+    public static User selectUserByActivationCode(String resetToken, ConnectionPool connectionPool) throws SQLException, Exception {
+        return selectUserByActivationCode( resetToken, new ConnectionManager(connectionPool));
+    }
+
+    public static User selectUserByActivationCode( String resetToken, ConnectionManager connectionManager ) throws SQLException, Exception {
+        logger.debug("selectUserByActivationCode(resetToken, connectionManager)");
+        try {
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectUserByActivationCode");
+            preparedStatement.setString(1, resetToken);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if(resultSet.next()) {
+                User user = new User();
+                user.setId            (resultSet.getInt   (1));
+                user.setName          (resultSet.getString(2));
+                user.setEmail         (resultSet.getString(3));
+                selectGroupIdsByUserId(user, connectionManager);
+                return user;
+            }
+        } finally {
+            connectionManager.commit();
+        }
+        return null;
+    }
+
+    public static void selectGroupIdsByUserId(User user, ConnectionManager connectionManager) throws SQLException, Exception {
+        logger.debug("selectGroupIdsByUserId("+user+", connectionManager)");
+
+        PreparedStatement preparedStatement = connectionManager.loadStatement("selectGroupIdsByUserId");
+        preparedStatement.setInt(1, user.getId());
+        ResultSet resultSet = preparedStatement.executeQuery();
+        if(resultSet.next()) {
+            List<Integer> groupIdList = new ArrayList();
+            do {
+                groupIdList.add(resultSet.getInt(1));
+            } while(resultSet.next());
+            user.setGroupIdList(groupIdList);
+        }
+    }
+
     public static UserPassword selectUserPasswordByEmail(String email, Object connectionPoolObject) throws SQLException, Exception {
         return selectUserPasswordByEmail (email, (ConnectionPool) connectionPoolObject);
     }
