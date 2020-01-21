@@ -84,14 +84,60 @@ public class BlogPost {
         this.hyphenatedName = hyphenatedName;
     }
 
+    public String stripString(String string) {
+        logger.debug("stripString(\""+string+"\")");
+        String invalidChars="_!@#$%^&*()+=\\|?/'\"”“,.<>`~:;";
+        return stripString(string, invalidChars);
+    }
+
+    /**
+     * This method compares every character in the <i>string</i> against a list of characters in the <i>invalidChars</i> string
+     * using the <i>validChar</i> method and removes all the characters that are in the <i>invalidChars</i> list.
+     *
+     * <b>Note:</b> during comparison both strings are converted to lowercase
+     *
+     * @param string string of characters to be stripped
+     * @param invalidChars list of invalid characters (ie: "abc")
+     * @return String with invalid characters stripped out
+     */
+    public static String stripString(String string, String invalidChars) {
+        logger.debug("stripString(\""+string+"\", \""+invalidChars+"\")");
+        StringBuilder stringBuilder = new StringBuilder();
+        for(int i=0; i < string.length(); i++) {
+            if(validCharacter(string.charAt(i), invalidChars)) {
+                stringBuilder.append(string.charAt(i));
+            }
+        }
+        return stringBuilder.toString();
+    }
+
+    /**
+     * This method compares a character against a list of characters in a <i>list</i> string
+     *
+     * <b>Note:</b> during comparison both strings are converted to lowercase
+     *
+     * @param chr character to be evaluated
+     * @param list String list of valid characters (ie: "abc")
+     * @return boolean true if the character is valid or boolean false otherwise
+     */
+    public static boolean validCharacter(char character, String list) {
+        logger.debug("validCharacter('"+character+"', \""+list+"\")");
+        character = Character.toLowerCase(character);
+        list = list.toLowerCase();
+        logger.debug("list.indexOf(character) = " + list.indexOf(character));
+        if (list.indexOf(character) == -1) return true;
+        return false;
+    }
+
     public void createHyphenatedName() {
 
         //StringBuilder stringBuilder = new StringBuilder();
 
         if(this.title != null) {
 
-            //stringBuilder
-            this.setHyphenatedName(replaceStringsInString(this.title, " ", "-"));
+            String strippedTitle = stripString(this.title.trim());  // strip the string of any invalid characters
+            strippedTitle = strippedTitle.replaceAll(" +", " ");  // replace multiple spaces with a single space
+            this.setHyphenatedName(replaceStringsInString(strippedTitle, " ", "-"));  // replace spaces with hyphens
             logger.debug("this.getHyphenatedName() = "+this.getHyphenatedName());
         }
     }

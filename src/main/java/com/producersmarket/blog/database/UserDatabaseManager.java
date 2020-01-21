@@ -80,6 +80,47 @@ public class UserDatabaseManager {
         }
     }
 
+    public static User selectUserAndGroupsById(int userId, Object connectionPoolObject) throws SQLException, Exception {
+        logger.debug("selectUserAndGroupsById("+userId+", "+connectionPoolObject+")");
+
+        return selectUserAndGroupsById(userId, (ConnectionPool) connectionPoolObject);
+    }
+
+    public static User selectUserAndGroupsById(int userId, ConnectionPool connectionPool) throws SQLException, Exception {
+        logger.debug("selectUserAndGroupsById("+userId+", "+connectionPool+")");
+
+        return selectUserAndGroupsById(userId, new ConnectionManager(connectionPool));
+    }
+
+    public static User selectUserAndGroupsById(int userId, ConnectionManager connectionManager) throws SQLException, Exception {
+        logger.debug("selectUserAndGroupsById("+userId+", connectionManager)");
+
+        try {
+
+            PreparedStatement preparedStatement = connectionManager.loadStatement("selectUserById");
+            preparedStatement.setInt(1, userId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if(resultSet.next()) {
+
+                User user = new User();
+                //populateUser(user, resultSet);
+                user.setId(resultSet.getInt(1));
+                user.setName(resultSet.getString(2));
+                user.setEmail(resultSet.getString(3));
+
+                selectGroupIdsByUserId(user, connectionManager);
+
+                return user;
+            }
+
+        } finally {
+            connectionManager.commit();
+        }
+
+        return null;
+    }
+
     public static UserPassword selectUserPasswordByEmail(String email, Object connectionPoolObject) throws SQLException, Exception {
         return selectUserPasswordByEmail (email, (ConnectionPool) connectionPoolObject);
     }
@@ -191,6 +232,45 @@ public class UserDatabaseManager {
 
         return null;
     }
+
+    /*
+    public static void populateUserProfile(User user, ResultSet resultSet, ConnectionManager connectionManager) throws Exception {
+        logger.debug("populateUserProfile(user, resultSet, connectionManager)");
+
+        try {
+            //populateUserProfile(user, resultSet);
+            populateUser(user, resultSet);
+        } catch(SQLException e) {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            e.printStackTrace(printWriter);
+            logger.error(stringWriter.toString());
+        }
+
+        try {
+            selectGroupIdsByUserId(user, connectionManager);
+        } catch(SQLException e) {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            e.printStackTrace(printWriter);
+            logger.error(stringWriter.toString());
+        }
+    }
+
+    public static void populateUserProfile(User user, ResultSet resultSet) throws SQLException, Exception {
+        logger.debug("populateUserProfile(user, resultSet)");
+
+        user.setId                 (resultSet.getInt    (1));
+        user.setUuid               (resultSet.getString (2));
+        user.setName               (resultSet.getString (3));
+        user.setHyphenatedName     (resultSet.getString (4));
+        user.setEmail              (resultSet.getString (5));
+        user.setEmailVerified      (resultSet.getBoolean(6));
+        user.setProfileComplete    (resultSet.getBoolean(7));
+        user.setPhone              (resultSet.getString (8));
+        user.setImageUrl           (resultSet.getString (9));
+    }
+    */
 
     /*
     public static void populateUser(User user, ResultSet resultSet) throws SQLException, Exception {

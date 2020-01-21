@@ -111,6 +111,7 @@ public class EditPostServlet extends BlogPostServlet {
     }
 
     public BlogPost parsePost(HttpServletRequest request) {
+        logger.debug("parsePost("+request+")");
 
         BlogPost blogPost = new BlogPost();
         String hyphenatedName = request.getParameter("hyphenatedName");
@@ -132,6 +133,7 @@ public class EditPostServlet extends BlogPostServlet {
     }
 
     public void parseImage(HttpServletRequest request, BlogPost blogPost) throws IOException, ServletException {
+        logger.trace("parseImage("+request+", "+blogPost+")");
 
         // multipart upload
         Part blogImagePart = request.getPart("blogImage"); // javax.servlet.http.Part @since 3.0
@@ -383,6 +385,12 @@ public class EditPostServlet extends BlogPostServlet {
                     exception.printStackTrace(printWriter);
                     logger.error(stringWriter.toString());
                 }
+
+            } else { // if( groupIdList != null ) {
+
+                // user does not have group permission to post
+                includeUtf8( request, response, "/view/edit-post.jsp" );
+                return;
 
             } // if( groupIdList != null ) {
 

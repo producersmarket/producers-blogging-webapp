@@ -434,7 +434,8 @@ public class ParentServlet extends HttpServlet {
      * @return
      */
     protected int authenticateLogin(String email, String password) {
-        logger.debug("authenticateLogin("+email+", password)");
+        //logger.debug("authenticateLogin("+email+", password)");
+        logger.debug("authenticateLogin("+email+", "+password+")");
 
         try {
 
@@ -461,7 +462,26 @@ public class ParentServlet extends HttpServlet {
 
         try {
 
-            User user = UserDatabaseManager.selectUserById(userId, getConnectionPool());
+            //User user = UserDatabaseManager.selectUserById(userId, getConnectionPool());
+            User user = UserDatabaseManager.selectUserAndGroupsById(userId, getConnectionPool());
+            logger.debug("user = "+user);
+            return user;
+            
+        } catch(java.sql.SQLException exception) {
+            logException(exception);
+        } catch(Exception exception) {
+            logException(exception);
+        }
+
+        return null;
+    }
+
+    protected User populateUserProfile(int userId) {
+        logger.debug("populateUserProfile("+userId+")");
+
+        try {
+
+            User user = UserDatabaseManager.selectUserAndGroupsById(userId, getConnectionPool());
             logger.debug("user = "+user);
             return user;
             

@@ -155,7 +155,7 @@ public class MissingBlogPostServlet extends com.producersmarket.blog.servlet.Par
 
         try {
 
-            BlogPost blogPost = BlogPostDatabaseManager.selectBlogPostByHyphenatedName(blogPostName);
+            BlogPost blogPost = BlogPostDatabaseManager.selectBlogPostByHyphenatedName(blogPostName, getConnectionPool());
 
             if(blogPost != null) {
 
@@ -193,7 +193,7 @@ public class MissingBlogPostServlet extends com.producersmarket.blog.servlet.Par
                 logger.warn(errorMessage);
                 logger.error(errorMessage);
 
-                MissingBlogPostDatabaseManager.insertBlogPostName(blogPostName);
+                MissingBlogPostDatabaseManager.insertBlogPostName(blogPostName, getConnectionPool());
 
                 String redirectName = redirectMap.get(blogPostName);
                 logger.debug("redirectName = "+redirectName);

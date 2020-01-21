@@ -241,6 +241,7 @@ public class LoginServlet extends ParentServlet {
 
         if(user != null) {
 
+            /*
             if(!user.getEmailVerified()) {
                 request.setAttribute("errorMessage", "Your email address has not beeen verified");
                 request.setAttribute("activationCode", user.getActivationCode());
@@ -248,6 +249,7 @@ public class LoginServlet extends ParentServlet {
                 includeUtf8(request, response, "/view/confirmation/email-not-verified.jsp");
                 return;
             }
+            */
 
             int userId = user.getId();
             int orgId = user.getOrgId();
