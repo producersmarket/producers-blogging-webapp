@@ -149,10 +149,6 @@ public class MissingBlogPostServlet extends com.producersmarket.blog.servlet.Par
 
         logger.debug("blogPostRequest(request, response, '"+blogPostName+"')");
 
-        //include(request, response, "/view/blog/"+blogPostName+".jsp");
-
-        //request.setAttribute("blogPostNameHyphenated", blogPostName);
-
         try {
 
             BlogPost blogPost = BlogPostDatabaseManager.selectBlogPostByHyphenatedName(blogPostName, getConnectionPool());
@@ -172,13 +168,6 @@ public class MissingBlogPostServlet extends com.producersmarket.blog.servlet.Par
                     }).build();
 
                 String bodyHtml = renderer.render(document);
-
-                /*
-                logger.debug("blogPost.getBody() = "+blogPost.getBody());
-                logger.debug("bodyHtml           = "+bodyHtml);
-                logger.debug("blogPost.getBody().length() = "+blogPost.getBody().length());
-                logger.debug("bodyHtml.length()           = "+bodyHtml.length());
-                */
 
                 blogPost.setBody(bodyHtml);
 

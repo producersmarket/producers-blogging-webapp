@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-//import java.text.SimpleDateFormat;
 
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -100,7 +99,7 @@ public class BlogPost {
      * @param invalidChars list of invalid characters (ie: "abc")
      * @return String with invalid characters stripped out
      */
-    public static String stripString(String string, String invalidChars) {
+    public String stripString(String string, String invalidChars) {
         logger.debug("stripString(\""+string+"\", \""+invalidChars+"\")");
         StringBuilder stringBuilder = new StringBuilder();
         for(int i=0; i < string.length(); i++) {
@@ -120,11 +119,10 @@ public class BlogPost {
      * @param list String list of valid characters (ie: "abc")
      * @return boolean true if the character is valid or boolean false otherwise
      */
-    public static boolean validCharacter(char character, String list) {
+    public boolean validCharacter(char character, String list) {
         logger.debug("validCharacter('"+character+"', \""+list+"\")");
         character = Character.toLowerCase(character);
         list = list.toLowerCase();
-        logger.debug("list.indexOf(character) = " + list.indexOf(character));
         if (list.indexOf(character) == -1) return true;
         return false;
     }

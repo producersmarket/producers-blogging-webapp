@@ -49,30 +49,7 @@ public class BlogPostDatabaseManager {
                 do {
 
                     blogPost = new BlogPost();
-
-                    /*
-                    //populateBlogPost(relatedBlogPost, resultSet);
-                    blogPost.setId               (resultSet.getInt(1));
-                    blogPost.setHyphenatedName   (resultSet.getString(2));
-                    blogPost.setTitle            (resultSet.getString(3));
-                    blogPost.setSubtitle         (resultSet.getString(4));
-                    blogPost.setMetaDescription  (resultSet.getString(5));
-                    blogPost.setBody             (resultSet.getString(6));
-                    blogPost.setDatePublished    (resultSet.getDate(7));
-                    blogPost.setDatetimePublished(resultSet.getDate(8));
-                    blogPost.setIsDisabled       (!resultSet.getBoolean(9));
-                    blogPost.setPriority         (resultSet.getInt(10));
-                    logger.debug("resultSet.getString(11) = "+resultSet.getString(11));
-                    blogPost.setImagePath        (resultSet.getString(11));
-
-                    selectBlogPostAuthors(blogPost, connectionManager);
-
-                    BlogCategoryDatabaseManager.selectBlogPostCategories(blogPost, connectionManager);
-
-                    //selectRelatedBlogPosts(blogPost, connectionManager);
-                    */
                     populateBlogPost(blogPost, resultSet, connectionManager);
-
                     blogPostList.add(blogPost);
 
                 } while(resultSet.next());
@@ -119,29 +96,7 @@ public class BlogPostDatabaseManager {
                 do {
 
                     blogPost = new BlogPost();
-
-                    /*
-                    blogPost.setId               (resultSet.getInt(1));
-                    blogPost.setHyphenatedName   (resultSet.getString(2));
-                    blogPost.setTitle            (resultSet.getString(3));
-                    blogPost.setSubtitle         (resultSet.getString(4));
-                    blogPost.setMetaDescription  (resultSet.getString(5));
-                    blogPost.setBody             (resultSet.getString(6));
-                    blogPost.setDatePublished    (resultSet.getDate(7));
-                    blogPost.setDatetimePublished(resultSet.getDate(8));
-                    blogPost.setIsDisabled       (!resultSet.getBoolean(9));
-                    blogPost.setPriority         (resultSet.getInt(10));
-                    logger.debug("resultSet.getString(11) = "+resultSet.getString(11));
-                    blogPost.setImagePath        (resultSet.getString(11));
-
-                    selectBlogPostAuthors(blogPost, connectionManager);
-
-                    BlogCategoryDatabaseManager.selectBlogPostCategories(blogPost, connectionManager);
-
-                    //selectRelatedBlogPosts(blogPost, connectionManager);
-                    */
                     populateBlogPost(blogPost, resultSet, connectionManager);
-
                     blogPostList.add(blogPost);
 
                 } while(resultSet.next());
@@ -182,29 +137,7 @@ public class BlogPostDatabaseManager {
                 do {
 
                     blogPost = new BlogPost();
-
-                    /*
-                    blogPost.setId               (resultSet.getInt(1));
-                    blogPost.setHyphenatedName   (resultSet.getString(2));
-                    blogPost.setTitle            (resultSet.getString(3));
-                    blogPost.setSubtitle         (resultSet.getString(4));
-                    blogPost.setMetaDescription  (resultSet.getString(5));
-                    blogPost.setBody             (resultSet.getString(6));
-                    blogPost.setDatePublished    (resultSet.getDate(7));
-                    blogPost.setDatetimePublished(resultSet.getDate(8));
-                    blogPost.setIsDisabled       (!resultSet.getBoolean(9));
-                    blogPost.setPriority         (resultSet.getInt(10));
-                    logger.debug("resultSet.getString(11) = "+resultSet.getString(11));
-                    blogPost.setImagePath        (resultSet.getString(11));
-
-                    selectBlogPostAuthors(blogPost, connectionManager);
-
-                    BlogCategoryDatabaseManager.selectBlogPostCategories(blogPost, connectionManager);
-
-                    //selectRelatedBlogPosts(blogPost, connectionManager);
-                    */
                     populateBlogPost(blogPost, resultSet, connectionManager);
-
                     blogPostList.add(blogPost);
 
                 } while(resultSet.next());
@@ -327,7 +260,6 @@ public class BlogPostDatabaseManager {
         try {
 
             PreparedStatement preparedStatement = connectionManager.loadStatement(sqlName);
-
             preparedStatement.setInt(1, blogPostId);
             preparedStatement.executeUpdate();
 
@@ -494,11 +426,6 @@ public class BlogPostDatabaseManager {
         blogPost.setDatetimePublished(resultSet.getDate(8));
         blogPost.setIsDisabled       (!resultSet.getBoolean(9));
         blogPost.setPriority         (resultSet.getInt(10));
-
-        //blogPost.setUpdatedBy        (resultSet.getInt(10));
-        //blogPost.setCreatedBy        (resultSet.getInt(11));
-        //blogPost.setDateUpdated      (resultSet.getTimestamp(12));
-        //blogPost.setDateCreated      (resultSet.getTimestamp(13));
     }
 
     public static void populateBlogPost(
@@ -508,11 +435,6 @@ public class BlogPostDatabaseManager {
     ) throws SQLException, Exception {
 
         populateBlogPost(blogPost, resultSet);
-
-        //List<BlogPost> subBlogPostList = BlogPostsManager.selectBlogPostsByBlogPostId(blogPost.getId());
-        //List<BlogPost> subBlogPostList = BlogPostsManager.selectBlogPostsByBlogPostId(blogPost.getId(), connectionManager);
-        //blogPost.setBlogPostList(subBlogPostList);
-
         selectBlogPostImages(blogPost, connectionManager);
         selectBlogPostAuthors(blogPost, connectionManager);
         selectRelatedBlogPosts(blogPost, connectionManager);
@@ -543,12 +465,6 @@ public class BlogPostDatabaseManager {
         }
     }
 
-/*
-+----+------------+--------------------------------------+
-| 26 |        119 | uploaded/images/blog/test1/test1.png |
-+----+------------+--------------------------------------+
-1 row in set (0.00 sec)
-*/
     public static void selectBlogPostImages(BlogPost blogPost, ConnectionManager connectionManager) throws SQLException, Exception {
         logger.debug("selectBlogPostImages(blogPost, connectionManager)");
 
@@ -599,20 +515,12 @@ public class BlogPostDatabaseManager {
 
             PreparedStatement preparedStatement = connectionManager.loadStatement("selectBlogPostByHyphenatedName");
             preparedStatement.setString(1, blogPostName);
-
             ResultSet resultSet = preparedStatement.executeQuery();
             BlogPost blogPost = null;
 
             if(resultSet.next()) {
-
                 blogPost = new BlogPost();
-
-                //populateBlogPost(blogPost, resultSet);
-                //selectBlogPostAuthors(blogPost, connectionManager);
-                //selectRelatedBlogPosts(blogPost, connectionManager);
-                //selectKeywords(blogPost, connectionManager);
                 populateBlogPost(blogPost, resultSet, connectionManager);
-
                 return blogPost;
             }
 
@@ -826,29 +734,7 @@ public class BlogPostDatabaseManager {
                 do {
 
                     blogPost = new BlogPost();
-
-                    /*
-                    blogPost.setId               (resultSet.getInt(1));
-                    blogPost.setHyphenatedName   (resultSet.getString(2));
-                    blogPost.setTitle            (resultSet.getString(3));
-                    blogPost.setSubtitle         (resultSet.getString(4));
-                    blogPost.setMetaDescription  (resultSet.getString(5));
-                    blogPost.setBody             (resultSet.getString(6));
-                    blogPost.setDatePublished    (resultSet.getDate(7));
-                    blogPost.setDatetimePublished(resultSet.getDate(8));
-                    blogPost.setIsDisabled       (!resultSet.getBoolean(9));
-                    blogPost.setPriority         (resultSet.getInt(10));
-                    //logger.debug("resultSet.getString(11) = "+resultSet.getString(11));
-                    //blogPost.setImagePath        (resultSet.getString(11));
-
-                    selectBlogPostAuthors(blogPost, connectionManager);
-
-                    BlogCategoryDatabaseManager.selectBlogPostCategories(blogPost, connectionManager);
-
-                    //selectRelatedBlogPosts(blogPost, connectionManager);
-                    */
                     populateBlogPost(blogPost, resultSet, connectionManager);
-
                     blogPostList.add(blogPost);
 
                 } while(resultSet.next());
@@ -897,29 +783,7 @@ public class BlogPostDatabaseManager {
                 do {
 
                     blogPost = new BlogPost();
-
-                    /*
-                    blogPost.setId               (resultSet.getInt(1));
-                    blogPost.setHyphenatedName   (resultSet.getString(2));
-                    blogPost.setTitle            (resultSet.getString(3));
-                    blogPost.setSubtitle         (resultSet.getString(4));
-                    blogPost.setMetaDescription  (resultSet.getString(5));
-                    blogPost.setBody             (resultSet.getString(6));
-                    blogPost.setDatePublished    (resultSet.getDate(7));
-                    blogPost.setDatetimePublished(resultSet.getDate(8));
-                    blogPost.setIsDisabled       (!resultSet.getBoolean(9));
-                    blogPost.setPriority         (resultSet.getInt(10));
-                    //logger.debug("resultSet.getString(11) = "+resultSet.getString(11));
-                    //blogPost.setImagePath        (resultSet.getString(11));
-
-                    selectBlogPostAuthors(blogPost, connectionManager);
-
-                    BlogCategoryDatabaseManager.selectBlogPostCategories(blogPost, connectionManager);
-
-                    //selectRelatedBlogPosts(blogPost, connectionManager);
-                    */
                     populateBlogPost(blogPost, resultSet, connectionManager);
-
                     blogPostList.add(blogPost);
 
                 } while(resultSet.next());
@@ -968,28 +832,7 @@ public class BlogPostDatabaseManager {
                 do {
 
                     blogPost = new BlogPost();
-
-                    /*
-                    blogPost.setId               (resultSet.getInt(1));
-                    blogPost.setHyphenatedName   (resultSet.getString(2));
-                    blogPost.setTitle            (resultSet.getString(3));
-                    blogPost.setSubtitle         (resultSet.getString(4));
-                    blogPost.setMetaDescription  (resultSet.getString(5));
-                    blogPost.setBody             (resultSet.getString(6));
-                    blogPost.setDatePublished    (resultSet.getDate(7));
-                    blogPost.setDatetimePublished(resultSet.getDate(8));
-                    blogPost.setIsDisabled       (!resultSet.getBoolean(9));
-                    blogPost.setPriority         (resultSet.getInt(10));
-                    blogPost.setImagePath        (resultSet.getString(11));
-
-                    selectBlogPostAuthors(blogPost, connectionManager);
-
-                    BlogCategoryDatabaseManager.selectBlogPostCategories(blogPost, connectionManager);
-
-                    //selectRelatedBlogPosts(blogPost, connectionManager);
-                    */
                     populateBlogPost(blogPost, resultSet, connectionManager);
-
                     blogPostList.add(blogPost);
 
                 } while(resultSet.next());
@@ -1024,28 +867,7 @@ public class BlogPostDatabaseManager {
 
         try {
 
-            /*
-            String sqlFields = "bp.id, bp.hyphenated_name, bp.title, bp.subtitle, bp.meta_description, bp.body, bp.date_published, bp.datetime_published, bp.enabled, bp.priority";
-
-            StringBuilder sqlBuilder = new StringBuilder()
-                .append("SELECT ").append(sqlFields)
-                .append(" FROM post p")
-                .append(" WHERE bp.id IN (");
-                for(int i = 0; i < blogPostIds.length; i++) {
-                    if(i > 0) sqlBuilder.append(",");
-                    sqlBuilder.append(blogPostIds[i]);
-                }
-                sqlBuilder.append(")");
-
-            String sql = sqlBuilder.toString();
-
-            logger.debug(sql);
-
-            PreparedStatement preparedStatement = connectionManager.prepareStatement(sql);
-            */
-
             String sqlFields = connectionManager.getSqlString("blog-fields");
-
             StringBuilder sqlBuilder = new StringBuilder().append(sqlFields);
             sqlBuilder.append("(");
 
@@ -1071,25 +893,7 @@ public class BlogPostDatabaseManager {
                 do {
 
                     blogPost = new BlogPost();
-
-                    /*
-                    blogPost.setId               (resultSet.getInt(1));
-                    blogPost.setHyphenatedName   (resultSet.getString(2));
-                    blogPost.setTitle            (resultSet.getString(3));
-                    blogPost.setSubtitle         (resultSet.getString(4));
-                    blogPost.setMetaDescription  (resultSet.getString(5));
-                    blogPost.setBody             (resultSet.getString(6));
-                    blogPost.setDatePublished    (resultSet.getDate(7));
-                    blogPost.setDatetimePublished(resultSet.getDate(8));
-                    blogPost.setIsDisabled       (!resultSet.getBoolean(9));
-                    blogPost.setPriority         (resultSet.getInt(10));
-
-                    selectBlogPostAuthors(blogPost, connectionManager);
-
-                    selectRelatedBlogPosts(blogPost, connectionManager);
-                    */
                     populateBlogPost(blogPost, resultSet, connectionManager);
-
                     blogPostList.add(blogPost);
 
                 } while(resultSet.next());
@@ -1124,17 +928,8 @@ public class BlogPostDatabaseManager {
 
             ResultSet resultSet = preparedStatement.executeQuery();
             if(resultSet.next()) {
-
-                BlogPost blogPost = new BlogPost();
-
-                /*                
-                populateBlogPost(blogPost, resultSet);
-                selectBlogPostAuthors(blogPost, connectionManager);
-                selectRelatedBlogPosts(blogPost, connectionManager);
-                selectKeywords(blogPost, connectionManager);
-                */
+                                                    BlogPost blogPost = new BlogPost();
                 populateBlogPost(blogPost, resultSet, connectionManager);
-
                 return blogPost;
             }
 
