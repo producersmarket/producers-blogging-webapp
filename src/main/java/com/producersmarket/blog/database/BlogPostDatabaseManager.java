@@ -175,9 +175,10 @@ public class BlogPostDatabaseManager {
             PreparedStatement preparedStatement = connectionManager.loadStatement("updateBlogPost");
             preparedStatement.setString(1, blogPost.getTitle());
             preparedStatement.setString(2, blogPost.getSubtitle());
-            preparedStatement.setString(3, blogPost.getBody());
-            preparedStatement.setString(4, blogPost.getHyphenatedName());
-            preparedStatement.setInt(5, blogPost.getId());
+            preparedStatement.setString(3, blogPost.getExcerpt());
+            preparedStatement.setString(4, blogPost.getBody());
+            preparedStatement.setString(5, blogPost.getHyphenatedName());
+            preparedStatement.setInt(6, blogPost.getId());
             preparedStatement.executeUpdate();
 
             if(blogPost.getImagePath() != null) insertBlogPostImage(blogPost.getId(), blogPost.getImagePath(), connectionManager);
@@ -196,9 +197,10 @@ public class BlogPostDatabaseManager {
             PreparedStatement preparedStatement = connectionManager.loadStatement(sqlStatement);
             preparedStatement.setString(1, blogPost.getTitle());
             preparedStatement.setString(2, blogPost.getSubtitle());
-            preparedStatement.setString(3, blogPost.getBody());
-            preparedStatement.setString(4, blogPost.getHyphenatedName());
-            preparedStatement.setInt(5, blogPost.getId());
+            preparedStatement.setString(3, blogPost.getExcerpt());
+            preparedStatement.setString(5, blogPost.getBody());
+            preparedStatement.setString(6, blogPost.getHyphenatedName());
+            preparedStatement.setInt(7, blogPost.getId());
             preparedStatement.executeUpdate();
         } finally {
             connectionManager.commit();
@@ -323,9 +325,10 @@ public class BlogPostDatabaseManager {
             preparedStatement.setString(1, blogPost.getHyphenatedName());
             preparedStatement.setString(2, blogPost.getTitle());
             preparedStatement.setString(3, blogPost.getSubtitle());
-            preparedStatement.setString(4, blogPost.getBody());
-            preparedStatement.setInt(5, blogPost.getUserId());
+            preparedStatement.setString(4, blogPost.getExcerpt());
+            preparedStatement.setString(5, blogPost.getBody());
             preparedStatement.setInt(6, blogPost.getUserId());
+            preparedStatement.setInt(7, blogPost.getUserId());
             preparedStatement.executeUpdate();
 
             ResultSet resultSet = preparedStatement.getGeneratedKeys();
@@ -354,9 +357,10 @@ public class BlogPostDatabaseManager {
             preparedStatement.setString(1, blogPost.getHyphenatedName());
             preparedStatement.setString(2, blogPost.getTitle());
             preparedStatement.setString(3, blogPost.getSubtitle());
-            preparedStatement.setString(4, blogPost.getBody());
-            preparedStatement.setInt(5, blogPost.getUserId());
+            preparedStatement.setString(4, blogPost.getExcerpt());
+            preparedStatement.setString(5, blogPost.getBody());
             preparedStatement.setInt(6, blogPost.getUserId());
+            preparedStatement.setInt(7, blogPost.getUserId());
             preparedStatement.executeUpdate();
 
             ResultSet resultSet = preparedStatement.getGeneratedKeys();
@@ -421,11 +425,12 @@ public class BlogPostDatabaseManager {
         blogPost.setTitle            (resultSet.getString(3));
         blogPost.setSubtitle         (resultSet.getString(4));
         blogPost.setMetaDescription  (resultSet.getString(5));
-        blogPost.setBody             (resultSet.getString(6));
-        blogPost.setDatePublished    (resultSet.getDate(7));
-        blogPost.setDatetimePublished(resultSet.getDate(8));
-        blogPost.setIsDisabled       (!resultSet.getBoolean(9));
-        blogPost.setPriority         (resultSet.getInt(10));
+        blogPost.setExcerpt          (resultSet.getString(6));
+        blogPost.setBody             (resultSet.getString(7));
+        blogPost.setDatePublished    (resultSet.getDate(8));
+        blogPost.setDatetimePublished(resultSet.getDate(9));
+        blogPost.setIsDisabled       (!resultSet.getBoolean(10));
+        blogPost.setPriority         (resultSet.getInt(11));
     }
 
     public static void populateBlogPost(
@@ -672,11 +677,12 @@ public class BlogPostDatabaseManager {
                     blogPost.setTitle            (resultSet.getString(3));
                     blogPost.setSubtitle         (resultSet.getString(4));
                     blogPost.setMetaDescription  (resultSet.getString(5));
-                    blogPost.setBody             (resultSet.getString(6));
-                    blogPost.setDatePublished    (resultSet.getDate(7));
-                    blogPost.setDatetimePublished(resultSet.getDate(8));
-                    blogPost.setIsDisabled       (!resultSet.getBoolean(9));
-                    blogPost.setPriority         (resultSet.getInt(10));
+                    blogPost.setExcerpt          (resultSet.getString(6));
+                    blogPost.setBody             (resultSet.getString(7));
+                    blogPost.setDatePublished    (resultSet.getDate(8));
+                    blogPost.setDatetimePublished(resultSet.getDate(9));
+                    blogPost.setIsDisabled       (!resultSet.getBoolean(10));
+                    blogPost.setPriority         (resultSet.getInt(11));
 
                     selectBlogPostAuthors(blogPost, connectionManager);
 

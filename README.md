@@ -59,3 +59,4 @@ ssh-add ~/.ssh/id_rsa
 * 0.0.1.32 - Add UserManager.selectAllBlogAuthors()
 * 0.0.1.33 - Add author saving to edit post
 * 0.0.2.0 - Add User.java
+* 0.0.2.1 - Add excerpt

@@ -32,6 +32,7 @@ public class BlogPost {
     private Blog blog = null;
     private String title = null;
     private String subtitle = null;
+    private String excerpt = null;
     private String alternativeTitle = null;
     private String permalink = null;
     private String body = null;
@@ -352,8 +353,13 @@ public class BlogPost {
         this.body = body;
     }
 
+    public void setExcerpt(String excerpt) {
+        this.excerpt = excerpt;
+    }
+
     public String getExcerpt() {
-        return getExcerpt(EXCERPT_LENGTH);
+        //return getExcerpt(EXCERPT_LENGTH);
+        return this.excerpt;
     }
 
     public String getExcerpt(int length) {
